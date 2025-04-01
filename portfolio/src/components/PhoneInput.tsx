@@ -16,22 +16,31 @@ export default function PhoneInput({
         const [countries, setCountries] = useState<{ code: string; name: string; dialCode: string }[]>([]);
         const [error, setError] = useState('');
 
+   
+              
         useEffect(() => {
-                // Fetch from REST Countries API
                 fetch('https://restcountries.com/v3.1/all')
-                        .then((res) => res.json())
+                        .then((res) => {
+                                if (!res.ok) throw new Error('Failed to fetch countries');
+                                return res.json();
+                        })
                         .then((data) => {
                                 const list = data
                                         .filter((c: any) => c.idd?.root && c.cca2 && c.name?.common)
                                         .map((c: any) => ({
                                                 code: c.cca2,
                                                 name: c.name.common,
-                                                dialCode: `${c.idd.root}${(c.idd.suffixes?.[0] || '')}`,
+                                                dialCode: `${c.idd.root}${c.idd.suffixes?.[0] || ''}`,
                                         }))
                                         .sort((a: any, b: any) => a.name.localeCompare(b.name));
                                 setCountries(list);
+                        })
+                        .catch((err) => {
+                                console.error('PhoneInput error:', err);
+                                setCountries([]); // fallback to empty
                         });
         }, []);
+
 
         const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
                 const input = e.target.value;

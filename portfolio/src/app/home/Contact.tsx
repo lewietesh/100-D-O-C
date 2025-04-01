@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { ChevronDownIcon } from '@heroicons/react/16/solid';
 import { Field, Label, Switch } from '@headlessui/react';
-import PhoneInput from '../../components/PhoneInput'; // or wherever it's located
+import PhoneInput from '@/components/PhoneInput'; // or wherever it's located
 
 export default function Contact() {
   const [formData, setFormData] = useState({
