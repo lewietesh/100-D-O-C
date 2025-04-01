@@ -1,6 +1,13 @@
 import { Disclosure, DisclosureButton, DisclosurePanel, Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/react'
 import { Bars3Icon, BellIcon, XMarkIcon } from '@heroicons/react/24/outline'
 import Link from 'next/link';
+// import { useSession } from 'next-auth/react'; // if you're using NextAuth
+// import Link from 'next/link';
+
+
+
+const session = null; // Replace with useSession().data when auth is active
+
 
 const navigation = [
   { name: 'Home', href: '/', current: true },
@@ -74,48 +81,59 @@ export default function Navigation() {
             </button>
 
             {/* Profile dropdown */}
-            <Menu as="div" className="relative ml-3">
-              <div>
-                <MenuButton className="relative flex rounded-full bg-gray-800 text-sm focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800 focus:outline-hidden">
-                  <span className="absolute -inset-1.5" />
-                  <span className="sr-only">Open user menu</span>
-                  <img
-                    alt=""
-                    src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
-                    className="size-8 rounded-full"
-                  />
-                </MenuButton>
-              </div>
-              <MenuItems
-                transition
-                className="absolute right-0 z-10 mt-2 w-48 origin-top-right rounded-md bg-white py-1 ring-1 shadow-lg ring-black/5 transition focus:outline-hidden data-closed:scale-95 data-closed:transform data-closed:opacity-0 data-enter:duration-100 data-enter:ease-out data-leave:duration-75 data-leave:ease-in"
-              >
-                <MenuItem>
-                  <a
-                    href="#"
-                    className="block px-4 py-2 text-sm text-gray-700 data-focus:bg-gray-100 data-focus:outline-hidden"
-                  >
-                    Your Profile
-                  </a>
-                </MenuItem>
-                <MenuItem>
-                  <a
-                    href="#"
-                    className="block px-4 py-2 text-sm text-gray-700 data-focus:bg-gray-100 data-focus:outline-hidden"
-                  >
-                    Settings
-                  </a>
-                </MenuItem>
-                <MenuItem>
-                  <a
-                    href="#"
-                    className="block px-4 py-2 text-sm text-gray-700 data-focus:bg-gray-100 data-focus:outline-hidden"
-                  >
-                    Sign out
-                  </a>
-                </MenuItem>
-              </MenuItems>
-            </Menu>
+ 
+<div className="absolute inset-y-0 right-0 flex items-center pr-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0">
+  {session ? (
+    // Profile dropdown if logged in
+    <Menu as="div" className="relative ml-3">
+      <div>
+        <MenuButton className="relative flex rounded-full bg-gray-800 text-sm focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800 focus:outline-hidden">
+          <img
+            alt=""
+            src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e"
+            className="h-8 w-8 rounded-full"
+          />
+        </MenuButton>
+      </div>
+      <MenuItems
+        className="absolute right-0 z-10 mt-2 w-48 origin-top-right rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none"
+      >
+        <MenuItem>
+          <Link href="#" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+            Your Profile
+          </Link>
+        </MenuItem>
+        <MenuItem>
+          <Link href="#" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+            Settings
+          </Link>
+        </MenuItem>
+        <MenuItem>
+          <Link href="#" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+            Sign out
+          </Link>
+        </MenuItem>
+      </MenuItems>
+    </Menu>
+  ) : (
+    // Show login/signup if not logged in
+    <div className="flex gap-4">
+      <Link
+        href="/login"
+        className="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium"
+      >
+        Login
+      </Link>
+      <Link
+        href="/register"
+        className="text-white bg-indigo-600 hover:bg-indigo-700 px-3 py-2 rounded-md text-sm font-medium"
+      >
+        Sign Up
+      </Link>
+    </div>
+  )}
+</div>
+
           </div>
         </div>
       </div>
