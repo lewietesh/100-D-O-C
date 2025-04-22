@@ -71,7 +71,7 @@ export default function Navigation() {
 
             <Link
               href="/contact"
-              className="px-4 py-2 rounded-md action-button text-white hover:bg-cta-dark transition  font-semibold text-lg"
+              className="px-4 py-2 rounded-md bg-cta text-white hover:bg-cta-dark transition  font-semibold text-lg"
             >
               Get in Touch
             </Link>
