@@ -3,7 +3,6 @@
 import Hero from '@/components/Hero';
 import ProjectGrid from '@/app/projects/ProjectGrid';
 import Pagination from '@/components/Pagination';
-import Footer from '@/components/Footer';
 import { projects } from '@/data/projects';
 
 interface PageProps {
@@ -32,7 +31,6 @@ const ProjectsPage = ({ params }: PageProps) => {
         <ProjectGrid projects={paginatedProjects} />
         <Pagination currentPage={currentPage} totalPages={totalPages} basePath="/projects/page" />
       </main>
-      <Footer />
     </>
   );
 };

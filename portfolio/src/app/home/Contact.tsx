@@ -57,9 +57,9 @@ export default function Contact() {
   };
 
   return (
-    <div className="isolate bg-white px-6 py-24 sm:py-32 lg:px-8">
+    <div className="isolate bg-white px-6 py-5 sm:py-32 lg:px-8">
       <div className="mx-auto max-w-2xl text-center">
-        <h2 className="text-4xl font-semibold tracking-tight text-gray-900 sm:text-5xl">Contact Us</h2>
+        <h2 className="text-4xl font-semibold tracking-tight text-gray-900 sm:text-5xl">Get in Touch</h2>
         <p className="mt-2 text-lg text-gray-600">Reach out and we’ll get back to you shortly.</p>
       </div>
 
@@ -71,11 +71,14 @@ export default function Contact() {
           <Input label="First name" name="firstName" value={formData.firstName} onChange={handleChange} />
           <Input label="Last name" name="lastName" value={formData.lastName} onChange={handleChange} />
           <Input label="Email" name="email" type="email" value={formData.email} onChange={handleChange} full />
-          <PhoneInput
-            country={formData.country}
-            phone={formData.phone}
-            handleChange={handleChange}
-          />
+          <div className="sm:col-span-2">
+            <PhoneInput
+              country={formData.country}
+              phone={formData.phone}
+              handleChange={handleChange}
+            />
+          </div>
+
 
           <Textarea label="Message" name="message" value={formData.message} onChange={handleChange} full />
           <Field className="flex gap-x-4 sm:col-span-2">

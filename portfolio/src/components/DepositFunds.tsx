@@ -14,13 +14,26 @@ export default function DepositFunds() {
   });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    const { name, value, type, checked } = e.target;
-    setForm((prev) => ({
-      ...prev,
-      [name]: type === 'checkbox' ? checked : value,
-    }));
-  };
-
+        const target = e.target;
+      
+        const { name, value } = target;
+      
+        const newValue =
+          target instanceof HTMLInputElement && target.type === 'checkbox'
+            ? target.checked
+            : value;
+      
+        setForm((prev) => ({
+          ...prev,
+          [name]: newValue,
+        }));
+      };
+      
+      const handleCheckbox = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const { name, checked } = e.target;
+        setForm((prev) => ({ ...prev, [name]: checked }));
+      };
+      
   const handleSubmit = () => {
     alert(`Funds deposited for: ${form.name}`);
   };
@@ -57,13 +70,8 @@ export default function DepositFunds() {
           </div>
 
           <label className="flex items-center text-sm gap-2 mt-4">
-            <input
-              type="checkbox"
-              name="saveCard"
-              checked={form.saveCard}
-              onChange={handleChange}
-              className="accent-blue-500"
-            />
+          <input type="checkbox" onChange={handleCheckbox} />
+
             Use this card for future purchases
           </label>
 

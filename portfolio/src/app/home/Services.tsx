@@ -1,62 +1,89 @@
-import { ArrowPathIcon, CloudArrowUpIcon, FingerPrintIcon, LockClosedIcon } from '@heroicons/react/24/outline'
+'use client';
 
-const features = [
+import {
+  GlobeAltIcon,
+  CodeBracketIcon,
+  Squares2X2Icon,
+  DocumentTextIcon,
+  PencilIcon,
+  Cog6ToothIcon,
+} from '@heroicons/react/24/outline';
+
+const services = [
   {
-    name: 'Push to deploy',
+    name: 'Organizational Websites',
     description:
-      'Morbi viverra dui mi arcu sed. Tellus semper adipiscing suspendisse semper morbi. Odio urna massa nunc massa.',
-    icon: CloudArrowUpIcon,
+      'Designing sleek, responsive, and high-performance websites for businesses and institutions to establish a strong digital presence.',
+    icon: GlobeAltIcon,
   },
   {
-    name: 'SSL certificates',
+    name: 'Web Applications',
     description:
-      'Sit quis amet rutrum tellus ullamcorper ultricies libero dolor eget. Sem sodales gravida quam turpis enim lacus amet.',
-    icon: LockClosedIcon,
+      'Full-stack development of dynamic and scalable web applications tailored to your business logic and workflow.',
+    icon: CodeBracketIcon,
   },
   {
-    name: 'Simple queues',
+    name: 'Machine Learning Models',
     description:
-      'Quisque est vel vulputate cursus. Risus proin diam nunc commodo. Lobortis auctor congue commodo diam neque.',
-    icon: ArrowPathIcon,
+      'Building ML models for predictive analytics, recommendation systems, and automation of complex data workflows.',
+    icon: Squares2X2Icon,
   },
   {
-    name: 'Advanced security',
+    name: 'Research & Dissertation Help',
     description:
-      'Arcu egestas dolor vel iaculis in ipsum mauris. Tincidunt mattis aliquet hac quis. Id hac maecenas ac donec pharetra eget.',
-    icon: FingerPrintIcon,
+      'Assistance with technical research, including system design, implementation, modeling, and documentation support.',
+    icon: DocumentTextIcon,
   },
-]
+  {
+    name: 'Blog & Technical Writing',
+    description:
+      'Authoring blog posts, documentation, and guides that communicate complex technical concepts in simple terms.',
+    icon: PencilIcon,
+  },
+  {
+    name: 'System Integrations & APIs',
+    description:
+      'Custom API development and third-party integration with CRMs, ERPs, eTIMS systems and more.',
+    icon: Cog6ToothIcon,
+  },
+];
 
 export default function Services() {
   return (
-    <div className="bg-white py-24 sm:py-32">
+    <section className="bg-background-light dark:bg-background-dark py-24 sm:py-32">
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
-        <div className="mx-auto max-w-2xl lg:text-center">
-          <h2 className="text-base/7 font-semibold text-indigo-600">Deploy faster</h2>
-          <p className="mt-2 text-4xl font-semibold tracking-tight text-pretty text-gray-900 sm:text-5xl lg:text-balance">
-            Everything you need to deploy your app
+        {/* Header */}
+        <div className="mx-auto max-w-2xl text-center">
+          <h2 className="text-base font-semibold text-brand dark:text-brand-dark tracking-wide uppercase">
+            My Services
+          </h2>
+          <p className="mt-2 text-4xl font-bold tracking-tight text-text-light dark:text-text-dark sm:text-5xl">
+            Solutions built to elevate your business
           </p>
-          <p className="mt-6 text-lg/8 text-gray-600">
-            Quis tellus eget adipiscing convallis sit sit eget aliquet quis. Suspendisse eget egestas a elementum
-            pulvinar et feugiat blandit at. In mi viverra elit nunc.
+          <p className="mt-6 text-lg text-text-secondary dark:text-gray-400">
+            I offer end-to-end development services that cover every layer of your system — from frontend to backend, to ML models and infrastructure. Let’s build together.
           </p>
         </div>
-        <div className="mx-auto mt-16 max-w-2xl sm:mt-20 lg:mt-24 lg:max-w-4xl">
-          <dl className="grid max-w-xl grid-cols-1 gap-x-8 gap-y-10 lg:max-w-none lg:grid-cols-2 lg:gap-y-16">
-            {features.map((feature) => (
-              <div key={feature.name} className="relative pl-16">
-                <dt className="text-base/7 font-semibold text-gray-900">
-                  <div className="absolute top-0 left-0 flex size-10 items-center justify-center rounded-lg bg-indigo-600">
-                    <feature.icon aria-hidden="true" className="size-6 text-white" />
+
+        {/* Features List */}
+        <div className="mx-auto mt-16 max-w-2xl lg:max-w-5xl">
+          <dl className="grid grid-cols-1 gap-x-8 gap-y-12 sm:grid-cols-2 lg:grid-cols-3">
+            {services.map((service) => (
+              <div key={service.name} className="relative pl-16">
+                <dt className="text-lg font-semibold text-text-light dark:text-text-dark">
+                  <div className="absolute top-0 left-0 flex size-12 items-center justify-center rounded-lg bg-brand dark:bg-brand-dark">
+                    <service.icon className="h-6 w-6 text-white" aria-hidden="true" />
                   </div>
-                  {feature.name}
+                  {service.name}
                 </dt>
-                <dd className="mt-2 text-base/7 text-gray-600">{feature.description}</dd>
+                <dd className="mt-2 text-base text-text-secondary dark:text-gray-400">
+                  {service.description}
+                </dd>
               </div>
             ))}
           </dl>
         </div>
       </div>
-    </div>
-  )
+    </section>
+  );
 }

@@ -1,7 +1,6 @@
 // app/services/page.tsx
 import Hero from '@/components/Hero'
-import Navigation from '@/components/Navbar'
-import Footer from '@/components/Footer'
+
 
 // Service-specific layout components
 import PageLayout from '@/components/services/PageLayout'
@@ -22,7 +21,6 @@ const service = {
 export default function ServicesPage() {
         return (
                 <>
-                        <Navigation />
                         <Hero title={heroData.title} subtitle={heroData.subtitle} />
 
                         <main className="bg-white py-16">
@@ -30,7 +28,6 @@ export default function ServicesPage() {
                                         <PageLayout serviceId={serviceId} service={service} />        </div>
                         </main>
 
-                        <Footer />
                 </>
         )
 }

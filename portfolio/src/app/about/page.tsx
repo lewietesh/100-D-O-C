@@ -1,6 +1,4 @@
 import Hero from '@/components/Hero';
-import Navigation from '@/components/Navbar';
-import Footer from '@/components/Footer';
 import Team from '@/components/Team'; // ✅ Import the Team component
 import WhatWeDo from '@/components/WhatWeDo';
 
@@ -22,7 +20,6 @@ const aboutStats = [
 export default function AboutPage() {
   return (
     <>
-      <Navigation />
       <Hero
         title="Work with us"
         subtitle="Anim aute id magna aliqua ad ad non deserunt sunt. Qui irure qui lorem cupidatat commodo."
@@ -35,7 +32,6 @@ export default function AboutPage() {
       {/* ✅ Team Section */}
       <Team />
 
-      <Footer />
     </>
   );
 }

@@ -1,49 +1,53 @@
 'use client';
 
-import { FaFacebook, FaTwitter, FaInstagram, FaYoutube, FaWordpress } from 'react-icons/fa';
+import { FaFacebook, FaTwitter, FaInstagram, FaLinkedin, FaGithub } from 'react-icons/fa';
 
 const footerLinks = [
   {
-    heading: 'DevKinsta',
-    links: ['Homepage', 'Features', 'Download'],
+    heading: 'Explore',
+    links: ['Home', 'About', 'Services', 'Projects', 'Contact'],
   },
   {
-    heading: 'Get Support',
-    links: ['Support Forum', 'Documentation', 'FAQ'],
+    heading: 'Technologies',
+    links: ['React', 'Django', 'PHP', 'Python', 'Machine Learning'],
   },
   {
     heading: 'Resources',
-    links: ['Free Ebooks', 'Learn WordPress', 'Kinsta Blog'],
+    links: ['Blog', 'GitHub', 'Dissertation Help', 'API Integrations'],
   },
   {
-    heading: 'Kinsta',
-    links: ['Hosting Plans', 'Features', 'About Kinsta'],
+    heading: 'Contact',
+    links: ['lewismutembei001@gmail.com', '0795194449'],
   },
 ];
 
 const socialIcons = [
-  { icon: <FaWordpress />, href: '#' },
-  { icon: <FaFacebook />, href: '#' },
+  { icon: <FaGithub />, href: 'https://github.com/lewismutembei' },
+  { icon: <FaLinkedin />, href: 'https://linkedin.com/in/lewismutembei' },
   { icon: <FaTwitter />, href: '#' },
+  { icon: <FaFacebook />, href: '#' },
   { icon: <FaInstagram />, href: '#' },
-  { icon: <FaYoutube />, href: '#' },
 ];
 
 export default function Footer() {
   return (
-    <footer className="bg-[#0B0223] text-white py-16 px-6">
+    <footer className="bg-background-dark text-gray-300 py-16 px-6">
       <div className="max-w-7xl mx-auto">
-        {/* Top Grid */}
+        {/* Grid Links */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
           {footerLinks.map((section) => (
             <div key={section.heading}>
-              <h4 className="text-lg font-semibold mb-4">{section.heading}</h4>
-              <ul className="space-y-2 text-sm text-gray-300">
-                {section.links.map((link) => (
-                  <li key={link}>
-                    <a href="#" className="hover:text-white">
-                      {link}
-                    </a>
+              <h4 className="text-lg font-semibold mb-4 text-white">{section.heading}</h4>
+              <ul className="space-y-2 text-sm">
+                {section.links.map((link, i) => (
+                  <li key={i}>
+                    {link.startsWith('http') || link.includes('@') || /^\d{7,}$/.test(link) ? (
+                      <span className="block text-gray-400">{link}</span>
+                    ) : (
+                      <a href={`/${link.toLowerCase().replace(/ /g, '-')}`} className="hover:text-brand transition">
+                        {link}
+                      </a>
+                    )}
                   </li>
                 ))}
               </ul>
@@ -52,37 +56,33 @@ export default function Footer() {
         </div>
 
         {/* Divider */}
-        <div className="h-px bg-gray-800 my-12" />
+        <div className="h-px bg-gray-700 my-12" />
 
         {/* Bottom Row */}
-        {/* Bottom Row */}
-        <div className="flex flex-col md:flex-row justify-between items-center gap-6 text-sm text-gray-400 mt-12">
-          {/* Company Name */}
-          <div className="w-full md:w-auto text-center md:text-left">
-            <p className="font-bold text-white text-lg">Kinsta</p>
+        <div className="flex flex-col md:flex-row justify-between items-center gap-6 text-sm">
+          <div className="text-center md:text-left">
+            <p className="font-bold text-white text-lg">Lewis Mutembei</p>
+            <p className="text-gray-400 mt-1">Software Developer | Full Stack | ML & Web Systems</p>
           </div>
 
-          {/* Copyright */}
-          <div className="w-full text-center">
-            <p>© {new Date().getFullYear()} Kinsta Inc. All rights reserved.</p>
+          <div className="text-center">
+            <p>© {new Date().getFullYear()} Lewis Mutembei. All rights reserved.</p>
           </div>
 
-          {/* Social Icons */}
-          <div className="w-full md:w-auto flex justify-center md:justify-end space-x-4 text-xl">
+          <div className="flex justify-center md:justify-end space-x-4 text-xl">
             {socialIcons.map((s, i) => (
               <a
                 key={i}
                 href={s.href}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-gray-400 hover:text-white transition"
+                className="text-gray-400 hover:text-brand transition"
               >
                 {s.icon}
               </a>
             ))}
           </div>
         </div>
-
       </div>
     </footer>
   );
