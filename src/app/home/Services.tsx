@@ -1,4 +1,4 @@
-'use client';
+'use client'
 
 import {
   GlobeAltIcon,
@@ -7,7 +7,7 @@ import {
   DocumentTextIcon,
   PencilIcon,
   Cog6ToothIcon,
-} from '@heroicons/react/24/outline';
+} from '@heroicons/react/24/solid' // changed to solid for visibility
 
 const services = [
   {
@@ -46,44 +46,48 @@ const services = [
       'Custom API development and third-party integration with CRMs, ERPs, eTIMS systems and more.',
     icon: Cog6ToothIcon,
   },
-];
+]
 
 export default function Services() {
   return (
-    <section className="bg-background-light dark:bg-background-dark py-24 sm:py-32">
+    <section className="bg-secondary dark:bg-black transition-colors duration-300 py-24 sm:py-32">
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
         {/* Header */}
         <div className="mx-auto max-w-2xl text-center">
-          <h2 className="text-base font-semibold text-brand dark:text-brand-dark tracking-wide uppercase">
-            My Services
+          <h2 className="text-base font-semibold text-[var(--cta-button)] tracking-wide uppercase">
+            Services
           </h2>
-          <p className="mt-2 text-4xl font-bold tracking-tight text-text-light dark:text-text-dark sm:text-5xl">
+          <p className="mt-2 text-4xl font-bold tracking-tight text-[var(--foreground)] sm:text-5xl">
             Solutions built to elevate your business
           </p>
-          <p className="mt-6 text-lg text-text-secondary dark:text-gray-400">
+          <p className="mt-6 text-lg text-[var(--color-secondary)] dark:text-gray-400">
             I offer end-to-end development services that cover every layer of your system — from frontend to backend, to ML models and infrastructure. Let’s build together.
           </p>
         </div>
 
-        {/* Features List */}
-        <div className="mx-auto mt-16 max-w-2xl lg:max-w-5xl">
-          <dl className="grid grid-cols-1 gap-x-8 gap-y-12 sm:grid-cols-2 lg:grid-cols-3">
-            {services.map((service) => (
-              <div key={service.name} className="relative pl-16">
-                <dt className="text-lg font-semibold text-text-light dark:text-text-dark">
-                  <div className="absolute top-0 left-0 flex size-12 items-center justify-center rounded-lg bg-brand dark:bg-brand-dark">
-                    <service.icon className="h-6 w-6 text-white" aria-hidden="true" />
-                  </div>
-                  {service.name}
-                </dt>
-                <dd className="mt-2 text-base text-text-secondary dark:text-gray-400">
-                  {service.description}
-                </dd>
+        {/* Service Cards */}
+        <div className="mx-auto mt-20 grid max-w-5xl grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
+          {services.map((service) => (
+            <div
+              key={service.name}
+              className="rounded-xl bg-white-custom dark:bg-neutral-900 shadow-md transition hover:shadow-lg p-6"
+            >
+              <div className="flex justify-center mb-4">
+                <div className="flex items-center justify-center h-16 w-16 rounded-full bg-cta text-dark">
+                  <service.icon className="h-7 w-7" aria-hidden="true" />
+                </div>
               </div>
-            ))}
-          </dl>
+
+              <h3 className="text-xl font-semibold text-dark dark:text-[var(--foreground)] mb-2">
+                {service.name}
+              </h3>
+              <p className="text-dark dark:text-gray-400 text-sm leading-relaxed">
+                {service.description}
+              </p>
+            </div>
+          ))}
         </div>
       </div>
     </section>
-  );
+  )
 }

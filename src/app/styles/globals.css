@@ -35,7 +35,7 @@
   --color-cta: #ffd60a;            /* Brighter CTA */
   --color-white: #ffffff;
   --color-black: #000000;
-
+  --secondary-background: #fff1e6;
   --text-primary: #f3f4f6;
   --text-muted: #9ca3af;
 
@@ -95,6 +95,9 @@
 
 .border-custom {
   border-color: var(--color-border);
+}
+.background-cards{
+  background-color: var(--secondary-background);
 }
 
 @keyframes floatSlow {
