@@ -28,9 +28,7 @@ export default function AboutPage() {
       />
       <WhatWeDo />
 
-      
-      {/* ✅ Team Section */}
-      <Team />
+
 
     </>
   );

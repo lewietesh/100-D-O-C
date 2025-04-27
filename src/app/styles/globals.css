@@ -13,6 +13,7 @@
   --color-cta: #fcba04;            /* Warm yellow */
   --color-white: #ffffff;
   --color-black: #000000;
+  --color-silver: #e6beae;
 
   --text-primary: #111827;
   --text-muted: #6b7280;
@@ -42,6 +43,7 @@
   --nav-bg: #0f172a;
   --nav-text: #f3f4f6;
   --nav-hover: #1e293b;
+  --color-silver: #0a0a0a;
 }
 
 /* ✅ Utility Classes */
@@ -63,6 +65,11 @@
 
 .bg-cta {
   background-color: var(--color-cta);
+}
+.bg-silver{
+  background-color: var(--color-silver);
+  color: #0000;
+
 }
 
 .bg-nav {

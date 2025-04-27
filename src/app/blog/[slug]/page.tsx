@@ -13,7 +13,7 @@ export default async function BlogPostPage({
   const post = blogPosts.find((b) => b.slug === slug);
 
   if (!post) return notFound();
-  
+
   return (
     <BlogLayout>
       <article className="prose lg:prose-lg max-w-none">
@@ -21,7 +21,14 @@ export default async function BlogPostPage({
         <p className="text-sm text-gray-500">
           {new Date(post.date).toLocaleDateString()} • {post.category} • {post.comments} comments
         </p>
-        <img src={post.image} alt={post.title} className="rounded-md my-6" />
+        <div className="w-full flex justify-center my-6">
+          <img
+            src={post.image}
+            alt={post.title}
+            className="w-full max-w-2xl h-auto rounded-md object-cover"
+          />
+        </div>
+
         <p>{post.content}</p>
       </article>
 
