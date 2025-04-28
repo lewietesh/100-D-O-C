@@ -21,11 +21,11 @@ export default function About() {
 
           <p className="text-primary dark:text-gray-400 text-lg leading-relaxed mb-6">
 
-            A tech-savvy with over five years of experience developing  personal, organizational and enterprise web software solutions that are usable, interactive and scalable.
+            A tech-savvy with over five years of experience developing  unique, and standard web software solutions that are usable, interactive, reliable and scalable.
             
             <br></br>
             <br></br>
-            In addition, I have 8+ of experience as a content writer, with a focus on essays, research papers, dissertations, technical writing, and course projects.
+            In addition, I have 8+ of experience as a content writer, with a focus on essays, research papers, dissertations, technical writing and course projects.
             <br></br>
             <br></br>
             My mission is to help individuals and businesses develop, grow, and thrive whether through technology innovations or professionally written content.

@@ -67,7 +67,7 @@ export default function Blog() {
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent" />
               </div>
-              <div className="absolute bottom-0 w-full p-4 text-primary z-10">
+              <div className="absolute bottom-0 w-full p-4 text-muted z-10">
                 <div className="flex items-center text-sm space-x-2 mb-1">
                   <span>{post.date}</span>
                   <span>·</span>
@@ -82,7 +82,7 @@ export default function Blog() {
                     <span>{post.author.name}</span>
                   </div>
                 </div>
-                <h3 className="text-lg font-semibold leading-tight text-primary group-hover:underline">
+                <h3 className="text-lg font-semibold leading-tight text-white group-hover:underline">
                   {post.title}
                 </h3>
               </div>

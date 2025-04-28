@@ -22,7 +22,7 @@ function classNames(...classes: (string | boolean | undefined | null)[]): string
 
 export default function Navigation() {
   return (
-    <Disclosure as="nav" className="bg-dark-600 dark:bg-black-custom shadow-sm w-full">
+    <Disclosure as="nav" className="bg-alternate dark:bg-black-custom shadow-sm w-full">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="relative flex h-16 items-center justify-between">
           {/* Mobile menu button */}
@@ -54,8 +54,8 @@ export default function Navigation() {
                 aria-current={item.current ? 'page' : undefined}
                 className={classNames(
                   item.current
-                    ? 'bg-brand text-primary font-semibold'
-                    : 'font-semibold text-dark-900 dark:text-gray-300 hover:bg-surface-light dark:hover:bg-surface-dark hover:text-brand dark:hover:text-white',
+                    ? 'bg-brand text-amber-700 font-semibold'
+                    : 'font-semibold text-primary dark:text-gray-300 hover:bg-surface-light dark:hover:bg-surface-dark hover:text-brand dark:hover:text-white',
                   'rounded-md px-3 py-2 text-sm transition'
                 )}
               >
