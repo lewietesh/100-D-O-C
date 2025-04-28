@@ -50,7 +50,7 @@ const services = [
 
 export default function Services() {
   return (
-    <section className=" w-full overflow-x-hidden bg-secondary dark:bg-black transition-colors duration-300 py-24 sm:py-32">
+    <section className=" w-full overflow-x-hidden bg-secondary  transition-colors duration-300 py-24 sm:py-32">
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
         {/* Header */}
         <div className="mx-auto max-w-2xl text-center">
@@ -70,7 +70,7 @@ export default function Services() {
           {services.map((service) => (
             <div
               key={service.name}
-              className="rounded-xl bg-white-custom dark:bg-neutral-900 shadow-md transition hover:shadow-lg p-6"
+              className="rounded-xl bg-white-custom  shadow-md transition hover:shadow-lg p-6"
             >
               <div className="flex justify-center mb-4">
                 <div className="flex items-center justify-center h-16 w-16 rounded-full bg-cta text-dark">
@@ -78,10 +78,10 @@ export default function Services() {
                 </div>
               </div>
 
-              <h3 className="text-xl font-semibold text-dark dark:text-[var(--foreground)] mb-2">
+              <h3 className="text-xl font-semibold text-dark dark:text-white-800 mb-2">
                 {service.name}
               </h3>
-              <p className="text-dark dark:text-gray-400 text-sm leading-relaxed">
+              <p className="text-dark dark:text-white-600 text-sm leading-relaxed">
                 {service.description}
               </p>
             </div>

@@ -13,8 +13,8 @@ export default function HomePage() {
   return (
     <div>
     <Hero
-      title="Build with the Greats!"
-      subtitle="Empowering businesses through software — full-stack development, backend engineering, machine learning and automation solutions."
+      title="Build a Better Future, Together"
+      subtitle="Dedicated to problem solving and helping professionals build success stories in content writing, research and, software solutions. "
       links={[
         { name: 'View My Projects', href: '/projects' },
         { name: 'Request a Service', href: '/contact' },

@@ -42,12 +42,12 @@ const blogPosts = [
 
 export default function Blog() {
   return (
-    <section className=" w-full overflow-x-hidden bg-white py-24 px-6 sm:py-32">
+    <section className=" w-full overflow-x-hidden bg-secondary dark:bg-gray-900 py-24 px-6 sm:py-32">
       <div className="mx-auto max-w-7xl text-center">
-        <h2 className="text-4xl font-bold tracking-tight text-gray-900 sm:text-5xl mb-4">
-          From the blog
+        <h2 className="text-4xl font-bold tracking-tight text-primary sm:text-5xl mb-4">
+          Latest Blog
         </h2>
-        <p className="text-lg text-gray-600 mb-14">
+        <p className="text-lg text-primary mb-14">
           Learn how to grow your business with our expert advice.
         </p>
 
@@ -67,7 +67,7 @@ export default function Blog() {
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent" />
               </div>
-              <div className="absolute bottom-0 w-full p-4 text-white z-10">
+              <div className="absolute bottom-0 w-full p-4 text-primary z-10">
                 <div className="flex items-center text-sm space-x-2 mb-1">
                   <span>{post.date}</span>
                   <span>·</span>
@@ -82,7 +82,7 @@ export default function Blog() {
                     <span>{post.author.name}</span>
                   </div>
                 </div>
-                <h3 className="text-lg font-semibold leading-tight group-hover:underline">
+                <h3 className="text-lg font-semibold leading-tight text-primary group-hover:underline">
                   {post.title}
                 </h3>
               </div>

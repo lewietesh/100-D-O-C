@@ -20,13 +20,20 @@ export default function About() {
           </h2>
 
           <p className="text-primary dark:text-gray-400 text-lg leading-relaxed mb-6">
-            A results-driven software developer with 5+ years of experience building scalable web apps and systems for finance, e-commerce, and consultancy industries. My mission is to use clean code and thoughtful architecture to solve real-world business challenges.
-          </p>
 
-          <p className="text-primary dark:text-gray-400 text-lg leading-relaxed mb-6">
-            My expertise spans JavaScript, TypeScript, Python, Django, PHP, React, machine learning, and data analysis. I'm passionate about crafting both frontend and backend solutions, collaborating across teams, and delivering software that performs and lasts.
-          </p>
+            A tech-savvy with over five years of experience developing  personal, organizational and enterprise web software solutions that are usable, interactive and scalable.
+            
+            <br></br>
+            <br></br>
+            In addition, I have 8+ of experience as a content writer, with a focus on essays, research papers, dissertations, technical writing, and course projects.
+            <br></br>
+            <br></br>
+            My mission is to help individuals and businesses develop, grow, and thrive whether through technology innovations or professionally written content.
 
+
+
+            {/* Expect nothing less of flexible solutions unique software applications, blog platforms, online stores, organizational sites, data analysis, and machine learning models. */}
+          </p>
           {/* Call to Action */}
           <a
             href="/contact"

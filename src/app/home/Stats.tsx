@@ -49,7 +49,7 @@ export default function Stats() {
       />
 
       {/* Dark Overlay */}
-      <div className="absolute inset-0 bg-black bg-opacity-20 -z-10" />
+      <div className="absolute inset-0 bg-slate-900/60  -z-10" />
 
       <div className="relative mx-auto max-w-7xl px-6 lg:px-8">
         <dl className="grid grid-cols-1 gap-x-8 gap-y-16 text-center sm:grid-cols-2 lg:grid-cols-3">
@@ -62,7 +62,7 @@ export default function Stats() {
               viewport={{ once: true }}
               className="mx-auto flex max-w-xs flex-col gap-y-4"
             >
-              <dt className="text-base text-gray-300">{stat.name}</dt>
+              <dt className=" text-white dark:text-white">{stat.name}</dt>
               <dd className="order-first text-4xl font-bold tracking-tight text-white sm:text-5xl">
                 <Counter targetNumber={stat.value} />
               </dd>

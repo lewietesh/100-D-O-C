@@ -59,11 +59,11 @@ export default function Contact() {
   return (
     <div className="w-full isolate bg-alternate px-6 py-5 sm:py-32 lg:px-8 overflow-x-hidden">
       <div className="mx-auto max-w-2xl w-full text-center">
-        <h2 className="text-4xl font-semibold tracking-tight text-gray-900 sm:text-5xl">Get in Touch</h2>
-        <p className="mt-2 text-lg text-gray-600">Reach out and we’ll get back to you shortly.</p>
+        <h2 className="text-4xl font-semibold tracking-tight text-primary sm:text-5xl">Get in Touch</h2>
+        <p className="mt-2 text-lg text-primary">Reach out and we’ll get back to you shortly.</p>
       </div>
   
-      <form onSubmit={handleSubmit} className="mx-auto mt-8 max-w-xl w-full sm:mt-20 bg-white p-10 p-sm-20 rounded-md">
+      <form onSubmit={handleSubmit} className="mx-auto mt-8 max-w-xl w-full sm:mt-20 bg-white  p-10 p-sm-20 rounded-md">
         {error && <p className="text-red-500 text-center mb-4">{error}</p>}
         {submitted && <p className="text-green-600 text-center mb-4">Message sent successfully!</p>}
   

@@ -26,16 +26,16 @@
 
 /* 🌙 Dark Mode Overrides */
 .dark {
-  --background: #0a0a0a;
+  --background: #1c1c21;
   --foreground: #ededed;
 
   --color-primary: #4338ca;        /* Indigo 700 */
-  --color-secondary: #0a0a0a;      /* Slate 800 */
+  --color-secondary: #131316;      /* Slate 800 */
   --color-accent: #ff7849;         /* Lively orange */
   --color-muted: #9ca3af;          /* Gray 400 */
   --color-border: #334155;         /* Slate 700 */
   --color-cta: #ffd60a;            /* Brighter CTA */
-  --color-white: #ffffff;
+  --color-white: #6c757d;
   --color-black: #000000;
   --secondary-background: #fff1e6;
   --text-primary: #f3f4f6;
@@ -44,8 +44,8 @@
   --nav-bg: #0f172a;
   --nav-text: #f3f4f6;
   --nav-hover: #1e293b;
-  --color-silver: #0a0a0a;
-  --alternate-bg: #0a0a0a;
+  --color-silver: #1c1c21;
+  --alternate-bg: #1c1c21;
 
 }
 
