@@ -1,5 +1,6 @@
-import { projects } from '@/data/projects';
+// app/projects/[slug]/page.tsx
 import { notFound } from 'next/navigation';
+import { projects } from '@/data/projects';
 
 import ProjectLayout from '@/app/projects/ProjectLayout';
 import ProjectHeader from '@/app/projects/ProjectHeader';
@@ -9,17 +10,12 @@ import ProjectReviews from '@/app/projects/ProjectReviews';
 import CommentsSection from '@/components/CommentSection';
 import NewsletterSignup from '@/components/NewsletterSignup';
 
-// Pre-generate all slugs
-export async function generateStaticParams() {
-  return projects.map((project) => ({ slug: project.slug }));
-}
-
-// PAGE: correctly typed
-interface PageProps {
+interface ProjectDetailProps {
   params: { slug: string };
 }
 
-export default async function ProjectDetail({ params }: PageProps) {
+// Fix the function typing
+export default async function ProjectDetail({ params }: ProjectDetailProps) {
   const project = projects.find((p) => p.slug === params.slug);
 
   if (!project) {
@@ -36,4 +32,11 @@ export default async function ProjectDetail({ params }: PageProps) {
       <NewsletterSignup />
     </ProjectLayout>
   );
+}
+
+// `generateStaticParams` stays the same
+export async function generateStaticParams() {
+  return projects.map((project) => ({
+    slug: project.slug,
+  }));
 }

@@ -1,46 +1,40 @@
 import { notFound } from 'next/navigation';
-import Hero from '@/components/Hero';
-import ProjectGrid from '@/app/projects/ProjectGrid';
-import Pagination from '@/components/Pagination';
 import { projects } from '@/data/projects';
-
-export const dynamicParams = true; // ✅ allow dynamic params
+import ProjectLayout from '@/app/projects/ProjectLayout';
+import ProjectGrid from '@/app/projects/ProjectGrid';
 
 interface PageProps {
-  params: Promise<{ page: string }>;
+  params: { page: string };
 }
 
-export default async function ProjectsPage({ params }: PageProps) {
-  const { page } = await params; // ✅ correctly await props
-  const pageParam = (await params).page;
+const ITEMS_PER_PAGE = 6; // Number of projects per page
 
-  if (!pageParam || isNaN(Number(pageParam))) {
-    notFound();
+export async function generateStaticParams() {
+  const totalPages = Math.ceil(projects.length / ITEMS_PER_PAGE);
+
+  return Array.from({ length: totalPages }, (_, i) => ({
+    page: (i + 1).toString(),
+  }));
+}
+
+export default function ProjectsPage({ params }: PageProps) {
+  const pageNumber = parseInt(params.page, 10);
+
+  if (isNaN(pageNumber) || pageNumber < 1) {
+    notFound(); // Invalid page
   }
 
-  const currentPage = parseInt(pageParam, 10);
-  const projectsPerPage = 4;
-  const totalPages = Math.ceil(projects.length / projectsPerPage);
+  const start = (pageNumber - 1) * ITEMS_PER_PAGE;
+  const end = start + ITEMS_PER_PAGE;
+  const paginatedProjects = projects.slice(start, end);
 
-  if (currentPage < 1 || currentPage > totalPages) {
-    notFound();
+  if (paginatedProjects.length === 0) {
+    notFound(); // No projects found for this page
   }
-
-  const paginatedProjects = projects.slice(
-    (currentPage - 1) * projectsPerPage,
-    currentPage * projectsPerPage
-  );
 
   return (
-    <>
-      <Hero
-        title="My Projects"
-        subtitle="A showcase of my design, development, and creative work."
-      />
-      <main className="max-w-7xl mx-auto p-6">
-        <ProjectGrid projects={paginatedProjects} />
-        <Pagination currentPage={currentPage} totalPages={totalPages} basePath="/projects/page" />
-      </main>
-    </>
+    <ProjectLayout>
+      <ProjectGrid projects={paginatedProjects} />
+    </ProjectLayout>
   );
 }
