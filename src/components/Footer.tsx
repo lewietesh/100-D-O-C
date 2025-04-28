@@ -31,8 +31,8 @@ const socialIcons = [
 
 export default function Footer() {
   return (
-    <footer className="bg-silver  py-16 px-6">
-      <div className="max-w-7xl mx-auto">
+    <footer className="w-full bg-silver py-16 px-6 overflow-x-hidden">
+      <div className="max-w-7xl mx-auto w-full">
         {/* Grid Links */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
           {footerLinks.map((section) => (
@@ -54,21 +54,21 @@ export default function Footer() {
             </div>
           ))}
         </div>
-
+  
         {/* Divider */}
         <div className="h-px bg-gray-700 my-12" />
-
+  
         {/* Bottom Row */}
         <div className="flex flex-col md:flex-row justify-between items-center gap-6 text-sm">
           <div className="text-center md:text-left">
             <p className="font-bold text-primary text-lg">Lewis Mutembei</p>
             <p className="text-muted mt-1">Software Developer | Full Stack | ML & Web Systems</p>
           </div>
-
+  
           <div className="text-center">
             <p>© {new Date().getFullYear()} Lewis Mutembei. All rights reserved.</p>
           </div>
-
+  
           <div className="flex justify-center md:justify-end space-x-4 text-xl">
             {socialIcons.map((s, i) => (
               <a
@@ -86,4 +86,5 @@ export default function Footer() {
       </div>
     </footer>
   );
+  
 }

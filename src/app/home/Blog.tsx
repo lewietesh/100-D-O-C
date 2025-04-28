@@ -42,7 +42,7 @@ const blogPosts = [
 
 export default function Blog() {
   return (
-    <section className="bg-white py-24 px-6 sm:py-32">
+    <section className=" w-full overflow-x-hidden bg-white py-24 px-6 sm:py-32">
       <div className="mx-auto max-w-7xl text-center">
         <h2 className="text-4xl font-bold tracking-tight text-gray-900 sm:text-5xl mb-4">
           From the blog

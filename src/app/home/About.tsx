@@ -2,7 +2,7 @@
 
 export default function About() {
   return (
-    <section id="about" className="bg-secondary dark:bg-black transition-colors duration-300 py-16 px-6 lg:px-20">
+    <section id="about" className="w-full overflow-x-hidden bg-alternate dark:bg-black transition-colors duration-300 py-16 px-6 lg:px-20">
       <div className="max-w-7xl mx-auto flex flex-col lg:flex-row items-center gap-12">
         {/* Left: Image */}
         <div className="w-full lg:w-1/2">

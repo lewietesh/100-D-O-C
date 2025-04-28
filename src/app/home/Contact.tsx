@@ -57,16 +57,16 @@ export default function Contact() {
   };
 
   return (
-    <div className="isolate bg-white px-6 py-5 sm:py-32 lg:px-8">
-      <div className="mx-auto max-w-2xl text-center">
+    <div className="w-full isolate bg-alternate px-6 py-5 sm:py-32 lg:px-8 overflow-x-hidden">
+      <div className="mx-auto max-w-2xl w-full text-center">
         <h2 className="text-4xl font-semibold tracking-tight text-gray-900 sm:text-5xl">Get in Touch</h2>
         <p className="mt-2 text-lg text-gray-600">Reach out and we’ll get back to you shortly.</p>
       </div>
-
-      <form onSubmit={handleSubmit} className="mx-auto mt-16 max-w-xl sm:mt-20">
+  
+      <form onSubmit={handleSubmit} className="mx-auto mt-8 max-w-xl w-full sm:mt-20 bg-white p-10 p-sm-20 rounded-md">
         {error && <p className="text-red-500 text-center mb-4">{error}</p>}
         {submitted && <p className="text-green-600 text-center mb-4">Message sent successfully!</p>}
-
+  
         <div className="grid grid-cols-1 gap-x-8 gap-y-6 sm:grid-cols-2">
           <Input label="First name" name="firstName" value={formData.firstName} onChange={handleChange} />
           <Input label="Last name" name="lastName" value={formData.lastName} onChange={handleChange} />
@@ -78,8 +78,7 @@ export default function Contact() {
               handleChange={handleChange}
             />
           </div>
-
-
+  
           <Textarea label="Message" name="message" value={formData.message} onChange={handleChange} full />
           <Field className="flex gap-x-4 sm:col-span-2">
             <div className="flex h-6 items-center">
@@ -104,11 +103,11 @@ export default function Contact() {
             </Label>
           </Field>
         </div>
-
+  
         <div className="mt-10">
           <button
             type="submit"
-            className="block w-full rounded-md bg-indigo-600 px-3.5 py-2.5 text-center text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+            className="block w-full rounded-md bg-cta px-3.5 py-2.5 text-center text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
           >
             Let's talk
           </button>
@@ -116,6 +115,7 @@ export default function Contact() {
       </form>
     </div>
   );
+  
 }
 
 function Input({ label, name, value, onChange, type = 'text', full = false }: any) {

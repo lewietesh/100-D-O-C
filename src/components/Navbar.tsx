@@ -22,8 +22,8 @@ function classNames(...classes: (string | boolean | undefined | null)[]): string
 
 export default function Navigation() {
   return (
-    <Disclosure as="nav" className="white-background dark:bg-black-custom shadow-sm">
-      <div className=" mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+    <Disclosure as="nav" className="bg-dark-600 dark:bg-black-custom shadow-sm w-full">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="relative flex h-16 items-center justify-between">
           {/* Mobile menu button */}
           <div className="absolute inset-y-0 left-0 flex items-center sm:hidden">
@@ -33,9 +33,9 @@ export default function Navigation() {
               <XMarkIcon className="hidden size-6 group-data-open:block" aria-hidden="true" />
             </DisclosureButton>
           </div>
-
-          {/* Logo & navigation */}
-          <div className="flex flex-1 items-center justify-center sm:items-stretch sm:justify-start">
+  
+          {/* Logo */}
+          <div className="flex flex-1 items-center justify-center sm:justify-start">
             <div className="flex shrink-0 items-center">
               <img
                 alt="Logo"
@@ -43,43 +43,46 @@ export default function Navigation() {
                 className="h-8 w-auto"
               />
             </div>
-            <div className="hidden sm:ml-6 sm:flex sm:space-x-4">
-              {navigation.map((item) => (
-                <Link
-                  key={item.name}
-                  href={item.href}
-                  aria-current={item.current ? 'page' : undefined}
-                  className={classNames(
-                    item.current
-                      ? 'bg-brand text-brand font-semibold text-xl'
-                      : 'font-semibold text-xl text-gray-700 dark:text-gray-300 hover:bg-surface-light dark:hover:bg-surface-dark hover:text-brand dark:hover:text-white',
-                    'rounded-md px-3 py-2 text-sm  transition'
-                  )}
-                >
-                  {item.name}
-                </Link>
-              ))}
-            </div>
           </div>
-
-          {/* Notification & CTA */}
-          <div className="absolute inset-y-0 right-0 flex items-center gap-4 pr-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0">
- 
-
-              {/* 🌗 This line is for dark mode toggle */}
-  <ThemeToggle />
-
+  
+          {/* Navigation links */}
+          <div className="hidden sm:flex sm:space-x-6 ml-6">
+            {navigation.map((item) => (
+              <Link
+                key={item.name}
+                href={item.href}
+                aria-current={item.current ? 'page' : undefined}
+                className={classNames(
+                  item.current
+                    ? 'bg-brand text-primary font-semibold'
+                    : 'font-semibold text-dark-900 dark:text-gray-300 hover:bg-surface-light dark:hover:bg-surface-dark hover:text-brand dark:hover:text-white',
+                  'rounded-md px-3 py-2 text-sm transition'
+                )}
+              >
+                {item.name}
+              </Link>
+            ))}
+          </div>
+  
+          {/* Right Side: Theme Toggle and CTA */}
+          <div className="absolute inset-y-0 right-0 flex items-center gap-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0">
+            {/* Theme Toggle */}
+            <div className="flex-shrink-0">
+              <ThemeToggle />
+            </div>
+  
+            {/* CTA Button */}
             <Link
               href="/contact"
-              className="px-4 py-2 rounded-md bg-cta text-white hover:bg-cta-dark transition  font-semibold text-lg"
+              className="hidden sm:block px-4 py-2 rounded-md bg-cta text-white hover:bg-cta-dark transition font-semibold text-sm"
             >
               Get in Touch
             </Link>
           </div>
         </div>
       </div>
-
-      {/* Mobile Nav */}
+  
+      {/* Mobile Menu Panel */}
       <DisclosurePanel className="sm:hidden">
         <div className="space-y-1 px-2 pt-2 pb-3">
           {navigation.map((item) => (
@@ -98,11 +101,11 @@ export default function Navigation() {
               {item.name}
             </DisclosureButton>
           ))}
-
+  
           <DisclosureButton
             as="a"
             href="/contact"
-            className="block w-full text-left mt-2 rounded-md action-button text-white  px-3 py-2 text-base font-semibold hover:bg-cta-dark transition"
+            className="block w-full text-left mt-2 rounded-md bg-cta text-white px-3 py-2 text-base font-semibold hover:bg-cta-dark transition"
           >
             Get in Touch
           </DisclosureButton>
@@ -110,4 +113,5 @@ export default function Navigation() {
       </DisclosurePanel>
     </Disclosure>
   );
+  
 }

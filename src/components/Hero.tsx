@@ -26,7 +26,7 @@ export default function Hero({
   }, [])
 
   return (
-    <section className="relative isolate overflow-hidden bg-background-light dark:bg-background-dark py-20 sm:py-28">
+    <section className="relative w-full isolate overflow-hidden bg-background-light dark:bg-background-dark py-20 sm:py-28">
       {/* 🌆 Background */}
       <div className="absolute inset-0 -z-20">
         <img

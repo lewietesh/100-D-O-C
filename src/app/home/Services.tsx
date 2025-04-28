@@ -50,7 +50,7 @@ const services = [
 
 export default function Services() {
   return (
-    <section className="bg-secondary dark:bg-black transition-colors duration-300 py-24 sm:py-32">
+    <section className=" w-full overflow-x-hidden bg-secondary dark:bg-black transition-colors duration-300 py-24 sm:py-32">
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
         {/* Header */}
         <div className="mx-auto max-w-2xl text-center">

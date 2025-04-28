@@ -1,3 +1,4 @@
+//src/app
 import { blogPosts } from '@/data/blogs';
 import BlogLayout from '../BlogLayout';
 import CommentsSection from '@/components/CommentSection';

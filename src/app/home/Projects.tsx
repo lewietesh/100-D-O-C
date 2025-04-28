@@ -64,21 +64,21 @@ export default function Projects() {
       : projects.filter((p) => p.category === activeFilter);
 
   return (
-    <section id="projects" className="py-20 px-6 bg-background-light dark:bg-background-dark text-text-light dark:text-text-dark">
+    <section id="projects" className="w-full overflow-x-hidden py-20 px-6 bg-alternate dark:bg-background-dark text-text-light dark:text-text-dark">
       <div className="max-w-7xl mx-auto">
         <h2 className="text-4xl font-bold text-center mb-10 text-brand dark:text-brand-dark">
           Featured Projects
         </h2>
 
         {/* Filter Buttons */}
-        <div className="flex justify-center flex-wrap gap-4 mb-12">
+        <div className="flex justify-center content-around flex-wrap gap-4 mb-12">
           {filters.map((filter) => (
             <button
               key={filter}
               onClick={() => setActiveFilter(filter)}
               className={`px-5 py-2 rounded-full border transition text-sm font-medium ${
                 activeFilter === filter
-                  ? 'bg-brand text-white border-brand'
+                  ? 'bg-cta text-white border-brand'
                   : 'bg-surface-light dark:bg-surface-dark text-text-secondary hover:bg-gray-200 dark:hover:bg-surface-dark/80'
               }`}
             >
@@ -95,7 +95,7 @@ export default function Projects() {
               href={project.url}
               target="_blank"
               rel="noopener noreferrer"
-              className="group cursor-pointer overflow-hidden rounded-lg shadow hover:shadow-lg transition bg-surface-light dark:bg-surface-dark"
+              className="group cursor-pointer overflow-hidden rounded-lg shadow hover:shadow-lg transition bg-white-custom dark:bg-surface-dark"
             >
               <img
                 src={project.image}

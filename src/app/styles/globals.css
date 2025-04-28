@@ -17,6 +17,7 @@
 
   --text-primary: #111827;
   --text-muted: #6b7280;
+  --alternate-bg: #e9ecef;
 
   --nav-bg: #ffffff;
   --nav-text: #111827;
@@ -29,7 +30,7 @@
   --foreground: #ededed;
 
   --color-primary: #4338ca;        /* Indigo 700 */
-  --color-secondary: #1e293b;      /* Slate 800 */
+  --color-secondary: #0a0a0a;      /* Slate 800 */
   --color-accent: #ff7849;         /* Lively orange */
   --color-muted: #9ca3af;          /* Gray 400 */
   --color-border: #334155;         /* Slate 700 */
@@ -44,6 +45,8 @@
   --nav-text: #f3f4f6;
   --nav-hover: #1e293b;
   --color-silver: #0a0a0a;
+  --alternate-bg: #0a0a0a;
+
 }
 
 /* ✅ Utility Classes */
@@ -82,6 +85,9 @@
 
 .bg-black-custom {
   background-color: var(--color-black);
+}
+.bg-alternate{
+  background-color: var(--alternate-bg);
 }
 
 .text-primary {
