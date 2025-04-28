@@ -7,21 +7,18 @@ interface PageProps {
   params: { page: string };
 }
 
-const ITEMS_PER_PAGE = 6; // Number of projects per page
+const ITEMS_PER_PAGE = 6;
 
 export async function generateStaticParams() {
   const totalPages = Math.ceil(projects.length / ITEMS_PER_PAGE);
-
-  return Array.from({ length: totalPages }, (_, i) => ({
-    page: (i + 1).toString(),
-  }));
+  return Array.from({ length: totalPages }, (_, i) => ({ page: (i + 1).toString() }));
 }
 
-export default function ProjectsPage({ params }: PageProps) {
+export default async function ProjectsPage({ params }: PageProps) {
   const pageNumber = parseInt(params.page, 10);
 
   if (isNaN(pageNumber) || pageNumber < 1) {
-    notFound(); // Invalid page
+    notFound();
   }
 
   const start = (pageNumber - 1) * ITEMS_PER_PAGE;
@@ -29,7 +26,7 @@ export default function ProjectsPage({ params }: PageProps) {
   const paginatedProjects = projects.slice(start, end);
 
   if (paginatedProjects.length === 0) {
-    notFound(); // No projects found for this page
+    notFound();
   }
 
   return (
