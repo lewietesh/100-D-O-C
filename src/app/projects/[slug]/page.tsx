@@ -1,4 +1,4 @@
-// app/projects/[slug]/page.tsx
+//src/app/projects/[slug]/page.tsx
 import { notFound } from 'next/navigation';
 import { projects } from '@/data/projects';
 
@@ -10,13 +10,16 @@ import ProjectReviews from '@/app/projects/ProjectReviews';
 import CommentsSection from '@/components/CommentSection';
 import NewsletterSignup from '@/components/NewsletterSignup';
 
-interface ProjectDetailProps {
-  params: { slug: string };
-}
+// Static generation enforced
+export const dynamic = 'force-static';
 
-// Fix the function typing
-export default async function ProjectDetail({ params }: ProjectDetailProps) {
-  const project = projects.find((p) => p.slug === params.slug);
+export default async function ProjectDetail({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}) {
+  const { slug } = await params;
+  const project = projects.find((p) => p.slug === slug);
 
   if (!project) {
     notFound();
@@ -34,7 +37,6 @@ export default async function ProjectDetail({ params }: ProjectDetailProps) {
   );
 }
 
-// `generateStaticParams` stays the same
 export async function generateStaticParams() {
   return projects.map((project) => ({
     slug: project.slug,

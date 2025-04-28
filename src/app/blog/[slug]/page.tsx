@@ -1,4 +1,4 @@
-//src/app
+//src/app/blog/[slug]/page.tsx
 import { blogPosts } from '@/data/blogs';
 import BlogLayout from '../BlogLayout';
 import CommentsSection from '@/components/CommentSection';
