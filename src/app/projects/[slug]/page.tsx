@@ -1,23 +1,27 @@
 // app/projects/[slug]/page.tsx
-
 import { projects } from '@/data/projects';
 import { notFound } from 'next/navigation';
 
-import ProjectLayout from '../ProjectLayout';
-import ProjectHeader from '../ProjectHeader';
-import ProjectImage from '../ProjectImage';
-import ProjectMeta from '../ProjectMeta';
-import ProjectReviews from '../ProjectReviews';
+import ProjectLayout from '@/app/projects/ProjectLayout';
+import ProjectHeader from '@/app/projects/ProjectHeader';
+import ProjectImage from '@/app/projects/ProjectImage';
+import ProjectMeta from '@/app/projects/ProjectMeta';
+import ProjectReviews from '@/app/projects/ProjectReviews';
 import CommentsSection from '@/components/CommentSection';
 import NewsletterSignup from '@/components/NewsletterSignup';
 
+// Pre-generate all slugs
 export async function generateStaticParams() {
   return projects.map((project) => ({ slug: project.slug }));
 }
 
-export default function ProjectDetail({ params }: { params: { slug: string } }) {
+// Make page component async
+export default async function ProjectDetail({ params }: { params: { slug: string } }) {
   const project = projects.find((p) => p.slug === params.slug);
-  if (!project) return notFound();
+
+  if (!project) {
+    notFound(); // Triggers 404 page
+  }
 
   return (
     <ProjectLayout>
