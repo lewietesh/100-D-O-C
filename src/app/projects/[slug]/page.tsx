@@ -1,4 +1,3 @@
-// app/projects/[slug]/page.tsx
 import { projects } from '@/data/projects';
 import { notFound } from 'next/navigation';
 
@@ -15,12 +14,16 @@ export async function generateStaticParams() {
   return projects.map((project) => ({ slug: project.slug }));
 }
 
-// Make page component async
-export default async function ProjectDetail({ params }: { params: { slug: string } }) {
+// PAGE: correctly typed
+interface PageProps {
+  params: { slug: string };
+}
+
+export default async function ProjectDetail({ params }: PageProps) {
   const project = projects.find((p) => p.slug === params.slug);
 
   if (!project) {
-    notFound(); // Triggers 404 page
+    notFound();
   }
 
   return (

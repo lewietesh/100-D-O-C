@@ -1,19 +1,21 @@
-// app/projects/page/[page]/page.tsx
-'use client';
-
 import { notFound } from 'next/navigation';
-import { useParams } from 'next/navigation';
 import Hero from '@/components/Hero';
 import ProjectGrid from '@/app/projects/ProjectGrid';
 import Pagination from '@/components/Pagination';
 import { projects } from '@/data/projects';
 
-export default function ProjectsPage() {
-  const params = useParams<{ page: string }>();
-  const pageParam = params.page;
+export const dynamicParams = true; // ✅ allow dynamic params
+
+interface PageProps {
+  params: Promise<{ page: string }>;
+}
+
+export default async function ProjectsPage({ params }: PageProps) {
+  const { page } = await params; // ✅ correctly await props
+  const pageParam = (await params).page;
 
   if (!pageParam || isNaN(Number(pageParam))) {
-    notFound(); // invalid page, show 404
+    notFound();
   }
 
   const currentPage = parseInt(pageParam, 10);
@@ -21,7 +23,7 @@ export default function ProjectsPage() {
   const totalPages = Math.ceil(projects.length / projectsPerPage);
 
   if (currentPage < 1 || currentPage > totalPages) {
-    notFound(); // page out of range
+    notFound();
   }
 
   const paginatedProjects = projects.slice(
