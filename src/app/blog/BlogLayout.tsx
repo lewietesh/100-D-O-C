@@ -1,3 +1,4 @@
+//app/blog/BlogLayout.tsx
 import Hero from '@/components/Hero';
 
 import { ReactNode } from 'react';

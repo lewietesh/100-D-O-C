@@ -1,23 +1,10 @@
 'use client';
 
 import OrderCard from '@/components/OrderCard';
-import { Order } from '@/data/orders';
+import {orders}  from '@/data/orders';
 import { useState } from 'react';
 import PlaceOrderModal from '@/components/PlaceOrderModal'; // we'll build this
 
-const orders: Order[] = [
-  {
-    id: '7276083',
-    topic: 'Computer Networking',
-    dueDate: '03 Apr 2025',
-    price: '$48.00',
-    status: '1 bid',
-    assignedWriter: null,
-    subject: 'IT',
-    instructions: '',
-  },
-  // more mock orders...
-];
 
 export default function OrdersSection() {
   const [showForm, setShowForm] = useState(false);

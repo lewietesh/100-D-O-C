@@ -34,7 +34,7 @@ export default function RootLayout({
         {/* ✅ Theme support for class-based dark mode */}
         <AppProviders>
           <Navigation />
-          {children}
+            {children}
           <Footer />
         </AppProviders>
       </body>
