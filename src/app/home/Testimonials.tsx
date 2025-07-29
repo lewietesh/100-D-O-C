@@ -3,44 +3,46 @@
 import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
-const testimonials = [
-  {
-    name: 'Judith Black',
-    role: 'CEO of Workcation',
-    image: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
-    quote:
-      '“Lorem ipsum dolor sit amet consectetur adipisicing elit. Nemo expedita voluptas culpa sapiente alias molestiae. Numquam corrupti in laborum sed rerum et corporis.”',
-    companyLogo: 'https://tailwindcss.com/plus-assets/img/logos/workcation-logo-indigo-600.svg',
-  },
-  {
-    name: 'Michael Lee',
-    role: 'CTO of InnovateX',
-    image: 'https://randomuser.me/api/portraits/men/32.jpg',
-    quote:
-      '“This platform has transformed the way we connect with clients. The design is sleek and the user experience is unmatched.”',
-    companyLogo: 'https://tailwindcss.com/plus-assets/img/logos/tuple-logo-indigo-600.svg',
-  },
-  {
-    name: 'Sofia Hernandez',
-    role: 'Freelancer & UX Designer',
-    image: 'https://randomuser.me/api/portraits/women/44.jpg',
-    quote:
-      '“Clean UI, fast performance, and a team that listens. This is by far the best experience I’ve had in years.”',
-    companyLogo: 'https://tailwindcss.com/plus-assets/img/logos/statickit-logo-indigo-600.svg',
-  },
-];
+interface ApiTestimonial {
+  id: string;
+  content: string;
+  project_title: string;
+  service_name: string;
+  featured: boolean;
+  date_created: string;
+}
+
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000';
 
 export default function Testimonials() {
+  const [testimonials, setTestimonials] = useState<ApiTestimonial[]>([]);
   const [index, setIndex] = useState(0);
+
+  useEffect(() => {
+    async function fetchTestimonials() {
+      try {
+        const res = await fetch(`${API_BASE_URL}/api/v1/business/testimonials/?approved=true&limit=5&ordering=-date_created`);
+        const data = await res.json();
+        setTestimonials(data.results || []);
+      } catch (error) {
+        console.error('Failed to load testimonials', error);
+      }
+    }
+
+    fetchTestimonials();
+  }, []);
 
   useEffect(() => {
     const interval = setInterval(() => {
       setIndex((prev) => (prev + 1) % testimonials.length);
     }, 5000);
     return () => clearInterval(interval);
-  }, []);
+  }, [testimonials.length]);
 
+  if (testimonials.length === 0) return null;
   const t = testimonials[index];
+
+  const placeholderImg = `https://api.dicebear.com/7.x/avataaars/svg?seed=${t.project_title?.split(' ')[0].toLowerCase()}`;
 
   return (
     <section className="w-full relative isolate overflow-hidden bg-silver px-6 py-20 sm:py-16 lg:px-8">
@@ -56,22 +58,21 @@ export default function Testimonials() {
             exit={{ opacity: 0, y: -20 }}
             transition={{ duration: 0.6, ease: 'easeInOut' }}
           >
-            <img alt="" src={t.companyLogo} className="mx-auto h-12 mb-8" />
-            <blockquote className="text-xl font-semibold text-gray-900 sm:text-2xl">
-              <p>{t.quote}</p>
+            <blockquote className="text-xl font-semibold text-gray-900 sm:text-2xl mb-4">
+              <p>{t.content}</p>
             </blockquote>
             <figcaption className="mt-10">
               <img
-                src={t.image}
-                alt={t.name}
+                src={placeholderImg}
+                alt={t.project_title}
                 className="mx-auto size-12 rounded-full object-cover"
               />
               <div className="mt-4 flex items-center justify-center space-x-3 text-base">
-                <div className="font-semibold text-gray-900">{t.name}</div>
+                <div className="font-semibold text-gray-900">{t.project_title}</div>
                 <svg width={3} height={3} viewBox="0 0 2 2" aria-hidden="true" className="fill-gray-900">
                   <circle r={1} cx={1} cy={1} />
                 </svg>
-                <div className="text-gray-600">{t.role}</div>
+                <div className="text-gray-600">{t.service_name}</div>
               </div>
             </figcaption>
           </motion.div>

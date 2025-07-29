@@ -1,58 +1,70 @@
 'use client';
 
+import { useEffect, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 
-// Simulated blog post data (can later come from CMS or Markdown)
-const blogPosts = [
-  {
-    id: 1,
-    title: 'Boost your conversion rate',
-    slug: 'boost-your-conversion-rate',
-    date: 'Mar 16, 2020',
-    author: {
-      name: 'Michael Foster',
-      imageUrl: 'https://randomuser.me/api/portraits/men/32.jpg',
-    },
-    imageUrl: 'https://images.unsplash.com/photo-1737305457496-dc7503cdde1e?q=80&w=1964&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
-  },
-  {
-    id: 2,
-    title: 'How to use search engine optimization to drive sales',
-    slug: 'seo-to-drive-sales',
-    date: 'Mar 10, 2020',
-    author: {
-      name: 'Lindsay Walton',
-      imageUrl: 'https://randomuser.me/api/portraits/women/44.jpg',
-    },
-    imageUrl: 'https://images.unsplash.com/photo-1742275346989-2d696fa2c9b3?q=80&w=1931&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
-  },
-  {
-    id: 3,
-    title: 'Improve your customer experience',
-    slug: 'improve-customer-experience',
-    date: 'Feb 12, 2020',
-    author: {
-      name: 'Tom Cook',
-      imageUrl: 'https://randomuser.me/api/portraits/men/85.jpg',
-    },
-    imageUrl: 'https://images.unsplash.com/photo-1742505709397-7d0cdeaaaf4b?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
-  },
-];
+interface Author {
+  full_name: string;
+}
+
+interface Tag {
+  id: number;
+  name: string;
+  slug: string;
+  color?: string;
+}
+
+interface ApiBlogPost {
+  id: string;
+  title: string;
+  slug: string;
+  excerpt: string;
+  image_url: string;
+  author_name: string;
+  tags: Tag[];
+  date_published: string;
+  category: string;
+  featured: boolean;
+  comments_count: number;
+  reading_time: number;
+}
+
+const API_BASE_URL = process.env.API_BASE_URL || "http://127.0.0.1:8000";
 
 export default function Blog() {
+  const [posts, setPosts] = useState<ApiBlogPost[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    async function fetchBlogPosts() {
+      try {
+        const res = await fetch(`${API_BASE_URL}/api/v1/blog/posts/?status=published&ordering=-date_published&limit=3`);
+        if (!res.ok) throw new Error('Failed to fetch blog posts');
+        const data = await res.json();
+        setPosts(data.results || data); // support paginated & non-paginated
+      } catch (err) {
+        setError((err as Error).message);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchBlogPosts();
+  }, []);
+
+  if (loading) return <div className="py-24 text-center text-primary">Loading blog posts...</div>;
+  if (error) return <div className="py-24 text-center text-red-500">{error}</div>;
+
   return (
-    <section className=" w-full overflow-x-hidden bg-secondary dark:bg-gray-900 py-24 px-6 sm:py-32">
+    <section className="w-full overflow-x-hidden bg-secondary dark:bg-gray-900 py-24 px-6 sm:py-32">
       <div className="mx-auto max-w-7xl text-center">
-        <h2 className="text-4xl font-bold tracking-tight text-primary sm:text-5xl mb-4">
-          Latest Blog
-        </h2>
-        <p className="text-lg text-primary mb-14">
-          Learn how to grow your business with our expert advice.
-        </p>
+        <h2 className="text-4xl font-bold tracking-tight text-primary sm:text-5xl mb-4">Latest Blog</h2>
+        <p className="text-lg text-primary mb-14">Learn how to grow your business with our expert advice.</p>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10">
-          {blogPosts.map((post) => (
+          {posts.map((post) => (
             <Link
               key={post.id}
               href={`/blog/${post.slug}`}
@@ -60,7 +72,7 @@ export default function Blog() {
             >
               <div className="relative h-60">
                 <Image
-                  src={post.imageUrl}
+                  src={post.image_url || 'https://via.placeholder.com/600x400'}
                   alt={post.title}
                   fill
                   className="object-cover"
@@ -68,34 +80,24 @@ export default function Blog() {
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent" />
               </div>
               <div className="absolute bottom-0 w-full p-4 text-muted z-10">
-                <div className="flex items-center text-sm space-x-2 mb-1">
-                  <span>{post.date}</span>
+                <div className="flex items-center text-sm space-x-2 mb-1 text-gray-300">
+                  <span>{new Date(post.date_published).toLocaleDateString()}</span>
                   <span>·</span>
-                  <div className="flex items-center space-x-2">
-                    <Image
-                      src={post.author.imageUrl}
-                      alt={post.author.name}
-                      width={20}
-                      height={20}
-                      className="rounded-full"
-                    />
-                    <span>{post.author.name}</span>
-                  </div>
+                  <span>{post.author_name}</span>
                 </div>
-                <h3 className="text-lg font-semibold leading-tight text-white group-hover:underline">
-                  {post.title}
-                </h3>
+                <h3 className="text-lg font-semibold leading-tight text-white group-hover:underline">{post.title}</h3>
+                <p className="text-sm text-gray-300 line-clamp-2 opacity-90">{post.excerpt}</p>
               </div>
             </Link>
           ))}
         </div>
 
-        <div className="mt-5">
-          <Link
-            href="/blog"
-            className="text-indigo-600 font-medium hover:underline"
-          >
-            View all blog posts →
+        <div className="mt-12">
+          <Link href="/blog" className="text-indigo-600 font-medium hover:underline inline-flex items-center group">
+            View all blog posts
+            <svg className="ml-2 w-4 h-4 transition-transform group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+            </svg>
           </Link>
         </div>
       </div>

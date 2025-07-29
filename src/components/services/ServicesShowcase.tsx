@@ -1,3 +1,4 @@
+//src/components/services/ServicesShowcase.tsx
 'use client'
 
 import { useState, useEffect } from 'react'
@@ -7,10 +8,36 @@ import {
   GlobeAltIcon,
   DocumentTextIcon,
   CpuChipIcon,
-  PencilSquareIcon
+  PencilSquareIcon,
+  Cog6ToothIcon,
+  StarIcon
 } from '@heroicons/react/24/solid'
 
-// Service interface based on your types
+// API Service interface that matches your API response
+interface ApiService {
+  id: string;
+  name: string;
+  slug: string;
+  category: string;
+  subcategory: string;
+  description: string;
+  pricing_model: string;
+  starting_at: string;
+  currency: string;
+  timeline: string;
+  featured: boolean;
+  min_price: number;
+  pricing_tiers_count: number;
+}
+
+interface ServiceResponse {
+  count: number;
+  next: string | null;
+  previous: string | null;
+  results: ApiService[];
+}
+
+// Service category for display purposes
 interface ServiceCategory {
   id: string
   name: string
@@ -22,77 +49,71 @@ interface ServiceCategory {
   startingPrice?: number
   gradient: string
   image?: string
+  services: ApiService[]
 }
 
 // API Base URL
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://127.0.0.1:8000'
 
-// Mock data - will be replaced with API call
-const mockServiceCategories: ServiceCategory[] = [
-  {
-    id: '1',
-    name: 'Web Development',
-    slug: 'web-development',
-    description: 'Modern, responsive websites and web applications built with cutting-edge technologies',
-    iconComponent: CodeBracketIcon,
-    servicesCount: 8,
-    featured: true,
-    startingPrice: 500,
-    gradient: 'from-blue-500 to-blue-700',
-    image: 'https://images.unsplash.com/photo-1547658719-da2b51169166?w=300&auto=format&fit=crop&q=60'
-  },
-  {
-    id: '2',
-    name: 'UI/UX Design',
-    slug: 'ui-ux-design',
-    description: 'Beautiful, user-centered designs that convert visitors into customers',
-    iconComponent: GlobeAltIcon,
-    servicesCount: 5,
-    featured: true,
-    startingPrice: 300,
-    gradient: 'from-purple-500 to-purple-700',
-    image: 'https://images.unsplash.com/photo-1561070791-2526d30994b5?w=300&auto=format&fit=crop&q=60'
-  },
-  {
-    id: '3',
-    name: 'Content Writing',
-    slug: 'content-writing',
-    description: 'Compelling content that engages your audience and drives results',
-    iconComponent: PencilSquareIcon,
-    servicesCount: 6,
-    featured: true,
-    startingPrice: 50,
-    gradient: 'from-green-500 to-green-700',
-    image: 'https://images.unsplash.com/photo-1455390582262-044cdead277a?w=300&auto=format&fit=crop&q=60'
-  },
-  {
-    id: '4',
-    name: 'Machine Learning',
-    slug: 'machine-learning',
-    description: 'AI-powered solutions for data analysis, predictions, and automation',
-    iconComponent: CpuChipIcon,
-    servicesCount: 4,
-    featured: true,
-    startingPrice: 800,
-    gradient: 'from-orange-500 to-red-600',
-    image: 'https://images.unsplash.com/photo-1555949963-aa79dcee981c?w=300&auto=format&fit=crop&q=60'
-  },
-  {
-    id: '5',
-    name: 'Technical Writing',
-    slug: 'technical-writing',
-    description: 'Clear, comprehensive documentation and technical content',
-    iconComponent: DocumentTextIcon,
-    servicesCount: 3,
-    featured: false,
-    startingPrice: 100,
-    gradient: 'from-indigo-500 to-indigo-700',
-    image: 'https://images.unsplash.com/photo-1434030216411-0b793f4b4173?w=300&auto=format&fit=crop&q=60'
-  }
-]
+// Icon mapping for different service categories
+const getCategoryIcon = (category: string): React.ComponentType<{ className?: string }> => {
+  const iconMap: Record<string, any> = {
+    'Web development': GlobeAltIcon,
+    'Web Development': GlobeAltIcon,
+    'Frontend Development': CodeBracketIcon,
+    'Backend Development': Cog6ToothIcon,
+    'Full Stack Development': CodeBracketIcon,
+    'Machine Learning': CpuChipIcon,
+    'AI Development': CpuChipIcon,
+    'Data Science': CpuChipIcon,
+    'Content Writing': PencilSquareIcon,
+    'Technical Writing': DocumentTextIcon,
+    'Blog Writing': PencilSquareIcon,
+    'Documentation': DocumentTextIcon,
+    'API Development': Cog6ToothIcon,
+    'System Integration': Cog6ToothIcon,
+    'Research': DocumentTextIcon,
+    'Consultation': StarIcon,
+    default: CodeBracketIcon
+  };
+  
+  return iconMap[category] || iconMap.default;
+};
+
+// Gradient mapping for categories
+const getCategoryGradient = (category: string): string => {
+  const gradientMap: Record<string, string> = {
+    'Web development': 'from-blue-500 to-blue-700',
+    'Web Development': 'from-blue-500 to-blue-700',
+    'Machine Learning': 'from-purple-500 to-purple-700',
+    'Content Writing': 'from-green-500 to-green-700',
+    'Technical Writing': 'from-indigo-500 to-indigo-700',
+    'API Development': 'from-orange-500 to-red-600',
+    'Research': 'from-pink-500 to-rose-700',
+    default: 'from-gray-500 to-gray-700'
+  };
+  
+  return gradientMap[category] || gradientMap.default;
+};
+
+// Category images mapping
+const getCategoryImage = (category: string): string => {
+  const imageMap: Record<string, string> = {
+    'Web development': 'https://images.unsplash.com/photo-1547658719-da2b51169166?w=300&auto=format&fit=crop&q=60',
+    'Web Development': 'https://images.unsplash.com/photo-1547658719-da2b51169166?w=300&auto=format&fit=crop&q=60',
+    'Machine Learning': 'https://images.unsplash.com/photo-1555949963-aa79dcee981c?w=300&auto=format&fit=crop&q=60',
+    'Content Writing': 'https://images.unsplash.com/photo-1455390582262-044cdead277a?w=300&auto=format&fit=crop&q=60',
+    'Technical Writing': 'https://images.unsplash.com/photo-1434030216411-0b793f4b4173?w=300&auto=format&fit=crop&q=60',
+    'API Development': 'https://images.unsplash.com/photo-1518186285589-2f7649de83e0?w=300&auto=format&fit=crop&q=60',
+    'Research': 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300&auto=format&fit=crop&q=60',
+    default: 'https://images.unsplash.com/photo-1561070791-2526d30994b5?w=300&auto=format&fit=crop&q=60'
+  };
+  
+  return imageMap[category] || imageMap.default;
+};
 
 export default function ServicesShowcase() {
-  const [services, setServices] = useState<ServiceCategory[]>([])
+  const [serviceCategories, setServiceCategories] = useState<ServiceCategory[]>([])
   const [currentIndex, setCurrentIndex] = useState(0)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -122,17 +143,60 @@ export default function ServicesShowcase() {
   useEffect(() => {
     const fetchServices = async () => {
       try {
-        // TODO: Replace with actual API call
-        // const response = await fetch(`${API_BASE_URL}/api/v1/services/categories/`)
-        // const data = await response.json()
+        setIsLoading(true)
+        setError(null)
         
-        // Simulate API call
-        await new Promise(resolve => setTimeout(resolve, 800))
-        setServices(mockServiceCategories)
+        // Fetch all services from your API
+        const response = await fetch(`${API_BASE_URL}/api/v1/services/services/`)
+        
+        if (!response.ok) {
+          throw new Error(`Failed to fetch services: ${response.status}`)
+        }
+        
+        const data: ServiceResponse = await response.json()
+        
+        // Group services by category
+        const servicesByCategory = data.results.reduce((acc, service) => {
+          const category = service.category || 'Other'
+          if (!acc[category]) {
+            acc[category] = []
+          }
+          acc[category].push(service)
+          return acc
+        }, {} as Record<string, ApiService[]>)
+
+        // Convert to ServiceCategory format
+        const categories: ServiceCategory[] = Object.entries(servicesByCategory).map(([categoryName, services]) => {
+          const featuredCount = services.filter(s => s.featured).length
+          const minPrice = Math.min(...services.map(s => parseFloat(s.starting_at)))
+          
+          return {
+            id: categoryName.toLowerCase().replace(/\s+/g, '-'),
+            name: categoryName,
+            slug: categoryName.toLowerCase().replace(/\s+/g, '-'),
+            description: `Professional ${categoryName.toLowerCase()} services tailored to your needs`,
+            iconComponent: getCategoryIcon(categoryName),
+            servicesCount: services.length,
+            featured: featuredCount > 0,
+            startingPrice: minPrice > 0 ? minPrice : undefined,
+            gradient: getCategoryGradient(categoryName),
+            image: getCategoryImage(categoryName),
+            services: services
+          }
+        })
+
+        // Sort categories - featured first, then by service count
+        const sortedCategories = categories.sort((a, b) => {
+          if (a.featured && !b.featured) return -1
+          if (!a.featured && b.featured) return 1
+          return b.servicesCount - a.servicesCount
+        })
+
+        setServiceCategories(sortedCategories)
+        
       } catch (err) {
         console.error('Error fetching services:', err)
         setError('Failed to load services')
-        setServices(mockServiceCategories) // Fallback to mock data
       } finally {
         setIsLoading(false)
       }
@@ -143,18 +207,22 @@ export default function ServicesShowcase() {
 
   const nextSlide = () => {
     setCurrentIndex((prev) => 
-      prev + itemsPerView >= services.length ? 0 : prev + 1
+      prev + itemsPerView >= serviceCategories.length ? 0 : prev + 1
     )
   }
 
   const prevSlide = () => {
     setCurrentIndex((prev) => 
-      prev === 0 ? Math.max(0, services.length - itemsPerView) : prev - 1
+      prev === 0 ? Math.max(0, serviceCategories.length - itemsPerView) : prev - 1
     )
   }
 
-  const canGoNext = currentIndex + itemsPerView < services.length
+  const canGoNext = currentIndex + itemsPerView < serviceCategories.length
   const canGoPrev = currentIndex > 0
+
+  const formatPrice = (price: number, currency: string = 'Ksh') => {
+    return `${currency} ${price.toLocaleString()}`
+  }
 
   if (isLoading) {
     return (
@@ -168,6 +236,19 @@ export default function ServicesShowcase() {
                 <div key={i} className="h-64 bg-gray-300 rounded-xl"></div>
               ))}
             </div>
+          </div>
+        </div>
+      </section>
+    )
+  }
+
+  if (serviceCategories.length === 0) {
+    return (
+      <section className="w-full py-16 px-4 bg-light-secondary dark:bg-dark-secondary">
+        <div className="max-w-7xl mx-auto text-center">
+          <div className="text-gray-500">
+            <CodeBracketIcon className="w-16 h-16 mx-auto mb-4 text-gray-300" />
+            <p>No services available at the moment.</p>
           </div>
         </div>
       </section>
@@ -220,7 +301,7 @@ export default function ServicesShowcase() {
           </div>
           
           <div className="text-sm text-text-secondary">
-            {currentIndex + 1}-{Math.min(currentIndex + itemsPerView, services.length)} of {services.length}
+            {currentIndex + 1}-{Math.min(currentIndex + itemsPerView, serviceCategories.length)} of {serviceCategories.length}
           </div>
         </div>
 
@@ -233,11 +314,11 @@ export default function ServicesShowcase() {
                 transform: `translateX(-${currentIndex * (100 / itemsPerView)}%)`
               }}
             >
-              {services.map((service, index) => {
-                const IconComponent = service.iconComponent
+              {serviceCategories.map((category, index) => {
+                const IconComponent = category.iconComponent
                 return (
                   <div
-                    key={service.id}
+                    key={category.id}
                     className={`flex-shrink-0 px-3`}
                     style={{ width: `${100 / itemsPerView}%` }}
                   >
@@ -246,11 +327,11 @@ export default function ServicesShowcase() {
                         {/* Image Background */}
                         <div className="relative h-32 overflow-hidden">
                           <img
-                            src={service.image}
-                            alt={service.name}
+                            src={category.image}
+                            alt={category.name}
                             className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
                           />
-                          <div className={`absolute inset-0 bg-gradient-to-br ${service.gradient} opacity-80`}></div>
+                          <div className={`absolute inset-0 bg-gradient-to-br ${category.gradient} opacity-80`}></div>
                           
                           {/* Icon */}
                           <div className="absolute top-4 left-4">
@@ -260,9 +341,10 @@ export default function ServicesShowcase() {
                           </div>
 
                           {/* Featured Badge */}
-                          {service.featured && (
+                          {category.featured && (
                             <div className="absolute top-4 right-4">
-                              <span className="bg-cta text-white text-xs font-medium px-2 py-1 rounded-full">
+                              <span className="bg-cta text-white text-xs font-medium px-2 py-1 rounded-full flex items-center">
+                                <StarIcon className="w-3 h-3 mr-1" />
                                 Popular
                               </span>
                             </div>
@@ -272,20 +354,20 @@ export default function ServicesShowcase() {
                         {/* Content */}
                         <div className="p-6">
                           <h3 className="text-lg font-semibold text-text-inverse dark:text-text-primary mb-2 group-hover:text-primary-500 transition-colors">
-                            {service.name}
+                            {category.name}
                           </h3>
                           <p className="text-text-secondary text-sm mb-4 line-clamp-2">
-                            {service.description}
+                            {category.description}
                           </p>
                           
                           <div className="flex items-center justify-between">
                             <div>
                               <div className="text-xs text-text-secondary mb-1">
-                                {service.servicesCount} service{service.servicesCount !== 1 ? 's' : ''}
+                                {category.servicesCount} service{category.servicesCount !== 1 ? 's' : ''}
                               </div>
-                              {service.startingPrice && (
+                              {category.startingPrice && (
                                 <div className="text-sm font-semibold text-text-inverse dark:text-text-primary">
-                                  From ${service.startingPrice}
+                                  From {formatPrice(category.startingPrice)}
                                 </div>
                               )}
                             </div>
@@ -303,10 +385,13 @@ export default function ServicesShowcase() {
 
         {/* View All Services CTA */}
         <div className="text-center mt-12">
-          <button className="inline-flex items-center px-6 py-3 bg-primary-500 hover:bg-primary-600 text-white rounded-xl font-medium transition-colors duration-200 shadow-lg hover:shadow-xl">
+          <a 
+            href="/services"
+            className="inline-flex items-center px-6 py-3 bg-primary-500 hover:bg-primary-600 text-white rounded-xl font-medium transition-colors duration-200 shadow-lg hover:shadow-xl"
+          >
             View All Services
             <ArrowRightIcon className="ml-2 w-4 h-4" />
-          </button>
+          </a>
         </div>
 
         {/* Error State */}
@@ -322,7 +407,7 @@ export default function ServicesShowcase() {
   )
 }
 
-// Hook for services data fetching
+// Enhanced hook for services data fetching with categories
 export function useServicesData() {
   const [data, setData] = useState<ServiceCategory[]>([])
   const [loading, setLoading] = useState(true)
@@ -331,12 +416,52 @@ export function useServicesData() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // TODO: Replace with actual API endpoint
-        // const response = await fetch(`${API_BASE_URL}/api/v1/services/categories/`)
-        // const data = await response.json()
+        setLoading(true)
+        setError(null)
         
-        await new Promise(resolve => setTimeout(resolve, 1000))
-        setData(mockServiceCategories)
+        const response = await fetch(`${API_BASE_URL}/api/v1/services/services/`)
+        
+        if (!response.ok) {
+          throw new Error(`Failed to fetch services: ${response.status}`)
+        }
+        
+        const serviceData: ServiceResponse = await response.json()
+        
+        // Group and process services into categories
+        const servicesByCategory = serviceData.results.reduce((acc, service) => {
+          const category = service.category || 'Other'
+          if (!acc[category]) {
+            acc[category] = []
+          }
+          acc[category].push(service)
+          return acc
+        }, {} as Record<string, ApiService[]>)
+
+        const categories: ServiceCategory[] = Object.entries(servicesByCategory).map(([categoryName, services]) => {
+          const featuredCount = services.filter(s => s.featured).length
+          const minPrice = Math.min(...services.map(s => parseFloat(s.starting_at)))
+          
+          return {
+            id: categoryName.toLowerCase().replace(/\s+/g, '-'),
+            name: categoryName,
+            slug: categoryName.toLowerCase().replace(/\s+/g, '-'),
+            description: `Professional ${categoryName.toLowerCase()} services`,
+            iconComponent: getCategoryIcon(categoryName),
+            servicesCount: services.length,
+            featured: featuredCount > 0,
+            startingPrice: minPrice > 0 ? minPrice : undefined,
+            gradient: getCategoryGradient(categoryName),
+            image: getCategoryImage(categoryName),
+            services: services
+          }
+        })
+
+        setData(categories.sort((a, b) => {
+          if (a.featured && !b.featured) return -1
+          if (!a.featured && b.featured) return 1
+          return b.servicesCount - a.servicesCount
+        }))
+        
       } catch (err) {
         setError('Failed to load services')
         console.error('Services data fetch error:', err)

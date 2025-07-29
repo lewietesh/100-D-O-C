@@ -24,7 +24,12 @@ const nextConfig: NextConfig = {
       {
         protocol: 'https',
         hostname: 'restcountries.com',
-      }
+      },
+      {
+        protocol:'https',
+        hostname:'images.pexels.com'
+      },
+
     ],
   },
 };

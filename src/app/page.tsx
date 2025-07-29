@@ -29,7 +29,8 @@ export default function HomePage() {
       // ]}
     />
       
-      <About />
+      {/* <About /> */}
+      {/* This one */}
       <ServicesShowcase />
 <TechStackShowcase />
       <Projects />

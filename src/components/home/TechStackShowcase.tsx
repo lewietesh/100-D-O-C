@@ -1,104 +1,123 @@
+//components/home/TechStackShowcase.tsx
 'use client'
 
 import { useState, useEffect } from 'react'
 import { ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/24/outline'
 
-// Technology interfaces
-interface Technology {
-  id: string
-  name: string
-  category: string
-  logo?: string
-  color?: string
-  description?: string
+// API Technology interface that matches your API response
+interface ApiTechnology {
+  id: number;
+  name: string;
+  icon_url: string;
+  category: string;
 }
 
+interface TechnologyResponse {
+  count: number;
+  next: string | null;
+  previous: string | null;
+  results: ApiTechnology[];
+}
+
+// Enhanced technology interface for display
 interface TechnologyShowcase {
-  technology: Technology
-  projectsCount: number
-  proficiencyLevel: 'beginner' | 'intermediate' | 'advanced' | 'expert'
-  yearsOfExperience: number
-  certifications?: string[]
+  technology: ApiTechnology;
+  projectsCount: number;
+  proficiencyLevel: 'beginner' | 'intermediate' | 'advanced' | 'expert';
+  yearsOfExperience: number;
+  color: string;
+  fallbackLogo: string;
 }
 
 // API Base URL
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://127.0.0.1:8000'
 
-// Mock data with real technology logos - LIMITED TO 6
-const mockTechnologies: TechnologyShowcase[] = [
-  {
-    technology: {
-      id: '1',
-      name: 'React',
-      category: 'Frontend',
-      logo: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/react/react-original.svg',
-      color: '#61DAFB'
+// Technology enhancement data - maps technology names to additional info
+const getTechnologyEnhancements = (techName: string): Omit<TechnologyShowcase, 'technology'> => {
+  const enhancements: Record<string, Omit<TechnologyShowcase, 'technology'>> = {
+    'React': {
+      projectsCount: 15,
+      proficiencyLevel: 'expert',
+      yearsOfExperience: 4,
+      color: '#61DAFB',
+      fallbackLogo: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/react/react-original.svg'
     },
-    projectsCount: 15,
-    proficiencyLevel: 'expert',
-    yearsOfExperience: 4
-  },
-  {
-    technology: {
-      id: '2',
-      name: 'Next.js',
-      category: 'Frontend',
-      logo: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nextjs/nextjs-original.svg',
-      color: '#000000'
+    'Next JS': {
+      projectsCount: 12,
+      proficiencyLevel: 'expert',
+      yearsOfExperience: 3,
+      color: '#000000',
+      fallbackLogo: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nextjs/nextjs-original.svg'
     },
-    projectsCount: 12,
-    proficiencyLevel: 'expert',
-    yearsOfExperience: 3
-  },
-  {
-    technology: {
-      id: '3',
-      name: 'Django',
-      category: 'Backend',
-      logo: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/django/django-plain.svg',
-      color: '#092E20'
+    'Django': {
+      projectsCount: 18,
+      proficiencyLevel: 'expert',
+      yearsOfExperience: 5,
+      color: '#092E20',
+      fallbackLogo: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/django/django-plain.svg'
     },
-    projectsCount: 18,
-    proficiencyLevel: 'expert',
-    yearsOfExperience: 5
-  },
-  {
-    technology: {
-      id: '4',
-      name: 'Python',
-      category: 'Backend',
-      logo: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/python/python-original.svg',
-      color: '#3776AB'
+    'TypeScript': {
+      projectsCount: 16,
+      proficiencyLevel: 'expert',
+      yearsOfExperience: 3,
+      color: '#3178C6',
+      fallbackLogo: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/typescript/typescript-original.svg'
     },
-    projectsCount: 20,
-    proficiencyLevel: 'expert',
-    yearsOfExperience: 5
-  },
-  {
-    technology: {
-      id: '5',
-      name: 'PostgreSQL',
-      category: 'Database',
-      logo: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/postgresql/postgresql-original.svg',
-      color: '#336791'
+    'SQL': {
+      projectsCount: 14,
+      proficiencyLevel: 'advanced',
+      yearsOfExperience: 4,
+      color: '#336791',
+      fallbackLogo: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/postgresql/postgresql-original.svg'
     },
-    projectsCount: 14,
-    proficiencyLevel: 'advanced',
-    yearsOfExperience: 4
-  },
-  {
-    technology: {
-      id: '6',
-      name: 'TypeScript',
-      category: 'Language',
-      logo: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/typescript/typescript-original.svg',
-      color: '#3178C6'
+    'Mongodb': {
+      projectsCount: 10,
+      proficiencyLevel: 'advanced',
+      yearsOfExperience: 3,
+      color: '#47A248',
+      fallbackLogo: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/mongodb/mongodb-original.svg'
     },
-    projectsCount: 16,
-    proficiencyLevel: 'expert',
-    yearsOfExperience: 3
-  }
-]
+    'Docker': {
+      projectsCount: 8,
+      proficiencyLevel: 'intermediate',
+      yearsOfExperience: 2,
+      color: '#2496ED',
+      fallbackLogo: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/docker/docker-original.svg'
+    },
+    'Python': {
+      projectsCount: 20,
+      proficiencyLevel: 'expert',
+      yearsOfExperience: 5,
+      color: '#3776AB',
+      fallbackLogo: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/python/python-original.svg'
+    },
+    'JavaScript': {
+      projectsCount: 18,
+      proficiencyLevel: 'expert',
+      yearsOfExperience: 4,
+      color: '#F7DF1E',
+      fallbackLogo: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/javascript/javascript-original.svg'
+    },
+    'Node.js': {
+      projectsCount: 12,
+      proficiencyLevel: 'advanced',
+      yearsOfExperience: 3,
+      color: '#339933',
+      fallbackLogo: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nodejs/nodejs-original.svg'
+    }
+  };
+
+  // Default enhancement for unknown technologies
+  const defaultEnhancement: Omit<TechnologyShowcase, 'technology'> = {
+    projectsCount: 5,
+    proficiencyLevel: 'intermediate',
+    yearsOfExperience: 2,
+    color: '#6B7280',
+    fallbackLogo: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/devicon/devicon-original.svg'
+  };
+
+  return enhancements[techName] || defaultEnhancement;
+};
 
 // Proficiency level colors
 const getProficiencyColor = (level: string) => {
@@ -120,6 +139,18 @@ const getProficiencyDots = (level: string) => {
     default: return 1
   }
 }
+
+// Get category priority for sorting
+const getCategoryPriority = (category: string): number => {
+  const priorities: Record<string, number> = {
+    'Frontend': 1,
+    'Backend': 2,
+    'database': 3,
+    'deployment': 4,
+    'Language': 5
+  };
+  return priorities[category] || 6;
+};
 
 export default function TechStackShowcase() {
   const [technologies, setTechnologies] = useState<TechnologyShowcase[]>([])
@@ -155,17 +186,38 @@ export default function TechStackShowcase() {
   useEffect(() => {
     const fetchTechnologies = async () => {
       try {
-        // TODO: Replace with actual API call
-        // const response = await fetch(`${API_BASE_URL}/api/v1/technologies/showcase/`)
-        // const data = await response.json()
+        setIsLoading(true)
+        setError(null)
         
-        // Simulate API call
-        await new Promise(resolve => setTimeout(resolve, 600))
-        setTechnologies(mockTechnologies)
+        const response = await fetch(`${API_BASE_URL}/api/v1/projects/technologies/`)
+        
+        if (!response.ok) {
+          throw new Error(`Failed to fetch technologies: ${response.status}`)
+        }
+        
+        const data: TechnologyResponse = await response.json()
+        
+        // Sort technologies by category priority and then by name
+        const sortedTechnologies = data.results.sort((a, b) => {
+          const categoryDiff = getCategoryPriority(a.category) - getCategoryPriority(b.category);
+          if (categoryDiff !== 0) return categoryDiff;
+          return a.name.localeCompare(b.name);
+        });
+
+        // Enhance technologies with additional data
+        const enhancedTechnologies: TechnologyShowcase[] = sortedTechnologies.map(tech => {
+          const enhancement = getTechnologyEnhancements(tech.name);
+          return {
+            technology: tech,
+            ...enhancement
+          };
+        });
+
+        setTechnologies(enhancedTechnologies)
+        
       } catch (err) {
         console.error('Error fetching technologies:', err)
         setError('Failed to load technologies')
-        setTechnologies(mockTechnologies) // Fallback
       } finally {
         setIsLoading(false)
       }
@@ -228,6 +280,19 @@ export default function TechStackShowcase() {
     )
   }
 
+  if (technologies.length === 0) {
+    return (
+      <section className="w-full py-16 px-4 bg-light-secondary dark:bg-dark-secondary">
+        <div className="max-w-6xl mx-auto text-center">
+          <div className="text-gray-500">
+            <div className="w-16 h-16 bg-gray-300 rounded-full mx-auto mb-4"></div>
+            <p>No technologies found.</p>
+          </div>
+        </div>
+      </section>
+    )
+  }
+
   return (
     <section className="w-full py-16 px-4 bg-light-secondary dark:bg-dark-secondary">
       <div className="max-w-6xl mx-auto">
@@ -246,13 +311,23 @@ export default function TechStackShowcase() {
           <div className="flex space-x-2">
             <button
               onClick={prevSlide}
-              className="p-3 rounded-full border border-border-dark bg-white dark:bg-dark-tertiary text-text-inverse dark:text-text-primary hover:bg-gray-50 dark:hover:bg-dark-accent shadow-md transition-all duration-200"
+              disabled={!canGoPrev}
+              className={`p-3 rounded-full border transition-all duration-200 ${
+                canGoPrev
+                  ? 'border-border-dark bg-white dark:bg-dark-tertiary text-text-inverse dark:text-text-primary hover:bg-gray-50 dark:hover:bg-dark-accent shadow-md'
+                  : 'border-gray-300 bg-gray-100 text-gray-400 cursor-not-allowed'
+              }`}
             >
               <ChevronLeftIcon className="w-5 h-5" />
             </button>
             <button
               onClick={nextSlide}
-              className="p-3 rounded-full border border-border-dark bg-white dark:bg-dark-tertiary text-text-inverse dark:text-text-primary hover:bg-gray-50 dark:hover:bg-dark-accent shadow-md transition-all duration-200"
+              disabled={!canGoNext}
+              className={`p-3 rounded-full border transition-all duration-200 ${
+                canGoNext
+                  ? 'border-border-dark bg-white dark:bg-dark-tertiary text-text-inverse dark:text-text-primary hover:bg-gray-50 dark:hover:bg-dark-accent shadow-md'
+                  : 'border-gray-300 bg-gray-100 text-gray-400 cursor-not-allowed'
+              }`}
             >
               <ChevronRightIcon className="w-5 h-5" />
             </button>
@@ -285,8 +360,13 @@ export default function TechStackShowcase() {
             }}
           >
             {technologies.map((techShowcase, index) => {
-              const { technology, projectsCount, proficiencyLevel, yearsOfExperience } = techShowcase
-              const isHovered = hoveredTech === technology.id
+              const { technology, projectsCount, proficiencyLevel, yearsOfExperience, color, fallbackLogo } = techShowcase
+              const isHovered = hoveredTech === technology.id.toString()
+              
+              // Use API icon_url if available, otherwise use fallback
+              const logoUrl = technology.icon_url && technology.icon_url.trim() !== '' 
+                ? technology.icon_url 
+                : fallbackLogo;
               
               return (
                 <div
@@ -296,7 +376,7 @@ export default function TechStackShowcase() {
                 >
                   <div
                     className="flex flex-col items-center group cursor-pointer"
-                    onMouseEnter={() => setHoveredTech(technology.id)}
+                    onMouseEnter={() => setHoveredTech(technology.id.toString())}
                     onMouseLeave={() => setHoveredTech(null)}
                     style={{ animationDelay: `${index * 100}ms` }}
                   >
@@ -315,11 +395,16 @@ export default function TechStackShowcase() {
                       } group-hover:shadow-xl`}>
                         {/* Technology Logo */}
                         <img
-                          src={technology.logo}
+                          src={logoUrl}
                           alt={technology.name}
                           className="w-8 h-8 sm:w-10 sm:h-10 object-contain transition-transform duration-300 group-hover:scale-110"
                           style={{ 
-                            filter: technology.name === 'Next.js' ? 'invert(1)' : 'none'
+                            filter: technology.name === 'Next JS' ? 'invert(1)' : 'none'
+                          }}
+                          onError={(e) => {
+                            // Fallback to a generic icon if the image fails to load
+                            const target = e.target as HTMLImageElement;
+                            target.src = 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/devicon/devicon-original.svg';
                           }}
                         />
                       </div>
@@ -334,6 +419,11 @@ export default function TechStackShowcase() {
                     <h3 className="text-sm font-medium text-text-inverse dark:text-text-primary text-center mb-1 transition-colors group-hover:text-primary-500 whitespace-nowrap">
                       {technology.name}
                     </h3>
+
+                    {/* Category Badge */}
+                    <div className="text-xs bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 px-2 py-1 rounded-full mb-1 capitalize">
+                      {technology.category}
+                    </div>
 
                     {/* Proficiency Dots */}
                     <div className="flex space-x-1 mb-1">
@@ -351,16 +441,16 @@ export default function TechStackShowcase() {
 
                     {/* Projects Count */}
                     <span className="text-xs text-text-secondary whitespace-nowrap">
-                      {projectsCount} projects
+                      {/* {projectsCount} projects */}
                     </span>
 
                     {/* Hover Tooltip */}
                     {isHovered && (
                       <div className="absolute z-10 -top-2 left-1/2 transform -translate-x-1/2 -translate-y-full bg-dark-primary text-white px-3 py-2 rounded-lg shadow-lg text-sm whitespace-nowrap animate-fade-in">
                         <div className="font-medium">{technology.name}</div>
-                        <div className="text-xs text-gray-300">
-                          {proficiencyLevel} • {yearsOfExperience} years • {projectsCount} projects
-                        </div>
+                        {/* <div className="text-xs text-gray-300 capitalize">
+                          {technology.category} • {proficiencyLevel} • {yearsOfExperience} years • {projectsCount} projects
+                        </div> */}
                         <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-dark-primary"></div>
                       </div>
                     )}
@@ -372,7 +462,7 @@ export default function TechStackShowcase() {
         </div>
 
         {/* Legend */}
-        <div className="mt-12 flex flex-wrap justify-center gap-6 text-sm text-text-secondary">
+        {/* <div className="mt-12 flex flex-wrap justify-center gap-6 text-sm text-text-secondary">
           <div className="flex items-center space-x-2">
             <div className="w-3 h-3 rounded-full bg-gradient-to-r from-green-400 to-green-600"></div>
             <span>Expert</span>
@@ -389,7 +479,7 @@ export default function TechStackShowcase() {
             <div className="w-3 h-3 rounded-full bg-gradient-to-r from-gray-400 to-gray-600"></div>
             <span>Beginner</span>
           </div>
-        </div>
+        </div> */}
 
         {/* Error State */}
         {error && (

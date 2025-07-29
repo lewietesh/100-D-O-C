@@ -1,22 +1,173 @@
 // src/components/services/ServiceDetail.tsx
 'use client';
 
-import { Service, PricingTier } from '@/app/models/services.model';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { CheckCircleIcon, XCircleIcon } from '@heroicons/react/24/outline';
 import Link from 'next/link';
+
+// Updated interfaces to match API response
+interface Service {
+  id: string;
+  name: string;
+  slug: string;
+  category: string;
+  subcategory: string;
+  description: string;
+  pricing_model: string;
+  starting_at: string;
+  currency: string;
+  timeline: string;
+  featured: boolean;
+  min_price: number;
+  pricing_tiers_count: number;
+}
+
+interface PricingTier {
+  id: string;
+  service: string;
+  name: string;
+  price: string;
+  currency: string;
+  unit?: string;
+  estimated_delivery?: string;
+  recommended: boolean;
+  sort_order: number;
+}
+
+interface ServiceFeature {
+  id: string;
+  title: string;
+  description?: string;
+  included: boolean;
+}
+
+interface ProcessStep {
+  id: string;
+  service: string;
+  title: string;
+  description?: string;
+  step_order: number;
+}
+
+interface ServiceTool {
+  id: string;
+  service: string;
+  tool_name: string;
+  tool_url?: string;
+}
+
+interface ServiceDeliverable {
+  id: string;
+  service: string;
+  description: string;
+  sort_order: number;
+}
+
+interface ServiceUseCase {
+  id: string;
+  service: string;
+  use_case: string;
+  description?: string;
+}
+
+interface PricingTierWithFeatures extends PricingTier {
+  features: ServiceFeature[];
+}
 
 interface ServiceDetailProps {
   service: Service;
 }
 
 export default function ServiceDetail({ service }: ServiceDetailProps) {
-  const [selectedTierId, setSelectedTierId] = useState(
-    service.pricing.tiers?.find(tier => tier.recommended)?.id || 
-    service.pricing.tiers?.[0]?.id
-  );
+  const [pricingTiers, setPricingTiers] = useState<PricingTierWithFeatures[]>([]);
+  const [processSteps, setProcessSteps] = useState<ProcessStep[]>([]);
+  const [tools, setTools] = useState<ServiceTool[]>([]);
+  const [deliverables, setDeliverables] = useState<ServiceDeliverable[]>([]);
+  const [useCases, setUseCases] = useState<ServiceUseCase[]>([]);
+  const [loading, setLoading] = useState(false);
+  
+  const [selectedTierId, setSelectedTierId] = useState<string>('');
 
-  const selectedTier = service.pricing.tiers?.find(tier => tier.id === selectedTierId);
+  // Fetch service details from API
+  useEffect(() => {
+    const fetchServiceDetails = async () => {
+      setLoading(true);
+      try {
+        const baseUrl = 'http://localhost:8000/api/v1/services';
+        
+        // Fetch all related data
+        const [
+          pricingResponse,
+          stepsResponse,
+          toolsResponse,
+          deliverablesResponse,
+          useCasesResponse,
+          featuresResponse
+        ] = await Promise.all([
+          fetch(`${baseUrl}/pricing-tiers/?service=${service.id}`),
+          fetch(`${baseUrl}/process-steps/?service=${service.id}`),
+          fetch(`${baseUrl}/tools/?service=${service.id}`),
+          fetch(`${baseUrl}/deliverables/?service=${service.id}`),
+          fetch(`${baseUrl}/usecases/?service=${service.id}`),
+          fetch(`${baseUrl}/features/`)
+        ]);
+
+        // Process pricing tiers
+        if (pricingResponse.ok) {
+          const pricingData = await pricingResponse.json();
+          const tiers = pricingData.results || [];
+          
+          // Get features for each tier (simplified - you might need to adjust based on your API)
+          const tiersWithFeatures = tiers.map((tier: PricingTier) => ({
+            ...tier,
+            features: [] // You'll need to populate this based on your API structure
+          }));
+          
+          setPricingTiers(tiersWithFeatures);
+          
+          // Set default selected tier
+          const recommendedTier = tiers.find((tier: PricingTier) => tier.recommended);
+          setSelectedTierId(recommendedTier?.id || tiers[0]?.id || '');
+        }
+
+        // Process other data
+        if (stepsResponse.ok) {
+          const stepsData = await stepsResponse.json();
+          setProcessSteps(stepsData.results || []);
+        }
+
+        if (toolsResponse.ok) {
+          const toolsData = await toolsResponse.json();
+          setTools(toolsData.results || []);
+        }
+
+        if (deliverablesResponse.ok) {
+          const deliverablesData = await deliverablesResponse.json();
+          setDeliverables(deliverablesData.results || []);
+        }
+
+        if (useCasesResponse.ok) {
+          const useCasesData = await useCasesResponse.json();
+          setUseCases(useCasesData.results || []);
+        }
+
+      } catch (error) {
+        console.error('Error fetching service details:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchServiceDetails();
+  }, [service.id]);
+
+  const selectedTier = pricingTiers.find(tier => tier.id === selectedTierId);
+
+  const formatPrice = (price: string, currency: string) => {
+    const numPrice = parseFloat(price);
+    if (numPrice === 0) return 'Free';
+    return `${currency} ${numPrice.toLocaleString()}`;
+  };
 
   return (
     <section className="space-y-8">
@@ -26,6 +177,11 @@ export default function ServiceDetail({ service }: ServiceDetailProps) {
           <span className="px-3 py-1 bg-blue-100 text-blue-800 text-xs font-medium rounded-full">
             {service.category}
           </span>
+          {service.subcategory && (
+            <span className="px-3 py-1 bg-purple-100 text-purple-800 text-xs font-medium rounded-full">
+              {service.subcategory}
+            </span>
+          )}
           {service.featured && (
             <span className="px-3 py-1 bg-amber-100 text-amber-800 text-xs font-medium rounded-full">
               Featured Service
@@ -35,30 +191,21 @@ export default function ServiceDetail({ service }: ServiceDetailProps) {
         <h2 className="text-3xl font-semibold text-gray-900">{service.name}</h2>
       </div>
 
-      {/* Service Image */}
-      <div className="overflow-hidden rounded-xl">
-        <img
-          src={service.imgUrl}
-          alt={service.name}
-          className="w-full h-64 object-cover hover:scale-105 transition-transform duration-500"
-        />
-      </div>
-
       {/* Description */}
       <div className="space-y-4">
         <p className="text-gray-700 leading-relaxed text-lg">{service.description}</p>
         
         {/* Tools Used (if available) */}
-        {service.tools && service.tools.length > 0 && (
+        {tools.length > 0 && (
           <div className="mt-4">
             <h3 className="text-lg font-medium text-gray-800 mb-2">Technologies & Tools</h3>
             <div className="flex flex-wrap gap-2">
-              {service.tools.map((tool, index) => (
+              {tools.map((tool) => (
                 <span 
-                  key={index} 
+                  key={tool.id} 
                   className="px-3 py-1 bg-gray-100 text-gray-700 text-sm rounded-full"
                 >
-                  {tool}
+                  {tool.tool_name}
                 </span>
               ))}
             </div>
@@ -67,18 +214,22 @@ export default function ServiceDetail({ service }: ServiceDetailProps) {
       </div>
 
       {/* Process Steps (if available) */}
-      {service.process && service.process.length > 0 && (
+      {processSteps.length > 0 && (
         <div className="mt-8">
           <h3 className="text-xl font-semibold text-gray-800 mb-4">Our Process</h3>
           <div className="space-y-3">
-            {service.process.map((step) => (
-              <div key={step.step} className="flex items-start">
+            {processSteps
+              .sort((a, b) => a.step_order - b.step_order)
+              .map((step, index) => (
+              <div key={step.id} className="flex items-start">
                 <div className="flex-shrink-0 h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold mr-4">
-                  {step.step}
+                  {index + 1}
                 </div>
                 <div>
                   <h4 className="text-lg font-medium text-gray-800">{step.title}</h4>
-                  <p className="text-gray-600">{step.description}</p>
+                  {step.description && (
+                    <p className="text-gray-600">{step.description}</p>
+                  )}
                 </div>
               </div>
             ))}
@@ -90,33 +241,33 @@ export default function ServiceDetail({ service }: ServiceDetailProps) {
       <div className="mt-10">
         <h3 className="text-xl font-semibold text-gray-800 mb-4">Pricing Options</h3>
         
-        {service.pricing.model === 'custom' ? (
+        {service.pricing_model === 'custom' ? (
           <div className="bg-gray-50 p-6 rounded-lg border border-gray-200">
             <h4 className="text-lg font-medium text-gray-800">Custom Pricing</h4>
             <p className="text-gray-600 mt-2">
-              Starting at {service.pricing.startingAt} {service.pricing.currency}
+              Starting at {formatPrice(service.starting_at, service.currency)}
             </p>
             <p className="text-gray-600 mt-2">
               Our pricing is tailored to your specific requirements. Contact us for a detailed quote.
             </p>
             <Link
-              href="#contact-form"
+              href={`/request-service?service=${service.slug}&type=custom`}
               className="mt-4 inline-block px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition"
             >
               Request a Quote
             </Link>
           </div>
-        ) : service.pricing.model === 'hourly' ? (
+        ) : service.pricing_model === 'hourly' ? (
           <div className="bg-gray-50 p-6 rounded-lg border border-gray-200">
             <h4 className="text-lg font-medium text-gray-800">Hourly Rate</h4>
             <p className="text-gray-600 mt-2">
-              {service.pricing.tiers && service.pricing.tiers[0]?.price} {service.pricing.tiers && service.pricing.tiers[0]?.currency} per hour
+              {formatPrice(service.starting_at, service.currency)} per hour
             </p>
             <p className="text-gray-600 mt-2">
               Final cost depends on project scope and complexity.
             </p>
             <Link
-              href="#contact-form"
+              href={`/request-service?service=${service.slug}&type=hourly`}
               className="mt-4 inline-block px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition"
             >
               Discuss Your Project
@@ -126,9 +277,11 @@ export default function ServiceDetail({ service }: ServiceDetailProps) {
           // Tiered pricing display
           <>
             {/* Tier Selection Tabs */}
-            {service.pricing.tiers && service.pricing.tiers.length > 1 && (
+            {pricingTiers.length > 1 && (
               <div className="flex flex-wrap border-b border-gray-200 mb-6">
-                {service.pricing.tiers.map((tier) => (
+                {pricingTiers
+                  .sort((a, b) => a.sort_order - b.sort_order)
+                  .map((tier) => (
                   <button
                     key={tier.id}
                     className={`px-4 py-2 font-medium text-sm transition-colors ${
@@ -153,43 +306,49 @@ export default function ServiceDetail({ service }: ServiceDetailProps) {
                       <h4 className="text-xl font-semibold text-gray-800">
                         {selectedTier.name}
                       </h4>
-                      <p className="text-gray-600 mt-1">
-                        {selectedTier.estimatedDelivery && `Estimated Delivery: ${selectedTier.estimatedDelivery}`}
-                      </p>
+                      {selectedTier.estimated_delivery && (
+                        <p className="text-gray-600 mt-1">
+                          Estimated Delivery: {selectedTier.estimated_delivery}
+                        </p>
+                      )}
                     </div>
                     <div className="text-right">
                       <div className="text-2xl font-bold text-gray-900">
-                        {selectedTier.price} {selectedTier.currency}
+                        {formatPrice(selectedTier.price, selectedTier.currency)}
                       </div>
-                      <div className="text-sm text-gray-500">{selectedTier.unit}</div>
+                      {selectedTier.unit && (
+                        <div className="text-sm text-gray-500">{selectedTier.unit}</div>
+                      )}
                     </div>
                   </div>
 
                   {/* Features List */}
-                  <div className="mt-6 space-y-4">
-                    <h5 className="font-medium text-gray-800">What's Included:</h5>
-                    <ul className="space-y-3">
-                      {selectedTier.features.map((feature) => (
-                        <li key={feature.id} className="flex items-start">
-                          {feature.included ? (
-                            <CheckCircleIcon className="h-5 w-5 text-green-500 mr-2 flex-shrink-0" />
-                          ) : (
-                            <XCircleIcon className="h-5 w-5 text-gray-300 mr-2 flex-shrink-0" />
-                          )}
-                          <div>
-                            <span className={`font-medium ${feature.included ? 'text-gray-800' : 'text-gray-500'}`}>
-                              {feature.title}
-                            </span>
-                            {feature.description && (
-                              <p className={`text-sm ${feature.included ? 'text-gray-600' : 'text-gray-400'}`}>
-                                {feature.description}
-                              </p>
+                  {selectedTier.features && selectedTier.features.length > 0 && (
+                    <div className="mt-6 space-y-4">
+                      <h5 className="font-medium text-gray-800">What's Included:</h5>
+                      <ul className="space-y-3">
+                        {selectedTier.features.map((feature) => (
+                          <li key={feature.id} className="flex items-start">
+                            {feature.included ? (
+                              <CheckCircleIcon className="h-5 w-5 text-green-500 mr-2 flex-shrink-0" />
+                            ) : (
+                              <XCircleIcon className="h-5 w-5 text-gray-300 mr-2 flex-shrink-0" />
                             )}
-                          </div>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
+                            <div>
+                              <span className={`font-medium ${feature.included ? 'text-gray-800' : 'text-gray-500'}`}>
+                                {feature.title}
+                              </span>
+                              {feature.description && (
+                                <p className={`text-sm ${feature.included ? 'text-gray-600' : 'text-gray-400'}`}>
+                                  {feature.description}
+                                </p>
+                              )}
+                            </div>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
                 </div>
 
                 {/* CTA Button */}
@@ -203,39 +362,65 @@ export default function ServiceDetail({ service }: ServiceDetailProps) {
                 </div>
               </div>
             )}
+
+            {/* Show simple pricing if no tiers available */}
+            {pricingTiers.length === 0 && (
+              <div className="bg-gray-50 p-6 rounded-lg border border-gray-200">
+                <h4 className="text-lg font-medium text-gray-800">Pricing</h4>
+                <p className="text-gray-600 mt-2">
+                  Starting at {formatPrice(service.starting_at, service.currency)}
+                </p>
+                <Link
+                  href={`/request-service?service=${service.slug}`}
+                  className="mt-4 inline-block px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition"
+                >
+                  Get Started
+                </Link>
+              </div>
+            )}
           </>
         )}
       </div>
 
       {/* Deliverables Section (if available) */}
-      {service.deliverables && service.deliverables.length > 0 && (
+      {deliverables.length > 0 && (
         <div className="mt-8">
           <h3 className="text-xl font-semibold text-gray-800 mb-4">What You'll Receive</h3>
           <ul className="space-y-2">
-            {service.deliverables.map((item, index) => (
-              <li key={index} className="flex items-center">
+            {deliverables
+              .sort((a, b) => a.sort_order - b.sort_order)
+              .map((item) => (
+              <li key={item.id} className="flex items-center">
                 <CheckCircleIcon className="h-5 w-5 text-green-500 mr-2" />
-                <span>{item}</span>
+                <span>{item.description}</span>
               </li>
             ))}
           </ul>
         </div>
       )}
 
-      {/* Popular For Section (if available) */}
-      {service.popularFor && service.popularFor.length > 0 && (
+      {/* Popular Use Cases Section (if available) */}
+      {useCases.length > 0 && (
         <div className="mt-8">
           <h3 className="text-xl font-semibold text-gray-800 mb-4">Popular Use Cases</h3>
           <div className="flex flex-wrap gap-2">
-            {service.popularFor.map((useCase, index) => (
+            {useCases.map((useCase) => (
               <span 
-                key={index} 
+                key={useCase.id} 
                 className="px-3 py-1 bg-purple-100 text-purple-800 text-sm rounded-full"
               >
-                {useCase}
+                {useCase.use_case}
               </span>
             ))}
           </div>
+        </div>
+      )}
+
+      {/* Loading State */}
+      {loading && (
+        <div className="flex items-center justify-center py-8">
+          <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500"></div>
+          <span className="ml-3 text-gray-600">Loading service details...</span>
         </div>
       )}
     </section>

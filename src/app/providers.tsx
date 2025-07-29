@@ -1,6 +1,8 @@
+//src/app/providers.tsx
 'use client'
 
 import { ThemeProvider } from 'next-themes'
+import { ToastProvider } from '@/app//context/ToastContext';
 
 export function AppProviders({ children }: { children: React.ReactNode }) {
   return (
@@ -9,7 +11,11 @@ export function AppProviders({ children }: { children: React.ReactNode }) {
       defaultTheme="system" // ✅ follow system preference first
       enableSystem
     >
-      {children}
+      <ToastProvider>
+
+        {children}
+      </ToastProvider>
+
     </ThemeProvider>
   )
 }

@@ -1,53 +1,50 @@
 // src/components/services/PageLayout.tsx
 'use client';
 
-import { useRouter } from 'next/navigation';
-import ServicesListCard from './ServicesListCard';
-import ContactCard from './ContactCard';
-import BrochureCard from './BronchureCard';
+import ServicesListCard, { ApiService } from './ServicesListCard';
 import ServiceDetail from './ServiceDetail';
-import FAQAccordion from './FAQAccordion';
-import CTACard from './CTACard';
-import GetInTouch from './GetinTouch';
-import { Service } from '@/app/models/services.model';
 
 interface PageLayoutProps {
-  selectedService: Service;
-  onServiceSelect: (service: Service) => void;
-    allServices?: Service[]; // Add this optional prop
-
+  allServices: ApiService[];
+  selectedService: ApiService | null;
+  onServiceSelect: (service: ApiService) => void;
 }
 
-export default function PageLayout({ 
-  selectedService, 
-  onServiceSelect 
+export default function PageLayout({
+  allServices,
+  selectedService,
+  onServiceSelect
 }: PageLayoutProps) {
-  const router = useRouter();
-
-  const handleServiceChange = (service: Service) => {
-    onServiceSelect(service);
-    router.push(`/services?slug=${service.slug}`, { scroll: false });
-  };
+  if (!selectedService) {
+    return (
+      <div className="flex items-center justify-center py-12">
+        <div className="text-center">
+          <div className="w-16 h-16 bg-gray-200 rounded-full flex items-center justify-center mx-auto mb-4">
+            <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4" />
+            </svg>
+          </div>
+          <p className="text-gray-500">Select a service to view details</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-3 gap-10 px-3 sm:px-6 py-8 max-w-7xl mx-auto">
-      {/* Left Sidebar */}
-      <aside className="space-y-6 lg:col-span-1 order-2 lg:order-1">
-        <ServicesListCard 
+    <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      {/* Services List - Left Sidebar */}
+      <div className="lg:col-span-1">
+        <ServicesListCard
+          services={allServices}
           selectedServiceId={selectedService.id}
-          onServiceSelect={handleServiceChange}
+          onServiceSelect={onServiceSelect}
         />
-        <ContactCard />
-        <GetInTouch serviceId={selectedService.id} serviceName={selectedService.name} />
-        <BrochureCard />
-      </aside>
-
-      {/* Right Main Content */}
-      <section className="lg:col-span-2 space-y-12 order-1 lg:order-2">
+      </div>
+      
+      {/* Service Details - Main Content */}
+      <div className="lg:col-span-2">
         <ServiceDetail service={selectedService} />
-        <FAQAccordion faqs={selectedService.faqs || []} />
-        <CTACard />
-      </section>
+      </div>
     </div>
   );
 }
