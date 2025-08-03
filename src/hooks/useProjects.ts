@@ -12,8 +12,17 @@ import {
 } from '@/types/projects';
 
 // API Configuration
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000/api';
+// API Configuration function
+const getApiBaseUrl = (): string => {
+  if (process.env.NODE_ENV === 'production') {
+    return process.env.NEXT_PUBLIC_API_BASE_URL || 'https://your-production-api.com';
+  } else {
+    return process.env.API_BASE_URL || 'http://127.0.0.1:8000';
+  }
+};
 
+// Usage
+const API_BASE_URL = getApiBaseUrl();
 // API Service Functions
 class ProjectsApiService {
           private async fetchWithErrorHandling<T>(url: string, options?: RequestInit): Promise<T> {

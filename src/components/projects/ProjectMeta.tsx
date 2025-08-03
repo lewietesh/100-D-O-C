@@ -10,7 +10,7 @@ const ProjectMeta = ({ description, url }: { description: string; url?: string }
         rel="noopener noreferrer"
         className="inline-block mb-8 text-blue-600 hover:underline text-base font-medium"
       >
-        🔗 Visit Live Site
+        🔗 See demo
       </Link>
     )}
   </>

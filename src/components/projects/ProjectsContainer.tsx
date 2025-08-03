@@ -129,10 +129,10 @@ export default function ProjectsContainer({ searchParams }: ProjectsContainerPro
 
           return (
                     <>
-                              <Hero
+                              {/* <Hero
                                         title="My Projects"
                                         subtitle={`A showcase of my ${totalCount || 0} design, development, and creative work projects.`}
-                              />
+                              /> */}
                               <main className="max-w-7xl mx-auto p-6">
                                         {/* Search Bar */}
                                         <SearchBar
