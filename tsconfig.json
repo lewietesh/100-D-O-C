@@ -28,7 +28,13 @@
     ],
     "paths": {
       "@/*": [
-        "./src/*"
+        "./src/*",
+                "./src/components/*",
+        "./src/hooks/*",
+                "./src/lib/*",
+                "./src/utils/*",
+
+
       ]
     }
   },

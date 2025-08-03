@@ -1,7 +1,7 @@
 //src/app/page/[page]/page.tsx
 import { notFound } from 'next/navigation';
 import Hero from '@/components/Hero';
-import ProjectGrid from '@/app/projects/ProjectGrid';
+import ProjectGrid from '@/components/projects/ProjectGrid';
 import Pagination from '@/components/Pagination';
 import { projects } from '@/data/projects';
 

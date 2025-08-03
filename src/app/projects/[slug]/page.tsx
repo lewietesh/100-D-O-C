@@ -2,11 +2,11 @@
 import { notFound } from 'next/navigation';
 import { projects } from '@/data/projects';
 
-import ProjectLayout from '@/app/projects/ProjectLayout';
-import ProjectHeader from '@/app/projects/ProjectHeader';
-import ProjectImage from '@/app/projects/ProjectImage';
-import ProjectMeta from '@/app/projects/ProjectMeta';
-import ProjectReviews from '@/app/projects/ProjectReviews';
+import ProjectLayout from '@/components/projects/ProjectLayout';
+import ProjectHeader from '@/components/projects/ProjectHeader';
+import ProjectImage from '@/components/projects/ProjectImage';
+import ProjectMeta from '@/components/projects/ProjectMeta';
+import ProjectReviews from '@/components/projects/ProjectReviews';
 import CommentsSection from '@/components/CommentSection';
 import NewsletterSignup from '@/components/NewsletterSignup';
 

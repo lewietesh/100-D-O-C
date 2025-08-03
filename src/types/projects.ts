@@ -6,8 +6,16 @@ export type ProjectStatus = 'ongoing' | 'completed' | 'maintenance';
 export interface Technology {
   id: number;
   name: string;
-  iconUrl?: string;
+  icon_url?: string;
   category?: string;
+}
+
+export interface Client {
+  id: string;
+  email: string;
+  first_name?: string;
+  last_name?: string;
+  company_name?: string;
 }
 
 export interface Project {
@@ -16,32 +24,46 @@ export interface Project {
   slug: string;
   category?: string;
   domain?: string;
-  client?: string; // User ID
-  imageUrl?: string;
+  client_id?: string;
+  client?: Client; // Nested client data when populated
+  image_url?: string;
   description: string;
   content?: string;
   url?: string;
-  repositoryUrl?: string;
+  repository_url?: string;
   likes: number;
   featured: boolean;
-  completionDate?: string;
+  completion_date?: string;
   status: ProjectStatus;
-  dateCreated: string;
-  dateUpdated: string;
+  date_created: string;
+  date_updated: string;
 }
 
 export interface ProjectWithDetails extends Project {
-  clientDetails?: {
-    id: string;
-    email: string;
-    fullName: string;
-    companyName?: string;
-  };
+  client_details?: Client;
   technologies: Technology[];
-  galleryImages: ProjectGalleryImage[];
+  gallery_images: ProjectGalleryImage[];
   comments: ProjectComment[];
-  commentsCount: number;
-  technologiesCount: number;
+  comments_count: number;
+  technologies_count: number;
+}
+
+// API Response types
+export interface ProjectsResponse {
+  results: Project[];
+  count: number;
+  next?: string;
+  previous?: string;
+}
+
+export interface ProjectsQueryParams {
+  page?: number;
+  limit?: number;
+  category?: string;
+  search?: string;
+  sortBy?: 'date_created' | 'date_updated' | 'completion_date' | 'likes' | 'title';
+  sortOrder?: 'asc' | 'desc';
+  filters?: ProjectFilters;
 }
 
 export interface ProjectTechnology {
@@ -52,9 +74,9 @@ export interface ProjectTechnology {
 export interface ProjectGalleryImage {
   id: number;
   project: string; // Project ID
-  imageUrl: string;
-  altText?: string;
-  sortOrder: number;
+  image_url: string;
+  alt_text?: string;
+  sort_order: number;
 }
 
 export interface ProjectComment {
@@ -64,7 +86,7 @@ export interface ProjectComment {
   email?: string;
   message: string;
   approved: boolean;
-  dateCreated: string;
+  date_created: string;
 }
 
 export interface ProjectCommentWithDetails extends ProjectComment {
@@ -139,6 +161,39 @@ export interface ProjectSearchParams {
   sortOrder?: 'asc' | 'desc';
   page?: number;
   limit?: number;
+}
+
+// API Response types to match Django REST Framework
+export interface ProjectsApiResponse {
+  count: number;
+  next: string | null;
+  previous: string | null;
+  results: Project[];
+}
+
+export interface ProjectsQueryParams {
+  page?: number;
+  limit?: number;
+  search?: string;
+  category?: string;
+  status?: ProjectStatus;
+  featured?: boolean;
+  technologies?: string;
+  ordering?: string;
+  filters?: ProjectFilters;
+}
+
+// Hook return type
+export interface UseProjectsReturn {
+  projects: Project[];
+  loading: boolean;
+  error: string | null;
+  totalCount: number;
+  hasNext: boolean;
+  hasPrevious: boolean;
+  refetch: () => void;
+  loadMore: () => void;
+  updateFilters: (filters: Partial<ProjectsQueryParams>) => void;
 }
 
 // Project statistics and analytics
