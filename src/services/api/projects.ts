@@ -5,31 +5,31 @@ const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8
 
 // Simple fetch wrapper with error handling
 export const apiRequest = async <T>(
-  endpoint: string, 
-  options: RequestInit = {}
+          endpoint: string,
+          options: RequestInit = {}
 ): Promise<T> => {
-  const url = `${API_BASE_URL}${endpoint}`;
-  
-  const config: RequestInit = {
-    headers: {
-      'Content-Type': 'application/json',
-      ...options.headers,
-    },
-    ...options,
-  };
+          const url = `${API_BASE_URL}${endpoint}`;
 
-  try {
-    const response = await fetch(url, config);
-    
-    if (!response.ok) {
-      throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-    }
-    
-    return await response.json();
-  } catch (error) {
-    console.error('API Request failed:', error);
-    throw error;
-  }
+          const config: RequestInit = {
+                    headers: {
+                              'Content-Type': 'application/json',
+                              ...options.headers,
+                    },
+                    ...options,
+          };
+
+          try {
+                    const response = await fetch(url, config);
+
+                    if (!response.ok) {
+                              throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                    }
+
+                    return await response.json();
+          } catch (error) {
+                    console.error('API Request failed:', error);
+                    throw error;
+          }
 };
 
 // Export base URL for direct usage in hooks

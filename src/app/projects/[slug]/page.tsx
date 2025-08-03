@@ -1,25 +1,51 @@
 //src/app/projects/[slug]/page.tsx
+'use client';
+
+import React from 'react';
 import { notFound } from 'next/navigation';
-import { projects } from '@/data/projects';
+import { useProject } from '@/hooks/useProjects';
 
 import ProjectLayout from '@/components/projects/ProjectLayout';
 import ProjectHeader from '@/components/projects/ProjectHeader';
 import ProjectImage from '@/components/projects/ProjectImage';
 import ProjectMeta from '@/components/projects/ProjectMeta';
 import ProjectReviews from '@/components/projects/ProjectReviews';
-import CommentsSection from '@/components/CommentSection';
+import ProjectComments from '@/components/projects/ProjectComments';
 import NewsletterSignup from '@/components/NewsletterSignup';
+import LoadingSpinner from '@/components/ui/LoadingSpinner';
+import ErrorMessage from '@/components/ui/ErrorMessage';
 
-// Static generation enforced
-export const dynamic = 'force-static';
-
-export default async function ProjectDetail({
-  params,
-}: {
+interface ProjectDetailProps {
   params: Promise<{ slug: string }>;
-}) {
-  const { slug } = await params;
-  const project = projects.find((p) => p.slug === slug);
+}
+
+export default function ProjectDetail({ params }: ProjectDetailProps) {
+  const [slug, setSlug] = React.useState<string>('');
+
+  // Unwrap params
+  React.useEffect(() => {
+    params.then(({ slug }) => setSlug(slug));
+  }, [params]);
+
+  const { project, loading, error, refetch } = useProject(slug);
+
+  if (loading) {
+    return (
+      <ProjectLayout>
+        <div className="flex items-center justify-center min-h-96">
+          <LoadingSpinner size="lg" />
+        </div>
+      </ProjectLayout>
+    );
+  }
+
+  if (error) {
+    return (
+      <ProjectLayout>
+        <ErrorMessage message={error} onRetry={refetch} />
+      </ProjectLayout>
+    );
+  }
 
   if (!project) {
     notFound();
@@ -28,17 +54,11 @@ export default async function ProjectDetail({
   return (
     <ProjectLayout>
       <ProjectHeader project={project} />
-      <ProjectImage src={project.image} alt={project.title} />
+      <ProjectImage src={project.image_url || '/images/project-placeholder.jpg'} alt={project.title} />
       <ProjectMeta description={project.description} url={project.url} />
       <ProjectReviews reviews={project.reviews} />
-      <CommentsSection initialComments={project.comments || []} />
+      <ProjectComments projectId={project.id} initialComments={project.comments || []} />
       <NewsletterSignup />
     </ProjectLayout>
   );
-}
-
-export async function generateStaticParams() {
-  return projects.map((project) => ({
-    slug: project.slug,
-  }));
 }

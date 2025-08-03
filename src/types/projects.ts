@@ -44,8 +44,10 @@ export interface ProjectWithDetails extends Project {
   technologies: Technology[];
   gallery_images: ProjectGalleryImage[];
   comments: ProjectComment[];
+  reviews: ProjectReview[];
   comments_count: number;
   technologies_count: number;
+  reviews_count: number;
 }
 
 // API Response types
@@ -82,11 +84,29 @@ export interface ProjectGalleryImage {
 export interface ProjectComment {
   id: string;
   project: string; // Project ID
+  parent_comment?: string; // Parent comment ID for threading
   name: string;
   email?: string;
   message: string;
   approved: boolean;
   date_created: string;
+  replies?: ProjectComment[]; // Nested replies for threaded display
+  is_reply?: boolean;
+  thread_level?: number;
+}
+
+export interface ProjectReview {
+  id: string;
+  project: string; // Project ID
+  client: string; // Client ID
+  content: string;
+  rating?: number; // 1-5 rating
+  display_name?: string;
+  company_name?: string;
+  featured: boolean;
+  approved: boolean;
+  date_created: string;
+  reviewer_name?: string; // Computed property from backend
 }
 
 export interface ProjectCommentWithDetails extends ProjectComment {

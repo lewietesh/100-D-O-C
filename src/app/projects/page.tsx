@@ -1,7 +1,7 @@
 // app/projects/page.tsx
 import { Suspense } from 'react';
 import { Metadata } from 'next';
-import ProjectsContainer from '../../components/projects/ProjectsContainer';
+import ProjectsContainer from '@/components/projects/ProjectsContainer';
 import ProjectsLoading from './loading';
 
 interface ProjectsPageProps {
