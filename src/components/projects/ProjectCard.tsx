@@ -45,9 +45,23 @@ export default function ProjectCard({ project, className }: ProjectCardProps) {
                     }
           };
 
-          // Format dates
-          const formattedDate = new Date(project.date_created).toLocaleDateString();
-          const completionDate = project.completion_date ? new Date(project.completion_date).toLocaleDateString() : null;
+          // Format dates with error handling
+          const formatDate = (dateString: string | undefined | null): string => {
+                    if (!dateString) return 'No date';
+                    try {
+                              const date = new Date(dateString);
+                              if (isNaN(date.getTime())) {
+                                        return 'Invalid date';
+                              }
+                              return date.toLocaleDateString();
+                    } catch (error) {
+                              console.error('Date formatting error:', error);
+                              return 'Invalid date';
+                    }
+          };
+
+          const formattedDate = formatDate(project.date_created);
+          const completionDate = formatDate(project.completion_date);
 
           return (
                     <div

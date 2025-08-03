@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Hero from '@/components/Hero';
 import ProjectGrid from '@/components/projects/ProjectGrid';
@@ -11,6 +11,20 @@ import LoadingSpinner from '@/components/ui/LoadingSpinner';
 import ErrorMessage from '@/components/ui/ErrorMessage';
 import { useProjects } from '@/hooks/useProjects';
 import { ProjectsQueryParams } from '@/types/projects';
+
+// Simple static hero component for projects page
+const ProjectsHero = () => (
+          <section className="bg-gradient-to-br from-blue-900 via-blue-800 to-indigo-900 text-white py-20">
+                    <div className="max-w-7xl mx-auto px-6 text-center">
+                              <h1 className="text-4xl md:text-6xl font-bold mb-6">
+                                        My Projects
+                              </h1>
+                              <p className="text-xl md:text-2xl text-blue-100 max-w-3xl mx-auto">
+                                        A showcase of my design, development, and creative work projects.
+                              </p>
+                    </div>
+          </section>
+);
 
 interface ProjectsContainerProps {
           searchParams: {
@@ -27,8 +41,8 @@ export default function ProjectsContainer({ searchParams }: ProjectsContainerPro
           const router = useRouter();
           const currentSearchParams = useSearchParams();
 
-          // Parse search params into query parameters
-          const queryParams: ProjectsQueryParams = {
+          // Memoize query parameters to prevent unnecessary re-renders
+          const queryParams: ProjectsQueryParams = useMemo(() => ({
                     page: Number(searchParams.page) || 1,
                     limit: 12, // Using limit instead of page_size to match your types
                     category: searchParams.category,
@@ -37,7 +51,7 @@ export default function ProjectsContainer({ searchParams }: ProjectsContainerPro
                               status: searchParams.status as any,
                               featured: searchParams.featured === 'true' ? true : undefined,
                     },
-          };
+          }), [searchParams.page, searchParams.category, searchParams.search, searchParams.status, searchParams.featured]);
 
           const {
                     projects,
@@ -49,8 +63,8 @@ export default function ProjectsContainer({ searchParams }: ProjectsContainerPro
                     refetch
           } = useProjects(queryParams);
 
-          // Update URL with new search parameters
-          const updateURL = (newParams: Partial<ProjectsQueryParams>) => {
+          // Update URL with new search parameters - memoized to prevent recreation
+          const updateURL = useMemo(() => (newParams: Partial<ProjectsQueryParams>) => {
                     const params = new URLSearchParams(currentSearchParams);
 
                     // Handle nested filters
@@ -82,26 +96,27 @@ export default function ProjectsContainer({ searchParams }: ProjectsContainerPro
 
                     const newURL = params.toString() ? `/projects?${params.toString()}` : '/projects';
                     router.push(newURL, { scroll: false });
-          };
+          }, [currentSearchParams, router]);
 
-          const handleFiltersChange = (filters: Partial<ProjectsQueryParams>) => {
+          const handleFiltersChange = useMemo(() => (filters: Partial<ProjectsQueryParams>) => {
                     updateURL(filters);
-          };
+          }, [updateURL]);
 
-          const handlePageChange = (page: number) => {
+          const handlePageChange = useMemo(() => (page: number) => {
                     updateURL({ page });
-          };
+          }, [updateURL]);
 
-          const handleSearch = (search: string) => {
+          const handleSearch = useMemo(() => (search: string) => {
                     updateURL({ search });
-          };
+          }, [updateURL]);
 
           if (loading && (!projects || projects.length === 0)) {
                     return (
                               <>
                                         <Hero
-                                                  title="My Projects"
-                                                  subtitle="A showcase of my design, development, and creative work."
+                                                  routeName="projects"
+                                                  fallbackTitle="My Projects"
+                                                  fallbackSubtitle="A showcase of my design, development, and creative work."
                                         />
                                         <div className="flex items-center justify-center min-h-96">
                                                   <LoadingSpinner className="h-8 w-8" />
@@ -114,8 +129,9 @@ export default function ProjectsContainer({ searchParams }: ProjectsContainerPro
                     return (
                               <>
                                         <Hero
-                                                  title="My Projects"
-                                                  subtitle="A showcase of my design, development, and creative work."
+                                                  routeName="projects"
+                                                  fallbackTitle="My Projects"
+                                                  fallbackSubtitle="A showcase of my design, development, and creative work."
                                         />
                                         <div className="max-w-7xl mx-auto p-6">
                                                   <ErrorMessage message={error} onRetry={refetch} />
@@ -129,10 +145,11 @@ export default function ProjectsContainer({ searchParams }: ProjectsContainerPro
 
           return (
                     <>
-                              {/* <Hero
-                                        title="My Projects"
-                                        subtitle={`A showcase of my ${totalCount || 0} design, development, and creative work projects.`}
-                              /> */}
+                              <Hero
+                                        routeName="projects"
+                                        fallbackTitle="My Projects"
+                                        fallbackSubtitle="A showcase of my design, development, and creative work projects."
+                              />
                               <main className="max-w-7xl mx-auto p-6">
                                         {/* Search Bar */}
                                         <SearchBar

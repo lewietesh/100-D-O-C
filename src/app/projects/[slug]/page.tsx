@@ -57,7 +57,7 @@ export default function ProjectDetail({ params }: ProjectDetailProps) {
       <ProjectImage src={project.image_url || '/images/project-placeholder.jpg'} alt={project.title} />
       <ProjectMeta description={project.description} url={project.url} />
       <ProjectReviews reviews={project.reviews} />
-      <ProjectComments projectId={project.id} initialComments={project.comments || []} />
+      <ProjectComments projectSlug={project.slug} initialComments={project.comments || []} />
       <NewsletterSignup />
     </ProjectLayout>
   );

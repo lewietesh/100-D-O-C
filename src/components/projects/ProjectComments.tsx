@@ -3,9 +3,10 @@
 import { useState, useEffect } from 'react';
 import { ProjectComment } from '@/types/projects';
 import { useProjectComments } from '@/hooks/useProjects';
+import { useToast } from '@/app/context/ToastContext';
 
 interface ProjectCommentsProps {
-          projectId: string;
+          projectSlug: string;
           initialComments?: ProjectComment[];
 }
 
@@ -213,11 +214,10 @@ const CommentItem = ({
           );
 };
 
-const ProjectComments = ({ projectId, initialComments = [] }: ProjectCommentsProps) => {
-          const { comments, loading, addComment } = useProjectComments(projectId);
+const ProjectComments = ({ projectSlug, initialComments = [] }: ProjectCommentsProps) => {
+          const { comments, loading, addComment } = useProjectComments(projectSlug);
+          const { showToast } = useToast();
           const [submitLoading, setSubmitLoading] = useState(false);
-          const [error, setError] = useState<string | null>(null);
-          const [success, setSuccess] = useState(false);
           const [replyTo, setReplyTo] = useState<{ id: string; name: string } | null>(null);
 
           // Use comments from hook if available, otherwise use initial comments
@@ -257,8 +257,6 @@ const ProjectComments = ({ projectId, initialComments = [] }: ProjectCommentsPro
           const handleSubmitComment = async (formData: CommentFormData) => {
                     try {
                               setSubmitLoading(true);
-                              setError(null);
-                              setSuccess(false);
 
                               await addComment({
                                         name: formData.name,
@@ -267,11 +265,18 @@ const ProjectComments = ({ projectId, initialComments = [] }: ProjectCommentsPro
                                         parent_comment: formData.parent_comment
                               });
 
-                              setSuccess(true);
+                              // Show success toast
+                              showToast(
+                                        replyTo
+                                                  ? 'Reply submitted successfully! It will appear after moderation.'
+                                                  : 'Comment submitted successfully! It will appear after moderation.',
+                                        'success'
+                              );
                               setReplyTo(null);
-                              setTimeout(() => setSuccess(false), 5000);
                     } catch (err) {
-                              setError(err instanceof Error ? err.message : 'Failed to post comment');
+                              // Show error toast
+                              const errorMessage = err instanceof Error ? err.message : 'Failed to post comment';
+                              showToast(errorMessage, 'error');
                     } finally {
                               setSubmitLoading(false);
                     }
@@ -293,22 +298,6 @@ const ProjectComments = ({ projectId, initialComments = [] }: ProjectCommentsPro
           return (
                     <section className="mb-10">
                               <h2 className="text-2xl font-semibold mb-6">Comments & Feedback</h2>
-
-                              {/* Success Message */}
-                              {success && (
-                                        <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-md">
-                                                  <p className="text-green-800">
-                                                            Thank you for your {replyTo ? 'reply' : 'comment'}! It will appear after moderation.
-                                                  </p>
-                                        </div>
-                              )}
-
-                              {/* Error Message */}
-                              {error && (
-                                        <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-md">
-                                                  <p className="text-red-800">{error}</p>
-                                        </div>
-                              )}
 
                               {/* Comment Form */}
                               <div id="comment-form" className="mb-8">
