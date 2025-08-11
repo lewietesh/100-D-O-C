@@ -3,9 +3,10 @@
 
 import { ThemeProvider } from 'next-themes'
 import { ToastProvider } from '@/app//context/ToastContext';
-
+import { DataProvider } from './context/DataContext';
 export function AppProviders({ children }: { children: React.ReactNode }) {
   return (
+    <DataProvider>
     <ThemeProvider
       attribute="class"     // ✅ applies 'dark' class to <html>
       defaultTheme="system" // ✅ follow system preference first
@@ -17,5 +18,6 @@ export function AppProviders({ children }: { children: React.ReactNode }) {
       </ToastProvider>
 
     </ThemeProvider>
+    </DataProvider>
   )
 }

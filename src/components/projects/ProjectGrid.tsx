@@ -1,6 +1,6 @@
 // components/projects/ProjectGrid.tsx
 import { Project } from '@/types/projects';
-import ProjectCard from '@/components/projects/ProjectCard';
+import ProjectCard from '@/components/ProjectCard';
 import { cn } from '@/lib/utils';
 
 interface ProjectGridProps {

@@ -12,10 +12,8 @@ import {
 } from '@/types/projects';
 
 // API Configuration
-import { getApiBaseUrl } from '@/app/utils/config';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000/api';
 
-// API Configuration
-const API_BASE_URL = getApiBaseUrl();
 // API Service Functions
 class ProjectsApiService {
           private async fetchWithErrorHandling<T>(url: string, options?: RequestInit): Promise<T> {
@@ -65,12 +63,12 @@ class ProjectsApiService {
                               });
                     }
 
-                    const url = `${API_BASE_URL}/api/v1/projects/projects/?${searchParams.toString()}`;
+                    const url = `${API_BASE_URL}/projects/?${searchParams.toString()}`;
                     return this.fetchWithErrorHandling<ProjectsApiResponse>(url);
           }
 
           async getProject(slug: string): Promise<ProjectWithDetails> {
-                    const url = `${API_BASE_URL}/api/v1/projects/projects/${slug}/`;
+                    const url = `${API_BASE_URL}/projects/${slug}/`;
                     return this.fetchWithErrorHandling<ProjectWithDetails>(url);
           }
 
@@ -80,25 +78,24 @@ class ProjectsApiService {
           }
 
           async getTechnologies(): Promise<Technology[]> {
-                    const url = `${API_BASE_URL}/api/v1/projects/technologies/`;
+                    const url = `${API_BASE_URL}/technologies/`;
                     return this.fetchWithErrorHandling<Technology[]>(url);
           }
 
-          async addProjectComment(projectSlug: string, comment: {
+          async addProjectComment(projectId: string, comment: {
                     name: string;
                     email?: string;
                     message: string;
-                    parent_comment?: string;
           }): Promise<ProjectComment> {
-                    const url = `${API_BASE_URL}/api/v1/projects/projects/${projectSlug}/add_comment/`;
+                    const url = `${API_BASE_URL}/projects/${projectId}/comments/`;
                     return this.fetchWithErrorHandling<ProjectComment>(url, {
                               method: 'POST',
                               body: JSON.stringify(comment),
                     });
           }
 
-          async likeProject(projectSlug: string): Promise<{ likes: number }> {
-                    const url = `${API_BASE_URL}/api/v1/projects/projects/${projectSlug}/like/`;
+          async likeProject(projectId: string): Promise<{ likes: number }> {
+                    const url = `${API_BASE_URL}/projects/${projectId}/like/`;
                     return this.fetchWithErrorHandling<{ likes: number }>(url, {
                               method: 'POST',
                     });
@@ -150,13 +147,13 @@ export const useProjects = (initialParams: ProjectsQueryParams = {}): UseProject
                               console.error('useProjects error:', err);
 
                               // Don't clear projects on error if we have some data
-                              if (!appendResults) {
+                              if (!appendResults && projects.length === 0) {
                                         setProjects([]);
                               }
                     } finally {
                               setLoading(false);
                     }
-          }, []); // Remove projects.length dependency
+          }, [projects.length]);
 
           // Refetch current data
           const refetch = useCallback(() => {
@@ -187,14 +184,15 @@ export const useProjects = (initialParams: ProjectsQueryParams = {}): UseProject
                     fetchProjects(updatedParams, false);
           }, [currentParams, fetchProjects]);
 
-          // Memoize initial params string for comparison
-          const initialParamsString = useMemo(() => JSON.stringify(initialParams), [initialParams]);
+          // Initial fetch
+          useEffect(() => {
+                    fetchProjects(currentParams, false);
+          }, []); // Only run on mount
 
-          // Update params and fetch when initial params change
+          // Update current params when initial params change
           useEffect(() => {
                     setCurrentParams(initialParams);
-                    fetchProjects(initialParams, false);
-          }, [initialParamsString, fetchProjects]);
+          }, [initialParams]);
 
           return {
                     projects,
@@ -249,7 +247,7 @@ export const useProject = (slug: string) => {
 };
 
 // Custom Hook: useProjectComments
-export const useProjectComments = (projectSlug: string) => {
+export const useProjectComments = (projectId: string) => {
           const [comments, setComments] = useState<ProjectComment[]>([]);
           const [loading, setLoading] = useState(false);
           const [error, setError] = useState<string | null>(null);
@@ -258,13 +256,12 @@ export const useProjectComments = (projectSlug: string) => {
                     name: string;
                     email?: string;
                     message: string;
-                    parent_comment?: string;
           }) => {
                     try {
                               setLoading(true);
                               setError(null);
 
-                              const newComment = await apiService.addProjectComment(projectSlug, commentData);
+                              const newComment = await apiService.addProjectComment(projectId, commentData);
 
                               // Add the new comment to the list (it might be pending approval)
                               setComments(prev => [newComment, ...prev]);
@@ -277,7 +274,7 @@ export const useProjectComments = (projectSlug: string) => {
                     } finally {
                               setLoading(false);
                     }
-          }, [projectSlug]);
+          }, [projectId]);
 
           return {
                     comments,
@@ -288,7 +285,7 @@ export const useProjectComments = (projectSlug: string) => {
 };
 
 // Custom Hook: useProjectLikes
-export const useProjectLikes = (projectSlug: string, initialLikes: number = 0) => {
+export const useProjectLikes = (projectId: string, initialLikes: number = 0) => {
           const [likes, setLikes] = useState(initialLikes);
           const [loading, setLoading] = useState(false);
           const [error, setError] = useState<string | null>(null);
@@ -298,7 +295,7 @@ export const useProjectLikes = (projectSlug: string, initialLikes: number = 0) =
                               setLoading(true);
                               setError(null);
 
-                              const response = await apiService.likeProject(projectSlug);
+                              const response = await apiService.likeProject(projectId);
                               setLikes(response.likes);
 
                     } catch (err) {
@@ -307,7 +304,7 @@ export const useProjectLikes = (projectSlug: string, initialLikes: number = 0) =
                     } finally {
                               setLoading(false);
                     }
-          }, [projectSlug]);
+          }, [projectId]);
 
           return {
                     likes,

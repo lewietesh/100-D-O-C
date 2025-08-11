@@ -1,8 +1,10 @@
 //app/blog/page.tsx
 'use client';
-import BlogLayout from './BlogLayout';
-import BlogCard from './BlogCard';
-import BlogSidebar from './BlogSidebar';
+import BlogLayout from '@/components/blog/BlogLayout';
+import BlogCard from '@/components/blog/BlogCard';
+import BlogSidebar from '@/components/blog/BlogSidebar';
+
+// Replace this
 import {useData} from '@/app/context/DataContext'
 export default function BlogPage() {
 

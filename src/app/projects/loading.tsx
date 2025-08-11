@@ -1,9 +1,13 @@
 // app/projects/loading.tsx
+import Hero from '@/components/Hero';
 
 export default function ProjectsLoading() {
           return (
                     <>
-
+                              <Hero
+                                        title="My Projects"
+                                        subtitle="A showcase of my design, development, and creative work."
+                              />
                               <main className="max-w-7xl mx-auto p-6">
                                         {/* Loading skeleton */}
                                         <div className="animate-pulse">

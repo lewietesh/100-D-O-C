@@ -1,11 +1,9 @@
 'use client'
 
-import { useEffect, useState, useMemo } from 'react'
-import { usePathname } from 'next/navigation'
+import { useEffect, useState } from 'react'
 import dynamic from 'next/dynamic'
 import { ChevronRightIcon, CheckCircleIcon } from '@heroicons/react/24/outline'
 import codeAnimation from '@/assets/lottie/code.json'
-import { getApiBaseUrl } from '@/app/utils/config'
 
 // Types
 interface Link {
@@ -21,79 +19,76 @@ interface HeroData {
   subheading: string
   cta_text: string
   cta_link: string
-  route_name: string
 }
 
 interface HeroProps {
-  routeName?: string // Allow manual route override
-  fallbackTitle?: string
-  fallbackSubtitle?: string
-  fallbackLinks?: Link[]
+  title?: string
+  subtitle?: string
+  links?: Link[]
 }
 
-// API Configuration
-const API_BASE_URL = getApiBaseUrl();
+// API Base URL for development
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://127.0.0.1:8000'
 
 export default function Hero({
-  routeName,
-  fallbackTitle = "Build a Better Future, With Tech",
-  fallbackSubtitle = "Dedicated to helping professionals build success stories whether through software development or content writing.",
-  fallbackLinks = [
+  title = "Build a Better Future, With Tech",
+  subtitle = "Dedicated to helping professionals build success stories whether through software development or content writing.",
+  links = [
     { name: 'View My Projects', href: '/projects' },
     { name: 'Request a Service', href: '/contact' },
   ],
 }: HeroProps) {
   const [showAnimation, setShowAnimation] = useState(false)
-  const pathname = usePathname()
-
-  // Memoize the route name to prevent unnecessary re-renders
-  const currentRouteName = useMemo(() => {
-    return routeName || getRouteNameFromPath(pathname)
-  }, [routeName, pathname])
-
-  // Use the custom hook to fetch hero data
-  const { data: heroData, loading, error } = useHeroData(currentRouteName)
+  const [heroData, setHeroData] = useState<HeroData | null>(null)
+  const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
     setShowAnimation(true)
-  }, [])
-
-  // Memoize display data to prevent unnecessary re-renders
-  const displayData = useMemo(() => {
-    return heroData ? {
-      heading: heroData.heading,
-      subheading: heroData.subheading,
-      cta_text: heroData.cta_text || fallbackLinks[0]?.name || 'Get Started',
-      cta_link: heroData.cta_link || fallbackLinks[0]?.href || '/contact'
-    } : {
-      heading: fallbackTitle,
-      subheading: fallbackSubtitle,
-      cta_text: fallbackLinks[0]?.name || 'Get Started',
-      cta_link: fallbackLinks[0]?.href || '/contact'
+    
+    const fetchHeroData = async () => {
+      try {
+        const response = await fetch(`${API_BASE_URL}/api/v1/core/hero/`)
+        
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`)
+        }
+        
+        const data: HeroData = await response.json()
+        setHeroData(data)
+      } catch (error) {
+        console.error('Error fetching hero data:', error)
+        setError('Failed to load hero data')
+        // Fallback to props if API fails
+        setHeroData({
+          heading: title,
+          subheading: subtitle,
+          cta_text: links[0]?.name || 'Get Started',
+          cta_link: links[0]?.href || '/contact'
+        })
+      } finally {
+        setIsLoading(false)
+      }
     }
-  }, [heroData, fallbackTitle, fallbackSubtitle, fallbackLinks])
 
-  // Loading state - show skeleton with fallback content
-  if (loading) {
+    fetchHeroData()
+  }, [title, subtitle, links])
+
+  if (isLoading) {
     return (
-      <section className="relative w-full min-h-[85vh] lg:min-h-[90vh] flex items-center isolate overflow-hidden bg-dark-primary">
-        <div className="absolute inset-0 -z-30">
-          <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900"></div>
-        </div>
-        <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 z-10 w-full">
-          <div className="grid lg:grid-cols-2 gap-12 items-center">
-            <div className="max-w-2xl">
-              <div className="animate-pulse">
-                <div className="h-16 bg-gray-700 rounded mb-6"></div>
-                <div className="h-6 bg-gray-700 rounded mb-4"></div>
-                <div className="h-6 bg-gray-700 rounded mb-8 w-3/4"></div>
-                <div className="h-12 bg-gray-700 rounded w-48"></div>
-              </div>
-            </div>
-          </div>
+      <section className="relative w-full min-h-[70vh] flex items-center justify-center bg-dark-primary">
+        <div className="animate-pulse-subtle">
+          <div className="w-8 h-8 border-2 border-cta border-t-transparent rounded-full animate-spin"></div>
         </div>
       </section>
     )
+  }
+
+  const displayData = heroData || { 
+    heading: title, 
+    subheading: subtitle,
+    cta_text: 'Get Started',
+    cta_link: '/contact'
   }
 
   // Three-step process for potential clients
@@ -104,7 +99,7 @@ export default function Hero({
       description: "We analyze your needs and define the perfect solution"
     },
     {
-      number: "02",
+      number: "02", 
       title: "Develop",
       description: "Custom development with regular progress updates"
     },
@@ -121,18 +116,18 @@ export default function Hero({
       <div className="absolute inset-0 -z-30">
         {/* Primary gradient background - darker for better contrast */}
         <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900"></div>
-
+        
         {/* Animated gradient overlays - subtle blue and orange accents */}
         <div className="absolute inset-0 bg-gradient-to-r from-blue-900/30 via-transparent to-orange-900/20 animate-pulse-subtle"></div>
-
+        
         {/* Moving gradient orbs - darker versions */}
         <div className="absolute top-0 left-0 w-96 h-96 bg-gradient-to-r from-blue-800/20 to-transparent rounded-full blur-3xl animate-float-slow"></div>
         <div className="absolute bottom-0 right-0 w-80 h-80 bg-gradient-to-r from-orange-800/15 to-transparent rounded-full blur-3xl animate-float-reverse"></div>
         <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-gradient-to-r from-blue-700/15 to-transparent rounded-full blur-2xl animate-float-gentle"></div>
-
+        
         {/* Additional dark overlay for better text contrast */}
         <div className="absolute inset-0 bg-black/20"></div>
-
+        
         {/* Subtle grid pattern */}
         <div className="absolute inset-0 opacity-[0.02]" style={{
           backgroundImage: `
@@ -200,7 +195,7 @@ export default function Hero({
                 </div>
                 <span className="text-sm text-gray-100 font-medium">Trusted by 10+ clients</span>
               </div>
-
+              
               <div className="flex items-center space-x-2">
                 <div className="w-3 h-3 bg-success rounded-full animate-pulse-subtle shadow-lg"></div>
                 <span className="text-sm text-gray-100 font-medium">Available for new projects</span>
@@ -214,10 +209,10 @@ export default function Hero({
               <h3 className="text-2xl font-bold text-white mb-8 text-center">
                 Your Journey to Success
               </h3>
-
+              
               <div className="space-y-6">
                 {steps.map((step, index) => (
-                  <div
+                  <div 
                     key={step.number}
                     className="flex items-start space-x-4 animate-slide-up"
                     style={{ animationDelay: `${1.2 + index * 0.2}s` }}
@@ -226,19 +221,19 @@ export default function Hero({
                     <div className="flex-shrink-0 w-12 h-12 bg-cta hover:bg-cta-hover rounded-full flex items-center justify-center shadow-lg transition-colors">
                       <span className="text-white font-bold text-sm">{step.number}</span>
                     </div>
-
+                    
                     {/* Step Content */}
                     <div className="flex-1">
                       <h4 className="text-lg font-semibold text-white mb-1">{step.title}</h4>
                       <p className="text-gray-300 text-sm leading-relaxed">{step.description}</p>
                     </div>
-
+                    
                     {/* Check Icon */}
                     <CheckCircleIcon className="w-6 h-6 text-success flex-shrink-0 mt-1" />
                   </div>
                 ))}
               </div>
-
+              
               {/* Bottom CTA */}
               <div className="mt-8 text-center">
                 <p className="text-gray-300 text-sm mb-4">Ready to start your project?</p>
@@ -272,21 +267,8 @@ export default function Hero({
   )
 }
 
-// Utility function to get route name from pathname
-function getRouteNameFromPath(pathname: string): string {
-  if (pathname === '/') return 'home'
-  if (pathname.startsWith('/projects')) return 'projects'
-  if (pathname.startsWith('/about')) return 'about'
-  if (pathname.startsWith('/contact')) return 'contact'
-  if (pathname.startsWith('/services')) return 'services'
-  if (pathname.startsWith('/blog')) return 'blog'
-
-  // Default to 'home' for unknown routes
-  return 'home'
-}
-
-// Hook for hero data fetching with route-specific data
-export function useHeroData(routeName: string = 'home') {
+// Hook for hero data fetching (ready for API integration)
+export function useHeroData() {
   const [data, setData] = useState<HeroData | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -294,39 +276,24 @@ export function useHeroData(routeName: string = 'home') {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        setLoading(true)
-        setError(null)
-
-        // Try to fetch route-specific hero data
-        const response = await fetch(`${API_BASE_URL}/api/v1/core/hero-sections/by-route/${routeName}/`)
-
+        const response = await fetch(`${API_BASE_URL}/api/v1/core/hero/`)
+        
         if (!response.ok) {
-          // If route-specific hero doesn't exist, try to get default home hero
-          if (response.status === 404 && routeName !== 'home') {
-            const fallbackResponse = await fetch(`${API_BASE_URL}/api/v1/core/hero-sections/by-route/home/`)
-            if (fallbackResponse.ok) {
-              const fallbackData: HeroData = await fallbackResponse.json()
-              setData(fallbackData)
-              return
-            }
-          }
-
           throw new Error(`HTTP error! status: ${response.status}`)
         }
-
+        
         const data: HeroData = await response.json()
         setData(data)
       } catch (err) {
-        setError(`Failed to load hero data for ${routeName}`)
+        setError('Failed to load hero data')
         console.error('Hero data fetch error:', err)
-        // Don't set data to null on error, keep existing data if any
       } finally {
         setLoading(false)
       }
     }
 
     fetchData()
-  }, [routeName]) // Only depend on routeName
+  }, [])
 
   return { data, loading, error }
 }

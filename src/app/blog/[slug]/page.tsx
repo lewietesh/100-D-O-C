@@ -5,7 +5,7 @@ import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { useData } from '@/app/context/DataContext';
 import { BlogPost } from '@/app/models/blog.model';
-import BlogLayout from '../BlogLayout';
+import BlogLayout from '@/components/blog/BlogLayout';
 import CommentsSection from '@/components/CommentSection';
 import NewsletterSignup from '@/components/NewsletterSignup';
 import Image from 'next/image';
