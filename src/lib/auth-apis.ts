@@ -16,6 +16,15 @@ import type {
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 
 class AuthAPI {
+          async resendVerification(email: string): Promise<{ message: string; development_note?: string }> {
+                    return this.makeRequest<{ message: string; development_note?: string }>(
+                              '/api/v1/accounts/auth/resend-verification/',
+                              {
+                                        method: 'POST',
+                                        body: JSON.stringify({ email }),
+                              }
+                    );
+          }
           private baseURL: string;
 
           constructor(baseURL: string = API_BASE_URL) {
@@ -54,46 +63,70 @@ class AuthAPI {
                               const data = await response.json();
 
                               if (!response.ok) {
-                                        logger.error(`API Error ${response.status}:`, data);
-                                        throw {
+                                        // Only throw for server errors (500+)
+                                        if (response.status >= 500) {
+                                                  logger.error(`API Error ${response.status}:`, data);
+                                                  throw new Error(data.detail || data.message || 'Server error');
+                                        }
+                                        // For registration duplicate email error, log a specific message
+                                        if (endpoint.includes('/register') && data?.errors?.email && Array.isArray(data.errors.email) && data.errors.email[0].includes('already exists')) {
+                                                  let email = '';
+                                                  if (typeof options.body === 'string') {
+                                                            try {
+                                                                      email = JSON.parse(options.body).email || '';
+                                                            } catch { }
+                                                  }
+                                                  logger.info(`Registration failed: User with email ${email} already exists.`);
+                                        } else {
+                                                  logger.info(`API Validation/Error ${response.status}:`, data);
+                                        }
+                                        return {
+                                                  success: false,
                                                   message: data.detail || data.message || 'Request failed',
                                                   status: response.status,
                                                   errors: data.errors || data,
-                                        } as ApiError;
+                                        } as any;
                               }
 
                               logger.info(`API Success ${response.status}:`, data);
                               return data;
                     } catch (error) {
-                              if (error instanceof Error) {
-                                        logger.error('Network Error:', error.message);
-                                        throw {
-                                                  message: 'Network error occurred',
-                                                  status: 0,
-                                        } as ApiError;
-                              }
-                              throw error;
+                              logger.error('Network Error:', error instanceof Error ? error.message : error);
+                              return {
+                                        success: false,
+                                        message: 'Network error occurred',
+                                        status: 0,
+                                        errors: error,
+                              } as any;
                     }
           }
 
           async register(data: AuthRequest): Promise<AuthResponse> {
-                    return this.makeRequest<AuthResponse>('/api/v1/auth/register/', {
+                    return this.makeRequest<AuthResponse>('/api/v1/accounts/auth/register/', {
                               method: 'POST',
                               body: JSON.stringify(data),
                     });
           }
 
           async login(data: AuthRequest): Promise<AuthResponse> {
-                    return this.makeRequest<AuthResponse>('/api/v1/auth/login/', {
+                    // dj-rest-auth expects only email and password
+                    const payload = {
+                              email: data.email,
+                              password: data.password
+                    };
+                    const response = await this.makeRequest<AuthResponse>('/api/v1/accounts/auth/login/', {
                               method: 'POST',
-                              body: JSON.stringify(data),
+                              body: JSON.stringify(payload),
                     });
+                    // Always return response, never throw
+                    return response;
           }
 
-          async verifyEmail(data: VerificationRequest): Promise<VerificationResponse> {
-                    return this.makeRequest<VerificationResponse>('/api/v1/auth/verify-email/', {
+          async verifyEmail(data: VerificationRequest, headers?: Record<string, string>): Promise<VerificationResponse> {
+                    return this.makeRequest<VerificationResponse>('/api/v1/accounts/auth/verify-email/', {
                               method: 'POST',
                               body: JSON.stringify(data),
+                              headers: headers || {},
                     });
           }
 
@@ -116,8 +149,10 @@ class AuthAPI {
           }
 
           async logout(): Promise<void> {
+                    const { getAuthHeaders } = await import('./auth-headers');
                     return this.makeRequest<void>('/api/v1/accounts/auth/logout/', {
                               method: 'POST',
+                              headers: getAuthHeaders(),
                     });
           }
 }

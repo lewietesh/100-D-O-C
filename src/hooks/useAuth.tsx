@@ -12,6 +12,7 @@ import {
 } from 'react';
 import { authAPI } from '../lib/auth-apis';
 import { sessionManager } from '../lib/session-manager';
+// @ts-ignore
 import { logger } from '../lib/logger';
 import type { User, ApiError } from '../types/auth';
 
@@ -29,9 +30,9 @@ interface AuthState {
 
 interface AuthContextType extends AuthState {
   login: (email: string, password: string) => Promise<void>;
-  register: (email: string, password: string) => Promise<void>;
+  register: (data: { email: string; password: string; password_confirm: string }) => Promise<void>;
   logout: () => Promise<void>;
-  verifyEmail: (key: string) => Promise<void>;
+  verifyEmail: (data: { email: string; code: string }) => Promise<void>;
   resetPassword: (email: string) => Promise<void>;
   googleAuth: (accessToken: string) => Promise<void>;
   clearError: () => void;
@@ -108,16 +109,9 @@ function authReducer(state: AuthState, action: AuthAction): AuthState {
 }
 
 // ========================================
-// CONTEXT CREATION - This creates a VALUE, not a TYPE
+// CONTEXT IMPORT
 // ========================================
-
-// ✅ CORRECT: AuthContext is a VALUE (React context instance)
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
-
-
-
-// ✅ CORRECT: Use AuthContextType as the type
-// function someFunction(): AuthContextType { }
+import AuthContext from './AuthContext';
 
 // ========================================
 // PROVIDER COMPONENT
@@ -258,44 +252,54 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   // Authentication functions
   const login = useCallback(async (email: string, password: string) => {
+    safeDispatch({ type: 'SET_LOADING', payload: true });
+    safeDispatch({ type: 'CLEAR_ERROR' });
+
+    let response;
     try {
-      safeDispatch({ type: 'SET_LOADING', payload: true });
-      safeDispatch({ type: 'CLEAR_ERROR' });
+      response = await authAPI.login({ email, password });
+    } catch (error: any) {
+      // If API throws, treat as error response
+      safeDispatch({ type: 'SET_ERROR', payload: error.message || 'Login failed: Invalid credentials' });
+      safeDispatch({ type: 'SET_LOADING', payload: false });
+      return;
+    }
 
-      const response = await authAPI.login({ email, password });
+    // If backend returns success: false or missing tokens, treat as error
+    if (!response.success || !response.access || !response.refresh) {
+      safeDispatch({ type: 'SET_ERROR', payload: response.message || 'Login failed: Invalid credentials' });
+      safeDispatch({ type: 'SET_LOADING', payload: false });
+      return;
+    }
 
-      if (!response.access) {
-        throw new Error('No authentication token received');
-      }
+    let user = response.user;
+    if (!user) {
+      user = await authAPI.getCurrentUser();
+    }
 
-      let user = response.user;
-      if (!user) {
-        user = await authAPI.getCurrentUser();
-      }
+    sessionManager.setSession(response.access, user);
+    safeDispatch({ type: 'SET_USER', payload: user });
+    safeDispatch({ type: 'SET_LOADING', payload: false });
 
-      sessionManager.setSession(response.access, user);
-      safeDispatch({ type: 'SET_USER', payload: user });
-
-      logger.info('User logged in successfully');
-    } catch (error) {
-      const apiError = error as ApiError;
-      const errorMessage = apiError.message || 'Login failed';
-
-      logger.error('Login failed:', errorMessage);
-      safeDispatch({ type: 'SET_ERROR', payload: errorMessage });
-      throw error;
+    // Redirect to dashboard if not coming from an authenticated route
+    if (typeof window !== 'undefined' && window.location.pathname !== '/dashboard') {
+      window.location.href = '/dashboard';
     }
   }, [safeDispatch]);
 
-  const register = useCallback(async (email: string, password: string) => {
+  const register = useCallback(async (data: { email: string; password: string; password_confirm: string }) => {
     try {
       safeDispatch({ type: 'SET_LOADING', payload: true });
       safeDispatch({ type: 'CLEAR_ERROR' });
 
-      await authAPI.register({ email, password });
+      await authAPI.register(data);
       safeDispatch({ type: 'SET_LOADING', payload: false });
 
+      // This is guessing / check response code and ensure proper response handling. only response 200 is considered a success
       logger.info('User registered successfully');
+
+
+// Expand this to include error handling and user feedback
     } catch (error) {
       const apiError = error as ApiError;
       const errorMessage = apiError.message || 'Registration failed';
@@ -310,33 +314,71 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       safeDispatch({ type: 'SET_LOADING', payload: true });
 
-      sessionManager.clearSession();
-
-      try {
-        await authAPI.logout();
-        logger.info('Server logout successful');
-      } catch (error) {
-        logger.warn('Server logout failed, continuing with local logout:', error);
+      // Log token before logout
+      const token = localStorage.getItem('auth_token');
+      logger.info('Logout: access token in localStorage:', token);
+      if (!token) {
+        logger.error('Logout: No access token found in localStorage.');
       }
 
+      try {
+        const response = await authAPI.logout();
+        logger.info('Server logout successful:', response);
+      } catch (error: any) {
+        logger.error('Server logout failed:', error);
+        if (error?.status) {
+          logger.error('Logout error status:', error.status);
+        }
+        if (error?.message) {
+          logger.error('Logout error message:', error.message);
+        }
+        if (error?.errors) {
+          logger.error('Logout error details:', error.errors);
+        }
+      }
+
+      sessionManager.clearSession();
       safeDispatch({ type: 'LOGOUT' });
       logger.info('User logged out successfully');
     } catch (error) {
-      logger.error('Logout error:', error);
+      logger.error('Logout error (outer catch):', error);
       sessionManager.clearSession();
       safeDispatch({ type: 'LOGOUT' });
     }
   }, [safeDispatch]);
 
-  const verifyEmail = useCallback(async (key: string) => {
+  const verifyEmail = useCallback(async ({ email, code }: { email: string; code: string }) => {
     try {
       safeDispatch({ type: 'SET_LOADING', payload: true });
       safeDispatch({ type: 'CLEAR_ERROR' });
 
-      await authAPI.verifyEmail({ key });
-      safeDispatch({ type: 'SET_LOADING', payload: false });
+      // Use temporary registration token for verification
+      // @ts-ignore
+      const regSession = sessionManager.getTemporaryRegistrationSession();
+      if (!regSession) {
+        throw new Error('Verification session expired. Please register again.');
+      }
+      const response = await authAPI.verifyEmail(
+        { email, code },
+        { Authorization: `Bearer ${regSession.access}` }
+      );
 
-      logger.info('Email verified successfully');
+      // On success, start full session
+      if (response && response.access && response.refresh && response.user) {
+        // @ts-ignore
+        sessionManager.setSession(response.access, response.user);
+        // @ts-ignore
+        sessionManager.clearTemporaryRegistrationSession();
+        safeDispatch({ type: 'SET_USER', payload: response.user });
+        safeDispatch({ type: 'SET_LOADING', payload: false });
+        logger.info('Email verified and session started');
+      } else if (response && (response as any).resend_prompt) {
+        safeDispatch({ type: 'SET_ERROR', payload: 'Invalid or expired code. Please resend verification email.' });
+        logger.warn('Verification code invalid or expired');
+      } else {
+        safeDispatch({ type: 'SET_ERROR', payload: response.message || 'Email verification failed' });
+        logger.error('Email verification failed:', response);
+      }
     } catch (error) {
       const apiError = error as ApiError;
       const errorMessage = apiError.message || 'Email verification failed';

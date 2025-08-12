@@ -12,22 +12,29 @@ export interface User {
 export interface AuthRequest {
   email: string;
   password: string;
+  password_confirm?: string;
 }
 
 export interface AuthResponse {
   access: string;
-  refresh?: string;
+  refresh: string;
   user?: User;
   message?: string;
-  detail?: string;
+  errors?: Record<string, string[]>;
+  success?: boolean;
 }
 
 export interface VerificationRequest {
-  key: string;
+  email: string;
+  code: string;
 }
 
 export interface VerificationResponse {
-  detail: string;
+  message: string;
+  user: User;
+  access: string;
+  refresh: string;
+  errors?: Record<string, string[]>;
 }
 
 export interface PasswordResetRequest {
@@ -77,9 +84,9 @@ export interface AuthState {
 
 export interface AuthContextType extends AuthState {
   login: (email: string, password: string) => Promise<void>;
-  register: (email: string, password: string) => Promise<void>;
+  register: (data: { email: string; password: string; password_confirm: string }) => Promise<void>;
   logout: () => Promise<void>;
-  verifyEmail: (key: string) => Promise<void>;
+  verifyEmail: (data: { email: string; code: string }) => Promise<void>;
   resetPassword: (email: string) => Promise<void>;
   googleAuth: (accessToken: string) => Promise<void>;
   clearError: () => void;

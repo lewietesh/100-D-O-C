@@ -17,6 +17,10 @@ function DashboardContent() {
 
           const handleLogout = async () => {
                     try {
+                              // Log the Authorization header before logout
+                              const token = localStorage.getItem('auth_token');
+                              const authHeader = token ? `Bearer ${token}` : '(none)';
+                              console.log('[LOGOUT DEBUG] Authorization header to be sent:', authHeader);
                               await logout();
                     } catch (error) {
                               console.error('Logout failed:', error);

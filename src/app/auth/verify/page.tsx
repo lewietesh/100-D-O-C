@@ -10,12 +10,41 @@ import { useAuth } from '@/hooks/useAuth';
 import { validateVerificationCode } from '@/lib/validation';
 
 function VerifyEmailContent() {
+          const [inputRef, setInputRef] = useState<HTMLInputElement | null>(null);
+          const [expiry, setExpiry] = useState<number>(Date.now() + 5 * 60 * 1000);
+          const [timeLeft, setTimeLeft] = useState<number>(300);
+          const [resendCooldown, setResendCooldown] = useState<number>(0);
+          // Auto-focus code input
+          useEffect(() => {
+                    if (inputRef) inputRef.focus();
+          }, [inputRef]);
+
+          // Countdown timer for code expiry
+          useEffect(() => {
+                    const interval = setInterval(() => {
+                              const left = Math.max(0, Math.floor((expiry - Date.now()) / 1000));
+                              setTimeLeft(left);
+                              if (left === 0) clearInterval(interval);
+                    }, 1000);
+                    return () => clearInterval(interval);
+          }, [expiry]);
+
+          // Resend cooldown timer
+          useEffect(() => {
+                    if (resendCooldown > 0) {
+                              const interval = setInterval(() => {
+                                        setResendCooldown(cooldown => Math.max(0, cooldown - 1));
+                              }, 1000);
+                              return () => clearInterval(interval);
+                    }
+          }, [resendCooldown]);
           const [verificationCode, setVerificationCode] = useState('');
           const [isSubmitting, setIsSubmitting] = useState(false);
           const [successMessage, setSuccessMessage] = useState<string | null>(null);
           const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
           const { verifyEmail } = useAuth();
+          const [isResending, setIsResending] = useState(false);
           const router = useRouter();
           const searchParams = useSearchParams();
 
@@ -28,6 +57,10 @@ function VerifyEmailContent() {
           }, [searchParams]);
 
           const handleSubmit = async (e: React.FormEvent) => {
+                    if (timeLeft === 0) {
+                              setErrorMessage('Verification code expired. Please resend.');
+                              return;
+                    }
                     e.preventDefault();
 
                     const validationError = validateVerificationCode(verificationCode);
@@ -40,16 +73,40 @@ function VerifyEmailContent() {
                     setErrorMessage(null);
 
                     try {
-                              await verifyEmail(verificationCode);
+                              const email = searchParams.get('email') || '';
+                              await verifyEmail({ email, code: verificationCode });
                               setSuccessMessage('Email verified successfully! Redirecting to login...');
-
                               setTimeout(() => {
                                         router.push('/auth?verified=true');
                               }, 2000);
                     } catch (error: any) {
-                              setErrorMessage(error.message || 'Verification failed. Please try again.');
+                              if (error.status === 400 && error.message?.includes('Invalid or expired code')) {
+                                        setErrorMessage('Invalid or expired code. Please resend verification email.');
+                              } else if (error.status === 403) {
+                                        setErrorMessage('Session expired or invalid. Please register again.');
+                              } else {
+                                        setErrorMessage(error.message || 'Verification failed. Please try again.');
+                              }
                     } finally {
                               setIsSubmitting(false);
+                    }
+          };
+
+          const handleResend = async () => {
+                    setIsResending(true);
+                    setErrorMessage(null);
+                    setSuccessMessage(null);
+                    try {
+                              const email = searchParams.get('email') || '';
+                              const response = await import('@/lib/auth-apis').then(mod => mod.authAPI.resendVerification(email));
+                              setSuccessMessage(response.message);
+                              if (response.development_note) {
+                                        setSuccessMessage(prev => prev + ' ' + response.development_note);
+                              }
+                    } catch (error: any) {
+                              setErrorMessage(error.message || 'Failed to resend verification email.');
+                    } finally {
+                              setIsResending(false);
                     }
           };
 
@@ -88,7 +145,18 @@ function VerifyEmailContent() {
                                                                       value={verificationCode}
                                                                       onChange={setVerificationCode}
                                                                       error={errorMessage ?? undefined}
+                                                                      inputRef={setInputRef}
+                                                                      onKeyDown={e => {
+                                                                                if (e.key === 'Enter') {
+                                                                                          handleSubmit(e);
+                                                                                }
+                                                                      }}
                                                             />
+                                                            <div className="text-xs text-gray-500 text-center">
+                                                                      {timeLeft > 0
+                                                                                ? `Code expires in ${Math.floor(timeLeft / 60)}:${('0' + (timeLeft % 60)).slice(-2)}`
+                                                                                : 'Code expired. Please resend.'}
+                                                            </div>
 
                                                             <Button
                                                                       type="submit"
@@ -107,11 +175,18 @@ function VerifyEmailContent() {
                                                                                 type="button"
                                                                                 className="text-blue-600 hover:text-blue-500 font-medium"
                                                                                 onClick={() => {
-                                                                                          // Implement resend logic here
-                                                                                          setErrorMessage('Resend functionality not implemented yet');
+                                                                                          if (resendCooldown === 0) {
+                                                                                                    handleResend();
+                                                                                                    setResendCooldown(30);
+                                                                                          }
                                                                                 }}
+                                                                                disabled={isResending || resendCooldown > 0}
                                                                       >
-                                                                                Resend verification email
+                                                                                {isResending
+                                                                                          ? 'Resending...'
+                                                                                          : resendCooldown > 0
+                                                                                                    ? `Resend available in ${resendCooldown}s`
+                                                                                                    : 'Resend verification email'}
                                                                       </button>
                                                             </p>
                                                             <p className="text-sm text-gray-600 mt-2">

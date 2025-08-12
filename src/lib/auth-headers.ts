@@ -2,10 +2,11 @@
 
 export function getAuthHeaders(): Record<string, string> {
           if (typeof window === 'undefined') return {};
-          const token = localStorage.getItem('auth_token');
-          return token
+          // Use access token for all users (including Google Auth)
+          const accessToken = localStorage.getItem('auth_token');
+          return accessToken
                     ? {
-                              'Authorization': `Bearer ${token}`,
+                              'Authorization': `Bearer ${accessToken}`,
                               'Content-Type': 'application/json',
                     }
                     : {

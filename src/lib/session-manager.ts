@@ -15,6 +15,9 @@ interface SessionConfig {
   sessionDataKey: string;
   sessionTimeout: number; // in milliseconds
   activityCheckInterval: number; // in milliseconds
+  setTemporaryRegistrationSession?: (access: string, refresh: string, email: string) => void;
+  getTemporaryRegistrationSession?: () => { access: string; refresh: string; email: string } | null;
+  clearTemporaryRegistrationSession?: () => void;
 }
 
 interface SessionInfo {
@@ -33,6 +36,28 @@ class SessionManager {
 
   constructor() {
     this.config = {
+      setTemporaryRegistrationSession(access: string, refresh: string, email: string) {
+        localStorage.setItem('reg_access_token', access);
+        localStorage.setItem('reg_refresh_token', refresh);
+        localStorage.setItem('reg_email', email);
+        localStorage.setItem('reg_expires', String(Date.now() + 1000 * 60 * 5)); // 5 min expiry
+      },
+      getTemporaryRegistrationSession() {
+        const access = localStorage.getItem('reg_access_token');
+        const refresh = localStorage.getItem('reg_refresh_token');
+        const email = localStorage.getItem('reg_email');
+        const expires = Number(localStorage.getItem('reg_expires'));
+        if (!access || !refresh || !email || Date.now() > expires) {
+          return null;
+        }
+        return { access, refresh, email };
+      },
+      clearTemporaryRegistrationSession() {
+        localStorage.removeItem('reg_access_token');
+        localStorage.removeItem('reg_refresh_token');
+        localStorage.removeItem('reg_email');
+        localStorage.removeItem('reg_expires');
+      },
       tokenKey: 'auth_token',
       userKey: 'auth_user',
       sessionDataKey: 'session_data',
@@ -60,7 +85,7 @@ class SessionManager {
     this.setupActivityTracking();
     this.startSessionMonitoring();
     this.isInitialized = true;
-    
+
     logger.info('Session manager initialized');
   }
 
@@ -69,7 +94,7 @@ class SessionManager {
     if (typeof window === 'undefined') return;
 
     const events = ['mousedown', 'mousemove', 'keypress', 'scroll', 'touchstart', 'click'];
-    
+
     const updateActivity = () => {
       this.updateLastActivity();
     };
@@ -97,7 +122,7 @@ class SessionManager {
   // Check if session is still valid
   private checkSessionValidity(): void {
     const sessionData = this.getSessionData();
-    
+
     if (!sessionData) {
       return; // No session to check
     }
@@ -123,7 +148,7 @@ class SessionManager {
   // Handle session expiration
   private handleSessionExpiration(): void {
     this.clearSession();
-    
+
     if (this.onSessionExpired) {
       this.onSessionExpired();
     }
@@ -147,13 +172,13 @@ class SessionManager {
     try {
       // Store token in localStorage for persistence across tabs
       localStorage.setItem(this.config.tokenKey, token);
-      
+
       // Store user data in sessionStorage for security
       sessionStorage.setItem(this.config.userKey, JSON.stringify(user));
-      
+
       // Store session metadata in sessionStorage
       sessionStorage.setItem(this.config.sessionDataKey, JSON.stringify(sessionData));
-      
+
       logger.info('Session stored successfully');
     } catch (error) {
       logger.error('Failed to store session:', error);
@@ -207,7 +232,7 @@ class SessionManager {
     if (!sessionData) return;
 
     sessionData.lastActivity = Date.now();
-    
+
     try {
       sessionStorage.setItem(this.config.sessionDataKey, JSON.stringify(sessionData));
     } catch (error) {
@@ -226,7 +251,7 @@ class SessionManager {
     }
 
     const now = Date.now();
-    
+
     // Check token expiration
     if (sessionData.expiresAt && now > sessionData.expiresAt) {
       this.clearSession();
@@ -250,14 +275,14 @@ class SessionManager {
     try {
       // Clear localStorage
       localStorage.removeItem(this.config.tokenKey);
-      
+
       // Clear sessionStorage
       sessionStorage.removeItem(this.config.userKey);
       sessionStorage.removeItem(this.config.sessionDataKey);
-      
+
       // Clear any cached data
       this.clearCache();
-      
+
       logger.info('Session cleared successfully');
     } catch (error) {
       logger.error('Failed to clear session:', error);
@@ -330,7 +355,7 @@ class SessionManager {
       clearInterval(this.activityTimer);
       this.activityTimer = null;
     }
-    
+
     this.isInitialized = false;
     logger.info('Session manager destroyed');
   }
