@@ -1,150 +1,166 @@
-// types/auth.ts
-// Authentication and User Management Types
-
-export type UserRole = 'developer' | 'admin' | 'client';
-
-export type UserStatus = 'active' | 'inactive' | 'pending';
-
-export interface BaseUser {
-  id: string;
+// types/auth.types.ts
+export interface User {
+  id: number;
   email: string;
-  firstName?: string;
-  lastName?: string;
-  phone?: string;
-  role: UserRole;
-  isActive: boolean;
-  isStaff: boolean;
-  dateJoined: string;
-  dateUpdated: string;
-  lastLogin?: string;
+  first_name?: string;
+  last_name?: string;
+  is_verified?: boolean;
+  date_joined?: string;
+  last_login?: string;
 }
 
-export interface User extends BaseUser {
-  fullName: string;
-}
-
-export interface ClientProfile {
-  user: string; // User ID
-  companyName?: string;
-  industry?: string;
-  accountBalance: number;
-  dateCreated: string;
-  dateUpdated: string;
-}
-
-export interface UserWithProfile extends User {
-  clientProfile?: ClientProfile;
-}
-
-// Authentication-related types
-export interface LoginCredentials {
+export interface AuthRequest {
   email: string;
   password: string;
-}
-
-export interface RegisterData {
-  email: string;
-  password: string;
-  confirmPassword: string;
-  firstName: string;
-  lastName: string;
-  phone?: string;
-  role?: UserRole;
-  companyName?: string;
-  industry?: string;
 }
 
 export interface AuthResponse {
-  token: string;
-  refreshToken?: string;
-  user: User;
-  expiresIn: number;
+  key: string;
+  user?: User;
+  detail?: string;
 }
 
-export interface TokenPayload {
-  userId: string;
-  email: string;
-  role: UserRole;
-  exp: number;
-  iat: number;
+export interface VerificationRequest {
+  key: string;
 }
 
-// Permission types
-export interface Permission {
-  id: string;
-  name: string;
-  codename: string;
-  contentType: string;
+export interface VerificationResponse {
+  detail: string;
 }
 
-export interface UserPermissions {
-  user: User;
-  permissions: Permission[];
-  groups: string[];
-}
-
-// Password reset types
 export interface PasswordResetRequest {
   email: string;
 }
 
-export interface PasswordResetConfirm {
+export interface PasswordResetResponse {
+  detail: string;
+}
+
+export interface GoogleAuthRequest {
+  access_token: string;
+}
+
+export interface ApiError {
+  message: string;
+  status: number;
+  errors?: Record<string, string[]>;
+}
+
+export type AuthMode = 'login' | 'register' | 'reset-password';
+
+// Session related types
+export interface SessionData {
   token: string;
-  newPassword: string;
-  confirmPassword: string;
-}
-
-export interface PasswordChangeRequest {
-  currentPassword: string;
-  newPassword: string;
-  confirmPassword: string;
-}
-
-// Admin user management types
-export interface UserCreateRequest {
-  email: string;
-  firstName: string;
-  lastName: string;
-  role: UserRole;
-  password: string;
-  phone?: string;
-  isActive?: boolean;
-}
-
-export interface UserUpdateRequest {
-  firstName?: string;
-  lastName?: string;
-  phone?: string;
-  role?: UserRole;
-  isActive?: boolean;
-  companyName?: string;
-  industry?: string;
-}
-
-export interface ClientProfileUpdateRequest {
-  companyName?: string;
-  industry?: string;
-  accountBalance?: number;
-}
-
-// Session and security types
-export interface UserSession {
-  sessionId: string;
   user: User;
-  ipAddress: string;
-  userAgent: string;
-  isActive: boolean;
-  lastActivity: string;
-  expiresAt: string;
+  expiresAt: number;
+  lastActivity: number;
 }
 
-export interface SecurityLog {
-  id: string;
-  user: string;
-  action: string;
-  ipAddress: string;
-  userAgent: string;
-  timestamp: string;
-  successful: boolean;
-  details?: Record<string, any>;
+export interface SessionInfo {
+  isValid: boolean;
+  timeUntilExpiry: number;
+  timeUntilTimeout: number;
+  lastActivity: string;
+  expiresAt: string | null;
+}
+
+// Auth context types
+export interface AuthState {
+  user: User | null;
+  isLoading: boolean;
+  isAuthenticated: boolean;
+  error: string | null;
+  isInitialized: boolean;
+}
+
+export interface AuthContextType extends AuthState {
+  login: (email: string, password: string) => Promise<void>;
+  register: (email: string, password: string) => Promise<void>;
+  logout: () => Promise<void>;
+  verifyEmail: (key: string) => Promise<void>;
+  resetPassword: (email: string) => Promise<void>;
+  googleAuth: (accessToken: string) => Promise<void>;
+  clearError: () => void;
+  refreshSession: () => void;
+  refreshUser: () => Promise<void>;
+}
+
+// Form validation types
+export interface ValidationErrors {
+  [key: string]: string;
+}
+
+export interface FormState<T> {
+  values: T;
+  errors: ValidationErrors;
+  isSubmitting: boolean;
+  touched: Record<keyof T, boolean>;
+}
+
+// Password strength types
+export interface PasswordStrength {
+  isValid: boolean;
+  score: number;
+  feedback: string[];
+  checks: {
+    length: boolean;
+    hasLetters: boolean;
+    hasNumbers: boolean;
+    hasSpecialChars: boolean;
+    hasUppercase: boolean;
+    hasLowercase: boolean;
+  };
+}
+
+// Component prop types
+export interface GoogleAuthButtonProps {
+  onSuccess: (accessToken: string) => void;
+  onError: (error: string) => void;
+  text?: 'signin' | 'signup' | 'continue';
+  disabled?: boolean;
+  className?: string;
+}
+
+export interface AuthFormProps {
+  mode: AuthMode;
+  onModeChange: (mode: AuthMode) => void;
+  onSuccess?: () => void;
+}
+
+export interface PasswordInputProps {
+  label?: string;
+  placeholder?: string;
+  value: string;
+  onChange: (value: string) => void;
+  error?: string;
+  showStrengthIndicator?: boolean;
+  required?: boolean;
+}
+
+export interface VerificationCodeInputProps {
+  length?: number;
+  value: string;
+  onChange: (value: string) => void;
+  error?: string;
+  label?: string;
+}
+
+// API response types for specific endpoints
+export interface LoginResponse extends AuthResponse {
+  user: User;
+}
+
+export interface RegisterResponse {
+  detail: string;
+  user?: Partial<User>;
+}
+
+export interface GoogleAuthResponse extends AuthResponse {
+  user: User;
+  is_new_user?: boolean;
+}
+
+export interface UserProfileResponse extends User {
+  permissions?: string[];
+  groups?: string[];
 }
