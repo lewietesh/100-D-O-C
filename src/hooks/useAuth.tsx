@@ -124,6 +124,44 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 // ========================================
 
 export function AuthProvider({ children }: { children: ReactNode }) {
+  // Periodic token refresh logic
+  useEffect(() => {
+    let refreshInterval: NodeJS.Timeout | null = null;
+    const REFRESH_INTERVAL = 5 * 60 * 1000; // 5 minutes
+
+    async function tryRefreshToken() {
+      if (!sessionManager.isAuthenticated()) return;
+      try {
+        if (typeof window !== 'undefined') {
+          const refresh = localStorage.getItem('refresh');
+          if (refresh) {
+            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/v1/accounts/auth/refresh/`, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({ refresh }),
+            });
+            const data = await response.json();
+            const user = sessionManager.getUser();
+            if (response.ok && data.access && data.refresh && user) {
+              localStorage.setItem('auth_token', data.access);
+              localStorage.setItem('refresh', data.refresh);
+              sessionManager.setSession(data.access, user);
+              logger.info('Token and refresh token updated successfully');
+            }
+          }
+        }
+      } catch (error) {
+        logger.error('Token refresh failed:', error);
+      }
+    }
+
+    refreshInterval = setInterval(tryRefreshToken, REFRESH_INTERVAL);
+    return () => {
+      if (refreshInterval) clearInterval(refreshInterval);
+    };
+  }, []);
   const [state, dispatch] = useReducer(authReducer, initialState);
   const isInitializingRef = useRef(false);
   const mountedRef = useRef(true);
