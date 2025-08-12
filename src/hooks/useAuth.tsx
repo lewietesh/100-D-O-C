@@ -1,19 +1,19 @@
 // hooks/useAuth.ts - CORRECTED VERSION
 'use client';
 
-import { 
-  createContext, 
-  useContext, 
-  useReducer, 
-  useEffect, 
-  ReactNode, 
+import {
+  createContext,
+  useContext,
+  useReducer,
+  useEffect,
+  ReactNode,
   useCallback,
   useRef
 } from 'react';
 import { authAPI } from '../lib/auth-apis';
 import { sessionManager } from '../lib/session-manager';
 import { logger } from '../lib/logger';
-import type { User, ApiError } from '@/types/auth';
+import type { User, ApiError } from '../types/auth';
 
 // ========================================
 // TYPES DEFINITION - Define these BEFORE using them
@@ -39,7 +39,7 @@ interface AuthContextType extends AuthState {
   refreshUser: () => Promise<void>;
 }
 
-type AuthAction = 
+type AuthAction =
   | { type: 'SET_LOADING'; payload: boolean }
   | { type: 'SET_USER'; payload: User | null }
   | { type: 'SET_ERROR'; payload: string | null }
@@ -67,7 +67,7 @@ function authReducer(state: AuthState, action: AuthAction): AuthState {
   switch (action.type) {
     case 'SET_LOADING':
       return { ...state, isLoading: action.payload };
-    
+
     case 'SET_USER':
       return {
         ...state,
@@ -77,31 +77,31 @@ function authReducer(state: AuthState, action: AuthAction): AuthState {
         isLoading: false,
         isInitialized: true,
       };
-    
+
     case 'SET_ERROR':
-      return { 
-        ...state, 
-        error: action.payload, 
-        isLoading: false 
+      return {
+        ...state,
+        error: action.payload,
+        isLoading: false
       };
-    
+
     case 'SET_INITIALIZED':
-      return { 
-        ...state, 
+      return {
+        ...state,
         isInitialized: action.payload,
-        isLoading: !action.payload 
+        isLoading: !action.payload
       };
-    
+
     case 'CLEAR_ERROR':
       return { ...state, error: null };
-    
+
     case 'LOGOUT':
-      return { 
-        ...initialState, 
-        isLoading: false, 
-        isInitialized: true 
+      return {
+        ...initialState,
+        isLoading: false,
+        isInitialized: true
       };
-    
+
     default:
       return state;
   }
@@ -114,8 +114,7 @@ function authReducer(state: AuthState, action: AuthAction): AuthState {
 // ✅ CORRECT: AuthContext is a VALUE (React context instance)
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-// ❌ WRONG: Don't try to use AuthContext as a type
-// function someFunction(): AuthContext { } // This would cause the error
+
 
 // ✅ CORRECT: Use AuthContextType as the type
 // function someFunction(): AuthContextType { }
@@ -140,7 +139,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const handleSessionExpired = useCallback(() => {
     logger.info('Session expired, logging out user');
     safeDispatch({ type: 'LOGOUT' });
-    
+
     // Redirect to auth page if not already there
     if (typeof window !== 'undefined' && !window.location.pathname.includes('/auth')) {
       window.location.href = '/auth?expired=true';
@@ -150,9 +149,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   // Initialize authentication state
   const initializeAuth = useCallback(async () => {
     if (isInitializingRef.current) return;
-    
+
     isInitializingRef.current = true;
-    
+
     try {
       // Initialize session manager with expiration callback
       sessionManager.init(handleSessionExpired);
@@ -177,11 +176,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (cachedUser) {
         logger.info('Loading cached user data');
         safeDispatch({ type: 'SET_USER', payload: cachedUser });
-        
+
         // Verify user data in background
         try {
           const freshUser = await authAPI.getCurrentUser();
-          
+
           // Update if user data has changed
           if (JSON.stringify(freshUser) !== JSON.stringify(cachedUser)) {
             logger.info('Updating user data from server');
@@ -212,7 +211,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   // Initialize on mount
   useEffect(() => {
     initializeAuth();
-    
+
     return () => {
       mountedRef.current = false;
       sessionManager.destroy();
@@ -224,10 +223,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       safeDispatch({ type: 'SET_LOADING', payload: true });
       safeDispatch({ type: 'CLEAR_ERROR' });
-      
+
       const response = await authAPI.login({ email, password });
-      
-      if (!response.key) {
+
+      if (!response.access) {
         throw new Error('No authentication token received');
       }
 
@@ -236,14 +235,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         user = await authAPI.getCurrentUser();
       }
 
-      sessionManager.setSession(response.key, user);
+      sessionManager.setSession(response.access, user);
       safeDispatch({ type: 'SET_USER', payload: user });
-      
+
       logger.info('User logged in successfully');
     } catch (error) {
       const apiError = error as ApiError;
       const errorMessage = apiError.message || 'Login failed';
-      
+
       logger.error('Login failed:', errorMessage);
       safeDispatch({ type: 'SET_ERROR', payload: errorMessage });
       throw error;
@@ -254,15 +253,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       safeDispatch({ type: 'SET_LOADING', payload: true });
       safeDispatch({ type: 'CLEAR_ERROR' });
-      
+
       await authAPI.register({ email, password });
       safeDispatch({ type: 'SET_LOADING', payload: false });
-      
+
       logger.info('User registered successfully');
     } catch (error) {
       const apiError = error as ApiError;
       const errorMessage = apiError.message || 'Registration failed';
-      
+
       logger.error('Registration failed:', errorMessage);
       safeDispatch({ type: 'SET_ERROR', payload: errorMessage });
       throw error;
@@ -272,16 +271,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const logout = useCallback(async () => {
     try {
       safeDispatch({ type: 'SET_LOADING', payload: true });
-      
+
       sessionManager.clearSession();
-      
+
       try {
         await authAPI.logout();
         logger.info('Server logout successful');
       } catch (error) {
         logger.warn('Server logout failed, continuing with local logout:', error);
       }
-      
+
       safeDispatch({ type: 'LOGOUT' });
       logger.info('User logged out successfully');
     } catch (error) {
@@ -295,15 +294,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       safeDispatch({ type: 'SET_LOADING', payload: true });
       safeDispatch({ type: 'CLEAR_ERROR' });
-      
+
       await authAPI.verifyEmail({ key });
       safeDispatch({ type: 'SET_LOADING', payload: false });
-      
+
       logger.info('Email verified successfully');
     } catch (error) {
       const apiError = error as ApiError;
       const errorMessage = apiError.message || 'Email verification failed';
-      
+
       logger.error('Email verification failed:', errorMessage);
       safeDispatch({ type: 'SET_ERROR', payload: errorMessage });
       throw error;
@@ -314,15 +313,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       safeDispatch({ type: 'SET_LOADING', payload: true });
       safeDispatch({ type: 'CLEAR_ERROR' });
-      
+
       await authAPI.resetPassword({ email });
       safeDispatch({ type: 'SET_LOADING', payload: false });
-      
+
       logger.info('Password reset email sent successfully');
     } catch (error) {
       const apiError = error as ApiError;
       const errorMessage = apiError.message || 'Password reset failed';
-      
+
       logger.error('Password reset failed:', errorMessage);
       safeDispatch({ type: 'SET_ERROR', payload: errorMessage });
       throw error;
@@ -333,10 +332,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       safeDispatch({ type: 'SET_LOADING', payload: true });
       safeDispatch({ type: 'CLEAR_ERROR' });
-      
+
       const response = await authAPI.googleAuth({ access_token: accessToken });
-      
-      if (!response.key) {
+
+      if (!response.access) {
         throw new Error('No authentication token received from Google');
       }
 
@@ -345,14 +344,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         user = await authAPI.getCurrentUser();
       }
 
-      sessionManager.setSession(response.key, user);
+      sessionManager.setSession(response.access, user);
       safeDispatch({ type: 'SET_USER', payload: user });
-      
+
       logger.info('Google authentication successful');
     } catch (error) {
       const apiError = error as ApiError;
       const errorMessage = apiError.message || 'Google authentication failed';
-      
+
       logger.error('Google authentication failed:', errorMessage);
       safeDispatch({ type: 'SET_ERROR', payload: errorMessage });
       throw error;
@@ -377,7 +376,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       const user = await authAPI.getCurrentUser();
       const token = sessionManager.getToken();
-      
+
       if (token) {
         sessionManager.setSession(token, user);
         safeDispatch({ type: 'SET_USER', payload: user });
@@ -429,7 +428,7 @@ export function useSessionInfo() {
 
 export function useAuthStatus() {
   const { isAuthenticated, isLoading, isInitialized, user } = useAuth();
-  
+
   return {
     isAuthenticated,
     isLoading,

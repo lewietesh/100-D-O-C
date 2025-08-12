@@ -116,7 +116,7 @@ class AuthAPI {
           }
 
           async logout(): Promise<void> {
-                    return this.makeRequest<void>('/api/v1/auth/logout/', {
+                    return this.makeRequest<void>('/api/v1/accounts/auth/logout/', {
                               method: 'POST',
                     });
           }

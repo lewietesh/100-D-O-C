@@ -15,8 +15,10 @@ export interface AuthRequest {
 }
 
 export interface AuthResponse {
-  key: string;
+  access: string;
+  refresh?: string;
   user?: User;
+  message?: string;
   detail?: string;
 }
 
