@@ -45,8 +45,16 @@ function VerifyEmailContent() {
 
           const { verifyEmail } = useAuth();
           const [isResending, setIsResending] = useState(false);
+          const [isVerifyingLater, setIsVerifyingLater] = useState(false);
           const router = useRouter();
           const searchParams = useSearchParams();
+          // Import sessionManager and authAPI dynamically to avoid SSR issues
+          const [sessionManager, setSessionManager] = useState<any>(null);
+          const [authAPI, setAuthAPI] = useState<any>(null);
+          useEffect(() => {
+                    import('@/lib/session-manager').then(mod => setSessionManager(mod.sessionManager));
+                    import('@/lib/auth-apis').then(mod => setAuthAPI(mod.authAPI));
+          }, []);
 
           // Auto-fill code from URL if present
           useEffect(() => {
@@ -73,12 +81,34 @@ function VerifyEmailContent() {
                     setErrorMessage(null);
 
                     try {
+                              if (!authAPI || !sessionManager) {
+                                        setErrorMessage('Please wait, loading...');
+                                        setIsSubmitting(false);
+                                        return;
+                              }
                               const email = searchParams.get('email') || '';
-                              await verifyEmail({ email, code: verificationCode });
-                              setSuccessMessage('Email verified successfully! Redirecting to login...');
-                              setTimeout(() => {
-                                        router.push('/auth?verified=true');
-                              }, 2000);
+                              // Get access token from registration (temporary session or localStorage)
+                              let accessToken = null;
+                              if (typeof window !== 'undefined') {
+                                        accessToken = localStorage.getItem('auth_token');
+                              }
+                              // Call verifyEmail and expect access, refresh, user in response
+                              const response = await authAPI.verifyEmail({ email, code: verificationCode }, accessToken);
+                              if (response && response.access) {
+                                        let user = response.user;
+                                        if (!user) {
+                                                  try {
+                                                            user = await authAPI.getCurrentUser();
+                                                  } catch { }
+                                        }
+                                        sessionManager.setSession(response.access, user || {});
+                                        setSuccessMessage('Email verified successfully! Redirecting to dashboard...');
+                                        setTimeout(() => {
+                                                  router.push('/dashboard');
+                                        }, 1200);
+                              } else {
+                                        setErrorMessage(response?.message || 'Verification failed. Please try again.');
+                              }
                     } catch (error: any) {
                               if (error.status === 400 && error.message?.includes('Invalid or expired code')) {
                                         setErrorMessage('Invalid or expired code. Please resend verification email.');
@@ -165,6 +195,51 @@ function VerifyEmailContent() {
                                                                       disabled={isSubmitting || verificationCode.length < 6}
                                                             >
                                                                       Verify Email
+                                                            </Button>
+                                                            <Button
+                                                                      type="button"
+                                                                      className="w-full mt-2"
+                                                                      variant="secondary"
+                                                                      isLoading={isVerifyingLater}
+                                                                      disabled={isVerifyingLater}
+                                                                      onClick={async () => {
+                                                                                setErrorMessage(null);
+                                                                                setSuccessMessage(null);
+                                                                                setIsVerifyingLater(true);
+                                                                                try {
+                                                                                          if (!authAPI || !sessionManager) {
+                                                                                                    setErrorMessage('Please wait, loading...');
+                                                                                                    setIsVerifyingLater(false);
+                                                                                                    return;
+                                                                                          }
+                                                                                          // Call verify-later endpoint
+                                                                                          const response = await authAPI.makeRequest('/api/v1/accounts/auth/verify-later/', {
+                                                                                                    method: 'POST',
+                                                                                          });
+                                                                                          if (response && response.access) {
+                                                                                                    // Update session with new access token
+                                                                                                    let user = null;
+                                                                                                    try {
+                                                                                                              user = await authAPI.getCurrentUser();
+                                                                                                    } catch { }
+                                                                                                    sessionManager.setSession(response.access, user || {});
+                                                                                                    setSuccessMessage('Verification skipped. Redirecting to dashboard...');
+                                                                                                    setTimeout(() => {
+                                                                                                              router.push('/dashboard');
+                                                                                                    }, 1200);
+                                                                                          } else {
+                                                                                                    // On failure, redirect to /auth
+                                                                                                    router.push('/auth');
+                                                                                          }
+                                                                                } catch (err: any) {
+                                                                                          // On error, redirect to /auth
+                                                                                          router.push('/auth');
+                                                                                } finally {
+                                                                                          setIsVerifyingLater(false);
+                                                                                }
+                                                                      }}
+                                                            >
+                                                                      Verify later
                                                             </Button>
                                                   </form>
 

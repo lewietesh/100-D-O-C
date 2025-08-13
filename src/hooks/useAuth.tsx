@@ -292,18 +292,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       safeDispatch({ type: 'SET_LOADING', payload: true });
       safeDispatch({ type: 'CLEAR_ERROR' });
 
-      await authAPI.register(data);
+      const response = await authAPI.register(data);
+      if (response && response.access && response.refresh) {
+        localStorage.setItem('auth_token', response.access);
+        localStorage.setItem('refresh', response.refresh);
+        if (response.user) {
+          sessionManager.setSession(response.access, response.user);
+        }
+        logger.info('User registered successfully and tokens saved');
+      } else {
+        logger.error('Registration did not return tokens:', response);
+        throw new Error('Registration failed: No tokens returned');
+      }
       safeDispatch({ type: 'SET_LOADING', payload: false });
-
-      // This is guessing / check response code and ensure proper response handling. only response 200 is considered a success
-      logger.info('User registered successfully');
-
-
-// Expand this to include error handling and user feedback
     } catch (error) {
       const apiError = error as ApiError;
       const errorMessage = apiError.message || 'Registration failed';
-
       logger.error('Registration failed:', errorMessage);
       safeDispatch({ type: 'SET_ERROR', payload: errorMessage });
       throw error;
@@ -358,10 +362,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (!regSession) {
         throw new Error('Verification session expired. Please register again.');
       }
-      const response = await authAPI.verifyEmail(
-        { email, code },
-        { Authorization: `Bearer ${regSession.access}` }
-      );
+      // Temporarily set regSession.access in localStorage for getAuthHeaders
+      const prevToken = localStorage.getItem('auth_token');
+      localStorage.setItem('auth_token', regSession.access);
+      let response;
+      try {
+        response = await authAPI.verifyEmail({ email, code });
+      } finally {
+        // Restore previous token (if any)
+        if (prevToken) {
+          localStorage.setItem('auth_token', prevToken);
+        } else {
+          localStorage.removeItem('auth_token');
+        }
+      }
 
       // On success, start full session
       if (response && response.access && response.refresh && response.user) {
@@ -408,12 +422,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, [safeDispatch]);
 
-  const googleAuth = useCallback(async (accessToken: string) => {
+  // Google sign-in: expects id_token (JWT) from Google Identity Services
+  const googleAuth = useCallback(async (idToken: string) => {
     try {
       safeDispatch({ type: 'SET_LOADING', payload: true });
       safeDispatch({ type: 'CLEAR_ERROR' });
 
-      const response = await authAPI.googleAuth({ access_token: accessToken });
+      const response = await authAPI.googleAuth({ id_token: idToken });
 
       if (!response.access) {
         throw new Error('No authentication token received from Google');

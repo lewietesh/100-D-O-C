@@ -122,11 +122,13 @@ class AuthAPI {
                     return response;
           }
 
-          async verifyEmail(data: VerificationRequest, headers?: Record<string, string>): Promise<VerificationResponse> {
-                    return this.makeRequest<VerificationResponse>('/api/v1/accounts/auth/verify-email/', {
+          async verifyEmail(data: VerificationRequest): Promise<VerificationResponse> {
+                    // Use correct endpoint with underscore and always use getAuthHeaders
+                    const { getAuthHeaders } = await import('./auth-headers');
+                    return this.makeRequest<VerificationResponse>('/api/v1/accounts/auth/verify_email/', {
                               method: 'POST',
                               body: JSON.stringify(data),
-                              headers: headers || {},
+                              headers: getAuthHeaders(),
                     });
           }
 
@@ -137,6 +139,7 @@ class AuthAPI {
                     });
           }
 
+          // For sign-in, expects { id_token } from Google Identity Services
           async googleAuth(data: GoogleAuthRequest): Promise<AuthResponse> {
                     return this.makeRequest<AuthResponse>('/api/v1/accounts/auth/social/google/', {
                               method: 'POST',

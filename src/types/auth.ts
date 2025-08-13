@@ -45,8 +45,10 @@ export interface PasswordResetResponse {
   detail: string;
 }
 
+// For Google sign-in, use id_token (JWT). For signup, keep access_token if needed.
 export interface GoogleAuthRequest {
-  access_token: string;
+  id_token?: string;
+  access_token?: string;
 }
 
 export interface ApiError {

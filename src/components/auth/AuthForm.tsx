@@ -50,10 +50,10 @@ export function AuthForm({ mode, onModeChange, onSuccess }: AuthFormProps) {
   // ========================================
   // ALL HOOKS MUST BE CALLED HERE, INSIDE THE COMPONENT
   // ========================================
-  
+
   const { showToast } = useToast();
   const { login, register, resetPassword, googleAuth, verifyEmail, clearError, isAuthenticated, error } = useAuth();
-  
+
   // State hooks
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -63,6 +63,8 @@ export function AuthForm({ mode, onModeChange, onSuccess }: AuthFormProps) {
   const [showVerifyLater, setShowVerifyLater] = useState(false);
   const [verifyLaterToken, setVerifyLaterToken] = useState<string | null>(null);
   const [isVerifying, setIsVerifying] = useState(false);
+  const [isRegistering, setIsRegistering] = useState(false);
+  const router = typeof window !== 'undefined' ? require('next/navigation').useRouter() : null;
 
   // ========================================
   // HELPER FUNCTIONS
@@ -132,7 +134,6 @@ export function AuthForm({ mode, onModeChange, onSuccess }: AuthFormProps) {
         case 'login': {
           const { email, password } = values as LoginFormValues;
           await login(email, password);
-          
           // Check authentication status after login attempt
           if (isAuthenticated) {
             setSuccessMessage('Successfully logged in!');
@@ -144,28 +145,34 @@ export function AuthForm({ mode, onModeChange, onSuccess }: AuthFormProps) {
           }
           break;
         }
-
         case 'register': {
+          setIsRegistering(true);
           const { email, password, confirmPassword } = values as RegisterFormValues;
-          await register({ email, password, password_confirm: confirmPassword });
-          
-          setSuccessMessage('Registration successful! Please check your email to verify your account.');
-          showToast('Registration successful! Please check your email to verify your account.', 'success');
-          setVerificationEmail(email);
-          setShowVerification(true);
+          try {
+            await register({ email, password, password_confirm: confirmPassword });
+            setSuccessMessage('Registration successful! Redirecting to verification...');
+            showToast('Registration successful! Please check your email to verify your account.', 'success');
+            // Redirect to verification page
+            if (router) {
+              router.push(`/auth/verify?email=${encodeURIComponent(email)}`);
+            } else {
+              window.location.href = `/auth/verify?email=${encodeURIComponent(email)}`;
+            }
+          } finally {
+            setIsRegistering(false);
+          }
           break;
         }
-
         case 'reset-password': {
           const { email } = values as ResetFormValues;
           await resetPassword(email);
-          
           setSuccessMessage('Password reset email sent! Please check your inbox.');
           showToast('Password reset email sent! Please check your inbox.', 'info');
           break;
         }
       }
     } catch (error: any) {
+      setIsRegistering(false);
       const errorMessage = error.message || 'An error occurred. Please try again.';
       setErrorMessage(errorMessage);
       showToast(errorMessage, 'error');
@@ -175,7 +182,7 @@ export function AuthForm({ mode, onModeChange, onSuccess }: AuthFormProps) {
 
   const handleVerify = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!verificationEmail || !verificationCode) {
       setErrorMessage('Please enter both email and verification code.');
       return;
@@ -187,10 +194,10 @@ export function AuthForm({ mode, onModeChange, onSuccess }: AuthFormProps) {
 
     try {
       await verifyEmail({ email: verificationEmail, code: verificationCode });
-      
+
       setSuccessMessage('Email verified successfully! Redirecting...');
       showToast('Email verified successfully!', 'success');
-      
+
       setTimeout(() => {
         window.location.href = '/dashboard';
       }, 1200);
@@ -243,7 +250,7 @@ export function AuthForm({ mode, onModeChange, onSuccess }: AuthFormProps) {
       });
 
       const data = await response.json();
-      
+
       if (response.ok) {
         showToast('Verification skipped. You can verify later from your profile.', 'success');
         setShowVerifyLater(false);
@@ -310,9 +317,9 @@ export function AuthForm({ mode, onModeChange, onSuccess }: AuthFormProps) {
               error={errorMessage}
             />
 
-            <Button 
-              type="submit" 
-              className="w-full" 
+            <Button
+              type="submit"
+              className="w-full"
               isLoading={isVerifying}
               disabled={isVerifying}
             >
@@ -446,8 +453,8 @@ export function AuthForm({ mode, onModeChange, onSuccess }: AuthFormProps) {
             <Button
               type="submit"
               className="w-full"
-              isLoading={isSubmitting}
-              disabled={isSubmitting}
+              isLoading={isSubmitting || isRegistering}
+              disabled={isSubmitting || isRegistering}
             >
               {getSubmitText()}
             </Button>
