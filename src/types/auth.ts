@@ -1,12 +1,19 @@
 // types/auth.types.ts
+// Unified user type for session and dashboard
 export interface User {
-  id: number;
+  id: string;
   email: string;
-  first_name?: string;
-  last_name?: string;
-  is_verified?: boolean;
-  date_joined?: string;
-  last_login?: string;
+  username: string;
+  first_name?: string | null;
+  last_name?: string | null;
+  is_verified: boolean;
+  profile_img?: string | null;
+  phone?: string | null;
+  date_joined: string;
+  last_login?: string | null;
+  is_active: boolean;
+  is_staff?: boolean;
+  is_superuser?: boolean;
 }
 
 export interface AuthRequest {
