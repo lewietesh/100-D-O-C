@@ -5,6 +5,16 @@ import { ProfileSkeleton } from './ProfileSkeleton';
 import { ProfileEditForm } from './ProfileEditForm';
 import { ProfileImageUploader } from './ProfileImageUploader';
 
+// Helper to get full media URL (same as in ProfileImageUploader)
+const getMediaUrl = (path: string | null | undefined) => {
+  if (!path) return '';
+  if (path.startsWith('http://') || path.startsWith('https://')) return path;
+  if (path.startsWith('/media/') || path.startsWith('media/')) {
+    return `http://localhost:8000${path.startsWith('/') ? path : '/' + path}`;
+  }
+  return path;
+};
+
 export const ProfileView: React.FC = () => {
   const { profile, loading, error, updateProfile, uploadProfileImage, refetch } = useUserProfile();
   const [isEditing, setIsEditing] = useState(false);
@@ -65,7 +75,7 @@ export const ProfileView: React.FC = () => {
   };
 
   if (loading && !profile) return <ProfileSkeleton />;
-  
+
   if (error && !profile) {
     return (
       <div className="max-w-4xl mx-auto">
@@ -95,27 +105,24 @@ export const ProfileView: React.FC = () => {
     <div className="max-w-4xl mx-auto space-y-6">
       {/* Notification */}
       {notification && (
-        <div className={`rounded-lg p-4 ${
-          notification.type === 'success' 
-            ? 'bg-green-50 border border-green-200' 
+        <div className={`rounded-lg p-4 ${notification.type === 'success'
+            ? 'bg-green-50 border border-green-200'
             : 'bg-red-50 border border-red-200'
-        }`}>
+          }`}>
           <div className="flex items-center">
             {notification.type === 'success' ? (
               <CheckCircle className="w-5 h-5 text-green-600 mr-3" />
             ) : (
               <AlertCircle className="w-5 h-5 text-red-600 mr-3" />
             )}
-            <p className={`font-medium ${
-              notification.type === 'success' ? 'text-green-800' : 'text-red-800'
-            }`}>
+            <p className={`font-medium ${notification.type === 'success' ? 'text-green-800' : 'text-red-800'
+              }`}>
               {notification.message}
             </p>
             <button
               onClick={() => setNotification(null)}
-              className={`ml-auto ${
-                notification.type === 'success' ? 'text-green-600' : 'text-red-600'
-              } hover:opacity-75`}
+              className={`ml-auto ${notification.type === 'success' ? 'text-green-600' : 'text-red-600'
+                } hover:opacity-75`}
             >
               <X className="w-4 h-4" />
             </button>
@@ -135,7 +142,7 @@ export const ProfileView: React.FC = () => {
                   <div className="w-full h-full rounded-full bg-gray-300 flex items-center justify-center overflow-hidden">
                     {profile.profile_img ? (
                       <img
-                        src={profile.profile_img}
+                        src={getMediaUrl(profile.profile_img)}
                         alt="Profile"
                         className="w-full h-full object-cover rounded-full"
                       />
@@ -144,7 +151,7 @@ export const ProfileView: React.FC = () => {
                     )}
                   </div>
                 </div>
-                
+
                 <button
                   onClick={() => setShowImageUploader(true)}
                   className="absolute bottom-0 right-0 bg-blue-600 rounded-full p-2 text-white hover:bg-blue-700 transition-colors shadow-lg border-2 border-white"
@@ -156,22 +163,21 @@ export const ProfileView: React.FC = () => {
               {/* User Info */}
               <div className="text-white">
                 <h1 className="text-2xl font-bold">
-                  {profile.first_name && profile.last_name 
+                  {profile.first_name && profile.last_name
                     ? `${profile.first_name} ${profile.last_name}`
                     : profile.username
                   }
                 </h1>
                 <p className="text-blue-100 text-lg">@{profile.username}</p>
-                
+
                 <div className="flex items-center mt-3 space-x-4">
-                  <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
-                    profile.is_verified 
-                      ? 'bg-green-500 text-white' 
+                  <span className={`px-3 py-1 rounded-full text-xs font-semibold ${profile.is_verified
+                      ? 'bg-green-500 text-white'
                       : 'bg-yellow-500 text-white'
-                  }`}>
+                    }`}>
                     {profile.is_verified ? '✓ Verified' : '⚠ Unverified'}
                   </span>
-                  
+
                   <span className="text-blue-100 text-sm flex items-center">
                     <Calendar className="w-4 h-4 mr-1" />
                     Joined {new Date(profile.date_joined).toLocaleDateString()}
@@ -190,14 +196,13 @@ export const ProfileView: React.FC = () => {
                 <RefreshCw className={`w-4 h-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
                 Refresh
               </button>
-              
+
               <button
                 onClick={() => setIsEditing(!isEditing)}
-                className={`flex items-center px-4 py-2 rounded-md transition-colors ${
-                  isEditing 
-                    ? 'bg-red-500 text-white hover:bg-red-600' 
+                className={`flex items-center px-4 py-2 rounded-md transition-colors ${isEditing
+                    ? 'bg-red-500 text-white hover:bg-red-600'
                     : 'bg-white text-blue-600 hover:bg-gray-50'
-                }`}
+                  }`}
               >
                 {isEditing ? (
                   <>
@@ -218,7 +223,7 @@ export const ProfileView: React.FC = () => {
         {/* Profile Content */}
         <div className="p-6">
           {isEditing ? (
-            <ProfileEditForm 
+            <ProfileEditForm
               profile={profile}
               onSave={handleProfileUpdate}
               onCancel={() => setIsEditing(false)}
@@ -235,18 +240,18 @@ export const ProfileView: React.FC = () => {
                     {profile.is_verified ? 'Verified' : 'Pending'}
                   </p>
                 </div>
-                
+
                 <div className="text-center p-4 bg-gray-50 rounded-lg">
                   <Shield className="w-6 h-6 text-green-600 mx-auto mb-2" />
                   <p className="text-sm text-gray-600">Account Security</p>
                   <p className="font-semibold text-gray-900">Active</p>
                 </div>
-                
+
                 <div className="text-center p-4 bg-gray-50 rounded-lg">
                   <Calendar className="w-6 h-6 text-purple-600 mx-auto mb-2" />
                   <p className="text-sm text-gray-600">Last Login</p>
                   <p className="font-semibold text-gray-900">
-                    {profile.last_login 
+                    {profile.last_login
                       ? new Date(profile.last_login).toLocaleDateString()
                       : 'Never'
                     }

@@ -1,40 +1,53 @@
 // src/app/blog/[slug]/page.tsx
 'use client';
 
-import { useEffect, useState } from 'react';
+
 import { useParams, useRouter } from 'next/navigation';
-import { useData } from '@/app/context/DataContext';
-import { BlogPost } from '@/app/models/blog.model';
 import BlogLayout from '@/components/blog/BlogLayout';
 import CommentsSection from '@/components/CommentSection';
 import NewsletterSignup from '@/components/NewsletterSignup';
-import Image from 'next/image';
 import Link from 'next/link';
+import { useBlogDetails } from '@/hooks/useBlogDetails';
+import { BlogPost as UiBlogPost } from '@/app/models/blog.model';
 
 export default function BlogPostPage() {
   const router = useRouter();
   const params = useParams();
-  const { blogs } = useData();
-  const [post, setPost] = useState<BlogPost | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  
-  useEffect(() => {
-    if (blogs.length > 0 && params.slug) {
-      const slug = Array.isArray(params.slug) ? params.slug[0] : params.slug;
-      const foundPost = blogs.find((b) => b.slug === slug && b.status === 'published');
-      
-      if (foundPost) {
-        setPost(foundPost);
-      } else {
-        // If no post is found, go to 404
-        router.push('/404');
-      }
-      
-      setIsLoading(false);
-    }
-  }, [blogs, params.slug, router]);
-  
-  if (isLoading) {
+  const slug = Array.isArray(params.slug) ? params.slug[0] : params.slug;
+  const { post, loading, error } = useBlogDetails(slug);
+
+  // Map API BlogPostWithDetails to UI BlogPost
+  const mapApiToUiBlogPost = (apiPost: any): UiBlogPost => ({
+    id: apiPost.id,
+    title: apiPost.title,
+    slug: apiPost.slug,
+    date: apiPost.datePublished || apiPost.date_published || apiPost.dateCreated || apiPost.date_created || '',
+    category: apiPost.category || '',
+    tags: Array.isArray(apiPost.tags)
+      ? apiPost.tags.map((tag: any) => tag.name || tag.slug || '')
+      : [],
+    author: apiPost.authorDetails?.fullName || apiPost.author || '',
+    authorId: apiPost.authorDetails?.id || apiPost.author || '',
+    image: apiPost.imageUrl || apiPost.image_url || '',
+    excerpt: apiPost.excerpt,
+    content: apiPost.content,
+    status: apiPost.status,
+    comments: Array.isArray(apiPost.comments)
+      ? apiPost.comments.map((c: any) => ({
+        id: c.id,
+        name: c.name,
+        email: c.email,
+        message: c.message,
+        createdAt: c.dateCreated || c.date_created || '',
+        approved: c.approved,
+      }))
+      : [],
+    viewCount: apiPost.viewCount || apiPost.view_count,
+    featured: apiPost.featured,
+    updatedAt: apiPost.dateUpdated || apiPost.date_updated,
+  });
+
+  if (loading) {
     return (
       <BlogLayout>
         <div className="flex items-center justify-center py-20">
@@ -43,8 +56,8 @@ export default function BlogPostPage() {
       </BlogLayout>
     );
   }
-  
-  if (!post) {
+
+  if (error || !post) {
     return (
       <BlogLayout>
         <div className="text-center py-20">
@@ -57,31 +70,32 @@ export default function BlogPostPage() {
       </BlogLayout>
     );
   }
-  
+
+  const uiPost = mapApiToUiBlogPost(post);
+
   return (
     <BlogLayout>
       <article className="prose lg:prose-lg max-w-none">
-        <h1>{post.title}</h1>
+        <h1>{uiPost.title}</h1>
         <p className="text-sm text-gray-500">
-          {new Date(post.date).toLocaleDateString()} • {post.category} • 
-          {post.comments ? ` ${post.comments.length} comments` : ' 0 comments'}
+          {new Date(uiPost.date).toLocaleDateString()} • {uiPost.category} •
+          {uiPost.comments ? ` ${uiPost.comments.length} comments` : ' 0 comments'}
         </p>
         <div className="w-full flex justify-center my-6">
-          <img
-            src={post.image}
-            alt={post.title}
-            className="w-full max-w-2xl h-auto rounded-md object-cover"
-          />
+          {uiPost.image ? (
+            <img
+              src={uiPost.image}
+              alt={uiPost.title}
+              className="w-full max-w-2xl h-auto rounded-md object-cover"
+            />
+          ) : null}
         </div>
-        
         {/* Render content paragraphs */}
-        {post.content.split('\n\n').map((paragraph, index) => (
+        {uiPost.content.split('\n\n').map((paragraph, index) => (
           <p key={index}>{paragraph}</p>
         ))}
       </article>
-      
-      {/* Pass the postId to CommentsSection */}
-      <CommentsSection postId={post.id} initialComments={post.comments} />
+      <CommentsSection postId={uiPost.id} initialComments={uiPost.comments} />
       <NewsletterSignup />
     </BlogLayout>
   );

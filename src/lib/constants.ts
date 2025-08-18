@@ -14,7 +14,7 @@ export const API_ENDPOINTS = {
   VERIFY_EMAIL: '/api/v1/auth/verify-email/',
   RESET_PASSWORD: '/api/v1/auth/password/reset/',
   GOOGLE_AUTH: '/api/v1/auth/social/google/',
-  USER_PROFILE: '/api/v1/auth/user/',
+  USER_PROFILE: '/api/v1/accounts/users/me/',
 } as const;
 
 export const SESSION_CONFIG = {

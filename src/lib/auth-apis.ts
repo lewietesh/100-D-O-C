@@ -1,4 +1,3 @@
-
 // lib/auth-api.ts
 import { logger } from './logger';
 import type {
@@ -148,7 +147,7 @@ class AuthAPI {
           }
 
           async getCurrentUser(): Promise<User> {
-                    return this.makeRequest<User>('/api/v1/auth/user/');
+                    return this.makeRequest<User>('/api/v1/accounts/users/me/');
           }
 
           async logout(): Promise<void> {

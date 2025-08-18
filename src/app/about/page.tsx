@@ -20,12 +20,7 @@ const aboutStats = [
 export default function AboutPage() {
   return (
     <>
-      <Hero
-        title="Work with us"
-        subtitle="Anim aute id magna aliqua ad ad non deserunt sunt. Qui irure qui lorem cupidatat commodo."
-        links={aboutLinks}
-        stats={aboutStats}
-      />
+
       <WhatWeDo />
 
 

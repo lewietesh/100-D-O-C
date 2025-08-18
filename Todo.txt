@@ -1,0 +1,6 @@
+Read the files associated with user profile management. 
+1. useAuth - hook file associated with user management
+2.ProfileView component - 1. profile_img upload input is missing.  This should be available for users who dont want to use their google profile or signed up with email and would love to have their profile img uploaded.    
+3. Read accounts related files on the server side, starting with (models.py, views, urls and serializers.py)
+The goal will be to patch the code for proper handling of profile update requests. 
+4.That will be all for the most part with regard to profile management

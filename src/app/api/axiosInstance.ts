@@ -1,3 +1,4 @@
+
 // src/api/axiosInstance.ts - Enhanced Version with Better Error Handling
 import axios, { AxiosInstance, AxiosResponse, AxiosError, AxiosRequestConfig } from 'axios';
 
@@ -11,6 +12,17 @@ export interface ApiErrorResponse {
 }
 
 class ApiClient {
+
+  async putFormData<T>(url: string, formData: FormData, config: AxiosRequestConfig = {}): Promise<T> {
+    const response: AxiosResponse<T> = await this.instance.put(url, formData, {
+      ...config,
+      headers: {
+        'Content-Type': 'multipart/form-data',
+        ...(config.headers || {}),
+      },
+    });
+    return response.data;
+  }
   private instance: AxiosInstance;
   private isRefreshing = false;
   private failedQueue: Array<{
@@ -212,6 +224,17 @@ class ApiClient {
 
   async postFormData<T>(url: string, formData: FormData, config: AxiosRequestConfig = {}): Promise<T> {
     const response: AxiosResponse<T> = await this.instance.post(url, formData, {
+      ...config,
+      headers: {
+        'Content-Type': 'multipart/form-data',
+        ...(config.headers || {}),
+      },
+    });
+    return response.data;
+  }
+
+  async patchFormData<T>(url: string, formData: FormData, config: AxiosRequestConfig = {}): Promise<T> {
+    const response: AxiosResponse<T> = await this.instance.patch(url, formData, {
       ...config,
       headers: {
         'Content-Type': 'multipart/form-data',

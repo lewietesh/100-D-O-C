@@ -25,6 +25,7 @@ interface HeroProps {
   title?: string
   subtitle?: string
   links?: Link[]
+  page?: string
 }
 
 // API Base URL for development
@@ -37,6 +38,7 @@ export default function Hero({
     { name: 'View My Projects', href: '/projects' },
     { name: 'Request a Service', href: '/contact' },
   ],
+  page
 }: HeroProps) {
   const [showAnimation, setShowAnimation] = useState(false)
   const [heroData, setHeroData] = useState<HeroData | null>(null)
@@ -45,15 +47,17 @@ export default function Hero({
 
   useEffect(() => {
     setShowAnimation(true)
-    
+
     const fetchHeroData = async () => {
       try {
-        const response = await fetch(`${API_BASE_URL}/api/v1/core/hero/`)
-        
+        // Use the page prop if provided, otherwise default to 'home'
+        const heroPage = (typeof page === 'string' && page) ? page : 'home';
+        const response = await fetch(`${API_BASE_URL}/api/v1/core/hero/${heroPage}/`)
+
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`)
         }
-        
+
         const data: HeroData = await response.json()
         setHeroData(data)
       } catch (error) {
@@ -84,8 +88,8 @@ export default function Hero({
     )
   }
 
-  const displayData = heroData || { 
-    heading: title, 
+  const displayData = heroData || {
+    heading: title,
     subheading: subtitle,
     cta_text: 'Get Started',
     cta_link: '/contact'
@@ -99,7 +103,7 @@ export default function Hero({
       description: "We analyze your needs and define the perfect solution"
     },
     {
-      number: "02", 
+      number: "02",
       title: "Develop",
       description: "Custom development with regular progress updates"
     },
@@ -116,18 +120,18 @@ export default function Hero({
       <div className="absolute inset-0 -z-30">
         {/* Primary gradient background - darker for better contrast */}
         <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900"></div>
-        
+
         {/* Animated gradient overlays - subtle blue and orange accents */}
         <div className="absolute inset-0 bg-gradient-to-r from-blue-900/30 via-transparent to-orange-900/20 animate-pulse-subtle"></div>
-        
+
         {/* Moving gradient orbs - darker versions */}
         <div className="absolute top-0 left-0 w-96 h-96 bg-gradient-to-r from-blue-800/20 to-transparent rounded-full blur-3xl animate-float-slow"></div>
         <div className="absolute bottom-0 right-0 w-80 h-80 bg-gradient-to-r from-orange-800/15 to-transparent rounded-full blur-3xl animate-float-reverse"></div>
         <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-gradient-to-r from-blue-700/15 to-transparent rounded-full blur-2xl animate-float-gentle"></div>
-        
+
         {/* Additional dark overlay for better text contrast */}
         <div className="absolute inset-0 bg-black/20"></div>
-        
+
         {/* Subtle grid pattern */}
         <div className="absolute inset-0 opacity-[0.02]" style={{
           backgroundImage: `
@@ -195,7 +199,7 @@ export default function Hero({
                 </div>
                 <span className="text-sm text-gray-100 font-medium">Trusted by 10+ clients</span>
               </div>
-              
+
               <div className="flex items-center space-x-2">
                 <div className="w-3 h-3 bg-success rounded-full animate-pulse-subtle shadow-lg"></div>
                 <span className="text-sm text-gray-100 font-medium">Available for new projects</span>
@@ -209,10 +213,10 @@ export default function Hero({
               <h3 className="text-2xl font-bold text-white mb-8 text-center">
                 Your Journey to Success
               </h3>
-              
+
               <div className="space-y-6">
                 {steps.map((step, index) => (
-                  <div 
+                  <div
                     key={step.number}
                     className="flex items-start space-x-4 animate-slide-up"
                     style={{ animationDelay: `${1.2 + index * 0.2}s` }}
@@ -221,19 +225,19 @@ export default function Hero({
                     <div className="flex-shrink-0 w-12 h-12 bg-cta hover:bg-cta-hover rounded-full flex items-center justify-center shadow-lg transition-colors">
                       <span className="text-white font-bold text-sm">{step.number}</span>
                     </div>
-                    
+
                     {/* Step Content */}
                     <div className="flex-1">
                       <h4 className="text-lg font-semibold text-white mb-1">{step.title}</h4>
                       <p className="text-gray-300 text-sm leading-relaxed">{step.description}</p>
                     </div>
-                    
+
                     {/* Check Icon */}
                     <CheckCircleIcon className="w-6 h-6 text-success flex-shrink-0 mt-1" />
                   </div>
                 ))}
               </div>
-              
+
               {/* Bottom CTA */}
               <div className="mt-8 text-center">
                 <p className="text-gray-300 text-sm mb-4">Ready to start your project?</p>
@@ -276,12 +280,12 @@ export function useHeroData() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch(`${API_BASE_URL}/api/v1/core/hero/`)
-        
+        const response = await fetch(`${API_BASE_URL}/api/v1/core/hero/home/`)
+
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`)
         }
-        
+
         const data: HeroData = await response.json()
         setData(data)
       } catch (err) {

@@ -121,11 +121,7 @@ export default function RequestServicePage() {
 
   return (
     <>
-      <Hero 
-        title="Request Service" 
-        subtitle="Complete the form below to request our professional services" 
-      />
-      
+
       <main className="bg-white py-12">
         <div className="container mx-auto px-4 max-w-4xl">
           {status === 'success' ? (

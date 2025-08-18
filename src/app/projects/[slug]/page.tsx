@@ -1,6 +1,7 @@
 //src/app/projects/[slug]/page.tsx
 import { notFound } from 'next/navigation';
-import { projects } from '@/data/projects';
+
+import { ProjectWithDetails } from '@/types/projects';
 
 import ProjectLayout from '@/components/projects/ProjectLayout';
 import ProjectHeader from '@/components/projects/ProjectHeader';
@@ -13,32 +14,51 @@ import NewsletterSignup from '@/components/NewsletterSignup';
 // Static generation enforced
 export const dynamic = 'force-static';
 
-export default async function ProjectDetail({
-  params,
-}: {
-  params: Promise<{ slug: string }>;
-}) {
+export default async function ProjectDetail({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const project = projects.find((p) => p.slug === slug);
+  // Build API URL
+  const base = process.env.NEXT_PUBLIC_API_BASE_URL || '';
+  const apiUrl = `${base}/api/v1/projects/projects/${slug}/`;
 
-  if (!project) {
+  let project: ProjectWithDetails | null = null;
+  try {
+    const res = await fetch(apiUrl, { cache: 'no-store' });
+    if (!res.ok) throw new Error('Not found');
+    project = await res.json();
+  } catch (e) {
     notFound();
   }
 
+  if (!project) notFound();
+
+  // Defensive: fallback to empty arrays if missing
+  const comments = Array.isArray(project.comments)
+    ? project.comments.map((c) => ({ ...c, approved: c.approved ?? false, createdAt: c.date_created }))
+    : [];
+
+  // Use image_url for ProjectImage, fallback to empty string
   return (
     <ProjectLayout>
       <ProjectHeader project={project} />
-      <ProjectImage src={project.image} alt={project.title} />
+      <ProjectImage src={project.image_url || ''} alt={project.title} />
       <ProjectMeta description={project.description} url={project.url} />
-      <ProjectReviews reviews={project.reviews} />
-      <CommentsSection initialComments={project.comments || []} />
+      {/* ProjectReviews removed: not present in ProjectWithDetails */}
+      <CommentsSection postId={project.id} initialComments={comments} />
       <NewsletterSignup />
     </ProjectLayout>
   );
 }
 
+// If you want to statically generate project pages, fetch slugs from the API
 export async function generateStaticParams() {
-  return projects.map((project) => ({
-    slug: project.slug,
-  }));
+  const base = process.env.NEXT_PUBLIC_API_BASE_URL || '';
+  const apiUrl = `${base}/api/v1/projects/projects/`;
+  try {
+    const res = await fetch(apiUrl);
+    if (!res.ok) return [];
+    const data = await res.json();
+    return (data.results || data).map((project: any) => ({ slug: project.slug }));
+  } catch {
+    return [];
+  }
 }

@@ -1,8 +1,8 @@
+//src/components/projects/projectsContainer.tsx
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import Hero from '@/components/Hero';
 import ProjectGrid from '@/components/projects/ProjectGrid';
 import ProjectsFilters from '@/components/projects/ProjectsFilters';
 import ProjectsPagination from '@/components/projects/ProjectsPagination';
@@ -27,17 +27,22 @@ export default function ProjectsContainer({ searchParams }: ProjectsContainerPro
           const router = useRouter();
           const currentSearchParams = useSearchParams();
 
-          // Parse search params into query parameters
-          const queryParams: ProjectsQueryParams = {
-                    page: Number(searchParams.page) || 1,
-                    limit: 12, // Using limit instead of page_size to match your types
-                    category: searchParams.category,
-                    search: searchParams.search,
-                    filters: {
-                              status: searchParams.status as any,
-                              featured: searchParams.featured === 'true' ? true : undefined,
-                    },
-          };
+          // Memoize queryParams to prevent infinite re-renders
+          const queryParams: ProjectsQueryParams = useMemo(() => {
+                    // Only allow valid status values
+                    const validStatuses = ['ongoing', 'completed', 'maintenance'];
+                    const status = validStatuses.includes(searchParams.status || '') ? searchParams.status : undefined;
+                    return {
+                              page: Number(searchParams.page) || 1,
+                              limit: 12,
+                              category: searchParams.category,
+                              search: searchParams.search,
+                              filters: {
+                                        status: status as any,
+                                        featured: searchParams.featured === 'true' ? true : undefined,
+                              },
+                    };
+          }, [searchParams.page, searchParams.category, searchParams.search, searchParams.status, searchParams.featured]);
 
           const {
                     projects,
@@ -99,10 +104,6 @@ export default function ProjectsContainer({ searchParams }: ProjectsContainerPro
           if (loading && (!projects || projects.length === 0)) {
                     return (
                               <>
-                                        <Hero
-                                                  title="My Projects"
-                                                  subtitle="A showcase of my design, development, and creative work."
-                                        />
                                         <div className="flex items-center justify-center min-h-96">
                                                   <LoadingSpinner className="h-8 w-8" />
                                         </div>
@@ -113,10 +114,7 @@ export default function ProjectsContainer({ searchParams }: ProjectsContainerPro
           if (error) {
                     return (
                               <>
-                                        <Hero
-                                                  title="My Projects"
-                                                  subtitle="A showcase of my design, development, and creative work."
-                                        />
+
                                         <div className="max-w-7xl mx-auto p-6">
                                                   <ErrorMessage message={error} onRetry={refetch} />
                                         </div>
@@ -129,10 +127,7 @@ export default function ProjectsContainer({ searchParams }: ProjectsContainerPro
 
           return (
                     <>
-                              <Hero
-                                        title="My Projects"
-                                        subtitle={`A showcase of my ${totalCount || 0} design, development, and creative work projects.`}
-                              />
+
                               <main className="max-w-7xl mx-auto p-6">
                                         {/* Search Bar */}
                                         <SearchBar

@@ -198,9 +198,8 @@ export function AuthForm({ mode, onModeChange, onSuccess }: AuthFormProps) {
       setSuccessMessage('Email verified successfully! Redirecting...');
       showToast('Email verified successfully!', 'success');
 
-      setTimeout(() => {
         window.location.href = '/dashboard';
-      }, 1200);
+ 
     } catch (error: any) {
       const errorMessage = error.message || 'Verification failed. Please try again.';
       setErrorMessage(errorMessage);
@@ -229,8 +228,20 @@ export function AuthForm({ mode, onModeChange, onSuccess }: AuthFormProps) {
   };
 
   const handleGoogleError = (error: string) => {
-    setErrorMessage(error);
-    showToast(error, 'error');
+    // Detect clock sync error from backend
+    if (
+      error.includes('Token used too early') ||
+      error.includes("Check that your computer's clock is set correctly") ||
+      error.toLowerCase().includes('clock')
+    ) {
+      const clockMsg =
+        'Google authentication failed because your device clock is incorrect. Please synchronize your system time and try again.';
+      setErrorMessage(clockMsg);
+      showToast(clockMsg, 'error');
+    } else {
+      setErrorMessage(error);
+      showToast(error, 'error');
+    }
   };
 
   const handleVerifyLater = async () => {

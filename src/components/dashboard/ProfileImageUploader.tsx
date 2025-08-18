@@ -1,5 +1,15 @@
 // src/components/dashboard/ProfileImageUploader.tsx - Version 3
 import React, { useState, useRef, useCallback } from 'react';
+
+// Helper to get full media URL
+const getMediaUrl = (path: string | null | undefined) => {
+  if (!path) return '';
+  if (path.startsWith('http://') || path.startsWith('https://')) return path;
+  if (path.startsWith('/media/') || path.startsWith('media/')) {
+    return `http://localhost:8000${path.startsWith('/') ? path : '/' + path}`;
+  }
+  return path;
+};
 import { Upload, X, Camera, Trash2, RotateCcw, Check, AlertTriangle, Image as ImageIcon } from 'lucide-react';
 
 interface ProfileImageUploaderProps {
@@ -42,7 +52,7 @@ export const ProfileImageUploader: React.FC<ProfileImageUploaderProps> = ({
 
   const handleFileSelect = useCallback((file: File) => {
     setError(null);
-    
+
     const validationError = validateFile(file);
     if (validationError) {
       setError(validationError);
@@ -50,7 +60,7 @@ export const ProfileImageUploader: React.FC<ProfileImageUploaderProps> = ({
     }
 
     setSelectedFile(file);
-    
+
     // Create preview
     const reader = new FileReader();
     reader.onloadend = () => {
@@ -65,7 +75,7 @@ export const ProfileImageUploader: React.FC<ProfileImageUploaderProps> = ({
   const handleDrop = useCallback((e: React.DragEvent) => {
     e.preventDefault();
     setDragOver(false);
-    
+
     const files = Array.from(e.dataTransfer.files);
     if (files.length > 0) {
       handleFileSelect(files[0]);
@@ -97,7 +107,7 @@ export const ProfileImageUploader: React.FC<ProfileImageUploaderProps> = ({
     try {
       setUploading(true);
       setError(null);
-      
+
       const success = await onUpload(selectedFile);
       if (success) {
         onClose();
@@ -160,7 +170,7 @@ export const ProfileImageUploader: React.FC<ProfileImageUploaderProps> = ({
               <p className="text-sm font-medium text-gray-700 mb-3">Current Photo</p>
               <div className="flex justify-center">
                 <img
-                  src={currentImage}
+                  src={getMediaUrl(currentImage)}
                   alt="Current profile"
                   className="w-32 h-32 rounded-full object-cover border-4 border-gray-200 shadow-md"
                 />
@@ -184,26 +194,24 @@ export const ProfileImageUploader: React.FC<ProfileImageUploaderProps> = ({
 
           {/* Upload Area */}
           <div
-            className={`border-2 border-dashed rounded-lg p-8 text-center transition-all duration-200 ${
-              dragOver 
-                ? 'border-blue-400 bg-blue-50 scale-[1.02]' 
+            className={`border-2 border-dashed rounded-lg p-8 text-center transition-all duration-200 ${dragOver
+                ? 'border-blue-400 bg-blue-50 scale-[1.02]'
                 : 'border-gray-300 hover:border-gray-400'
-            }`}
+              }`}
             onDrop={handleDrop}
             onDragOver={handleDragOver}
             onDragLeave={handleDragLeave}
           >
             <div className="space-y-4">
-              <div className={`w-16 h-16 mx-auto rounded-full flex items-center justify-center ${
-                dragOver ? 'bg-blue-100' : 'bg-gray-100'
-              }`}>
+              <div className={`w-16 h-16 mx-auto rounded-full flex items-center justify-center ${dragOver ? 'bg-blue-100' : 'bg-gray-100'
+                }`}>
                 {dragOver ? (
                   <Upload className="w-8 h-8 text-blue-600" />
                 ) : (
                   <Camera className="w-8 h-8 text-gray-400" />
                 )}
               </div>
-              
+
               <div className="space-y-2">
                 <button
                   type="button"

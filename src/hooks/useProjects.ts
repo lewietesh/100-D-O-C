@@ -12,9 +12,22 @@ import {
 } from '@/types/projects';
 
 // API Configuration
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000/api';
+// Dynamically build API base URL by appending /api/v1 to the base URL from env
+const getApiBaseUrl = () => {
+          // Try NEXT_PUBLIC_API_BASE_URL, fallback to window.location.origin
+          let base = process.env.NEXT_PUBLIC_API_BASE_URL || '';
+          if (!base && typeof window !== 'undefined') {
+                    base = window.location.origin;
+          }
+          // Ensure no trailing slash
+          base = base.replace(/\/$/, '');
+          return `${base}/api/v1`;
+};
+
+const API_BASE_URL = `${getApiBaseUrl()}/projects`;
 
 // API Service Functions
+
 class ProjectsApiService {
           private async fetchWithErrorHandling<T>(url: string, options?: RequestInit): Promise<T> {
                     try {
@@ -25,11 +38,9 @@ class ProjectsApiService {
                                         },
                                         ...options,
                               });
-
                               if (!response.ok) {
                                         throw new Error(`HTTP ${response.status}: ${response.statusText}`);
                               }
-
                               return await response.json();
                     } catch (error) {
                               console.error('API Request failed:', error);
@@ -39,21 +50,17 @@ class ProjectsApiService {
 
           async getProjects(params: ProjectsQueryParams): Promise<ProjectsApiResponse> {
                     const searchParams = new URLSearchParams();
-
                     // Add pagination
                     if (params.page) searchParams.set('page', params.page.toString());
                     if (params.limit) searchParams.set('page_size', params.limit.toString());
-
                     // Add search
                     if (params.search) searchParams.set('search', params.search);
-
                     // Add filters
                     if (params.category) searchParams.set('category', params.category);
                     if (params.status) searchParams.set('status', params.status);
                     if (params.featured !== undefined) searchParams.set('featured', params.featured.toString());
                     if (params.technologies) searchParams.set('technologies', params.technologies);
                     if (params.ordering) searchParams.set('ordering', params.ordering);
-
                     // Add nested filters
                     if (params.filters) {
                               Object.entries(params.filters).forEach(([key, value]) => {
@@ -62,7 +69,7 @@ class ProjectsApiService {
                                         }
                               });
                     }
-
+                    // Use the dynamic API base URL
                     const url = `${API_BASE_URL}/projects/?${searchParams.toString()}`;
                     return this.fetchWithErrorHandling<ProjectsApiResponse>(url);
           }
