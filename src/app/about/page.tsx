@@ -1,30 +1,17 @@
-import Hero from '@/components/Hero';
-import Team from '@/components/Team'; // ✅ Import the Team component
-import WhatWeDo from '@/components/WhatWeDo';
+// app/about/page.tsx
+import AboutPage from '@/components/AboutPage';
 
+export const metadata = {
+  title: 'About - Lewis Mutembei | Full-Stack Developer',
+  description: 'Learn about Lewis Mutembei, a passionate full-stack developer and technology consultant specializing in modern web applications and digital solutions.',
+  keywords: 'Lewis Mutembei, Full-Stack Developer, Web Developer, Software Engineer, Technology Consultant, React, Django, Next.js',
+  openGraph: {
+    title: 'About Lewis Mutembei - Full-Stack Developer',
+    description: 'Passionate full-stack developer creating innovative digital solutions',
+    type: 'website',
+  }
+};
 
-const aboutLinks = [
-  { name: 'Open roles', href: '#' },
-  { name: 'Internship program', href: '#' },
-  { name: 'Our values', href: '#' },
-  { name: 'Meet our leadership', href: '#' },
-];
-
-const aboutStats = [
-  { name: 'Offices worldwide', value: '12' },
-  { name: 'Full-time colleagues', value: '300+' },
-  { name: 'Hours per week', value: '40' },
-  { name: 'Paid time off', value: 'Unlimited' },
-];
-
-export default function AboutPage() {
-  return (
-    <>
-
-      <WhatWeDo />
-
-
-
-    </>
-  );
+export default function Page() {
+  return <AboutPage />;
 }

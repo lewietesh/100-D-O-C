@@ -34,6 +34,7 @@ export interface BlogPostWithDetails extends BlogPost {
     fullName: string;
   };
   tags: Tag[];
+  comments: BlogComment[];
   commentsCount: number;
   approvedCommentsCount: number;
   readingTime: number; // in minutes
@@ -54,6 +55,15 @@ export interface BlogComment {
   message: string;
   approved: boolean;
   dateCreated: string;
+  // Extended fields for moderation, threading, and user info
+  isReply?: boolean;
+  replies?: BlogComment[];
+  avatarUrl?: string;
+  userAgent?: string;
+  ipAddress?: string;
+  // Add any backend-provided moderation fields
+  flagged?: boolean;
+  status?: 'pending' | 'approved' | 'rejected';
 }
 
 export interface BlogCommentWithDetails extends BlogComment {
@@ -106,6 +116,9 @@ export interface CommentCreateRequest {
   email?: string;
   website?: string;
   message: string;
+  // Optionally support user agent, IP, and anti-spam fields
+  userAgent?: string;
+  recaptchaToken?: string;
 }
 
 export interface CommentModerationRequest {

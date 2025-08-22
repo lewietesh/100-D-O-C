@@ -1,15 +1,15 @@
 'use client';
 
 import { useState } from 'react';
+import { useNewsletter } from '../hooks/useNewsletter';
 
 const NewsletterSignup = () => {
   const [email, setEmail] = useState('');
-  const [joined, setJoined] = useState(false);
+  const { subscribe, loading, error, success } = useNewsletter();
 
-  const handleSubscribe = (e: React.FormEvent) => {
+  const handleSubscribe = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Simulate sending to newsletter
-    setJoined(true);
+    await subscribe(email);
     setEmail('');
   };
 
@@ -33,7 +33,9 @@ const NewsletterSignup = () => {
           Subscribe
         </button>
       </form>
-      {joined && <p className="text-green-600 text-sm mt-2">You're subscribed!</p>}
+      {success && <p className="text-green-600 text-sm mt-2">{success}</p>}
+      {error && <p className="text-red-600 text-sm mt-2">{error}</p>}
+      {loading && <p className="text-blue-600 text-sm mt-2">Subscribing...</p>}
     </section>
   );
 };

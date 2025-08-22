@@ -1,3 +1,19 @@
+// Raw API service type for backend response mapping
+export interface ApiService {
+  id: string;
+  name: string;
+  slug: string;
+  category?: string;
+  subcategory?: string;
+  description?: string;
+  pricing_model?: string;
+  starting_at?: string;
+  currency?: string;
+  timeline?: string;
+  featured?: boolean;
+  min_price?: number;
+  pricing_tiers_count?: number;
+}
 // app/models/services.model.ts
 export interface ServiceFeature {
   id: string;

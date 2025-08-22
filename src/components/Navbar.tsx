@@ -54,7 +54,7 @@ export default function Navigation() {
                 aria-current={item.current ? 'page' : undefined}
                 className={classNames(
                   item.current
-                    ? 'bg-primary-500 text-white font-semibold'
+                    ? 'bg-primary-500 text-cta-400 font-semibold'
                     : 'font-semibold text-primary-700 dark:text-light-primary hover:bg-primary-100 dark:hover:bg-dark-secondary hover:text-primary-600 dark:hover:text-light-primary',
                   'rounded-md px-3 py-2 text-sm transition'
                 )}
@@ -139,7 +139,7 @@ export default function Navigation() {
           ) : (
             <DisclosureButton
               as="a"
-              href="/auth/signin"
+              href="/auth/"
               className="block w-full text-left mt-2 rounded-md bg-primary-500 dark:bg-primary-400 text-white dark:text-gray-900 px-3 py-2 text-base font-bold hover:bg-primary-600 dark:hover:bg-primary-300 shadow-lg focus:outline-none focus:ring-2 focus:ring-primary-400 dark:focus:ring-primary-200 transition duration-200"
               aria-label="Sign In"
             >

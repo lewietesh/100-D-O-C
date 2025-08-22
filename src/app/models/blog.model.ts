@@ -4,7 +4,7 @@ export interface BlogComment {
   name: string;
   email?: string;
   message: string;
-  createdAt: string;
+  date_created?: string;
   approved: boolean;
 }
 

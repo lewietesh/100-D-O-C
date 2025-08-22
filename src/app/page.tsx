@@ -17,10 +17,7 @@ export default function HomePage() {
     <Hero
       title="Build a Better Future, With Tech"
       subtitle="Dedicated to helping professionals build success stories whether through software development or content writing."
-      links={[
-        { name: 'View My Projects', href: '/projects' },
-        { name: 'Request a Service', href: '/contact' },
-      ]}
+
       // stats={[
       //   { name: 'Projects Completed', value: '12+' },
       //   { name: 'Industries Served', value: '6+' },
@@ -29,7 +26,7 @@ export default function HomePage() {
       // ]}
     />
       
-      {/* <About /> */}
+      <About />
       {/* This one */}
       <ServicesShowcase />
 <TechStackShowcase />

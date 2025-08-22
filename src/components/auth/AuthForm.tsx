@@ -198,8 +198,8 @@ export function AuthForm({ mode, onModeChange, onSuccess }: AuthFormProps) {
       setSuccessMessage('Email verified successfully! Redirecting...');
       showToast('Email verified successfully!', 'success');
 
-        window.location.href = '/dashboard';
- 
+      window.location.href = '/dashboard';
+
     } catch (error: any) {
       const errorMessage = error.message || 'Verification failed. Please try again.';
       setErrorMessage(errorMessage);
@@ -220,7 +220,28 @@ export function AuthForm({ mode, onModeChange, onSuccess }: AuthFormProps) {
       showToast('Successfully authenticated with Google!', 'success');
       onSuccess?.();
     } catch (error: any) {
-      const errorMessage = error.message || 'Google authentication failed. Please try again.';
+      let errorMessage = 'Google authentication failed. Please try again.';
+      // Robustly handle backend 401 error structure
+      if (error && typeof error === 'object') {
+        // Axios/Fetch error with .data
+        const data = error.data || error;
+        if (data.code === 'token_not_valid' && Array.isArray(data.messages)) {
+          const expiredMsg = data.messages.find((m: any) =>
+            m.message && m.message.toLowerCase().includes('expired')
+          );
+          if (expiredMsg) {
+            errorMessage = 'Google sign-in failed: Your session or token has expired. Please try again.';
+          } else {
+            errorMessage = data.detail || data.message || errorMessage;
+          }
+        } else if (data.detail || data.message) {
+          errorMessage = data.detail || data.message;
+        } else if (error.message) {
+          errorMessage = error.message;
+        }
+      } else if (typeof error === 'string') {
+        errorMessage = error;
+      }
       setErrorMessage(errorMessage);
       showToast(errorMessage, 'error');
       logger.error('Google auth failed:', error);

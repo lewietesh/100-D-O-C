@@ -46,9 +46,20 @@ class ApiClient {
     // Request interceptor
     this.instance.interceptors.request.use(
       (config) => {
-        const token = this.getToken();
-        if (token) {
-          config.headers.Authorization = `Bearer ${token}`;
+        // Do NOT send Authorization header for Google social login endpoint
+        const isGoogleSocialLogin =
+          config.url?.includes('/api/v1/accounts/auth/social/google/') ||
+          config.url?.includes('/api/v1/accounts/auth/social/google');
+        if (!isGoogleSocialLogin) {
+          const token = this.getToken();
+          if (token) {
+            config.headers.Authorization = `Bearer ${token}`;
+          }
+        } else {
+          // Remove Authorization header if present
+          if (config.headers && 'Authorization' in config.headers) {
+            delete config.headers.Authorization;
+          }
         }
         return config;
       },

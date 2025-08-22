@@ -36,24 +36,27 @@ class AuthAPI {
           ): Promise<T> {
                     const url = `${this.baseURL}${endpoint}`;
 
-                    const config: RequestInit = {
-                              headers: {
-                                        'Content-Type': 'application/json',
-                                        ...options.headers,
-                              },
-                              ...options,
+                    // Build headers, but do NOT send Authorization for Google social login
+                    let headers: Record<string, string> = {
+                              'Content-Type': 'application/json',
+                              ...(options.headers as Record<string, string> || {}),
                     };
 
-                    // Add auth token if available
-                    if (typeof window !== 'undefined') {
+                    // Only add Authorization header if NOT Google social login endpoint
+                    if (
+                              typeof window !== 'undefined' &&
+                              !endpoint.includes('/api/v1/accounts/auth/social/google/')
+                    ) {
                               const token = localStorage.getItem('auth_token');
-                              if (token && !config.headers) {
-                                        config.headers = {};
-                              }
                               if (token) {
-                                        (config.headers as Record<string, string>)['Authorization'] = `Bearer ${token}`;
+                                        headers['Authorization'] = `Bearer ${token}`;
                               }
                     }
+
+                    const config: RequestInit = {
+                              ...options,
+                              headers,
+                    };
 
                     try {
                               logger.info(`Making ${config.method || 'GET'} request to ${url}`);
