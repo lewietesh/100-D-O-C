@@ -1,7 +1,8 @@
 // app/request-service/page.tsx
 'use client';
 
-import { useState, useEffect } from 'react';
+
+import { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 
 import { fetchServices } from '@/services/api/services';
@@ -12,7 +13,16 @@ import { Service, PricingTier, ApiService } from '@/app/models/services.model';
 import Hero from '@/components/Hero';
 import { useToast } from '@/app/context/ToastContext';
 
+
 export default function RequestServicePage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <RequestServiceContent />
+    </Suspense>
+  );
+}
+
+function RequestServiceContent() {
   const { showToast } = useToast();
   const router = useRouter();
   const searchParams = useSearchParams();
