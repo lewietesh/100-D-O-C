@@ -2,12 +2,12 @@
 
 import { Dialog } from '@headlessui/react';
 import { useState } from 'react';
-import { Order } from '@/data/orders';
+import type { ServiceOrder } from '@/app/models/orders.model';
 
 type Props = {
-  order: Order;
+  order: ServiceOrder;
   onClose: () => void;
-  onSave: (updated: Order) => void;
+  onSave: (updated: ServiceOrder) => void;
 };
 
 export default function EditOrderModal({ order, onClose, onSave }: Props) {
@@ -42,19 +42,19 @@ export default function EditOrderModal({ order, onClose, onSave }: Props) {
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium">Topic</label>
+              <label className="block text-sm font-medium">Service Name</label>
               <input
-                name="topic"
-                value={form.topic}
+                name="serviceName"
+                value={form.serviceName}
                 onChange={handleChange}
                 className="mt-1 w-full border px-3 py-2 rounded text-sm"
               />
             </div>
             <div>
-              <label className="block text-sm font-medium">Subject</label>
+              <label className="block text-sm font-medium">Description</label>
               <input
-                name="subject"
-                value={form.subject || ''}
+                name="description"
+                value={form.description || ''}
                 onChange={handleChange}
                 className="mt-1 w-full border px-3 py-2 rounded text-sm"
               />
@@ -63,26 +63,27 @@ export default function EditOrderModal({ order, onClose, onSave }: Props) {
               <label className="block text-sm font-medium">Deadline</label>
               <input
                 type="date"
-                name="dueDate"
-                value={form.dueDate}
+                name="endDate"
+                value={form.endDate ? form.endDate.substring(0, 10) : ''}
                 onChange={handleChange}
                 className="mt-1 w-full border px-3 py-2 rounded text-sm"
               />
             </div>
             <div>
-              <label className="block text-sm font-medium">Price</label>
+              <label className="block text-sm font-medium">Budget</label>
               <input
-                name="price"
-                value={form.price}
+                name="budget"
+                type="number"
+                value={form.budget !== undefined ? form.budget : ''}
                 onChange={handleChange}
                 className="mt-1 w-full border px-3 py-2 rounded text-sm"
               />
             </div>
             <div className="col-span-2">
-              <label className="block text-sm font-medium">Instructions</label>
+              <label className="block text-sm font-medium">Notes</label>
               <textarea
-                name="instructions"
-                value={form.instructions || ''}
+                name="notes"
+                value={form.notes || ''}
                 onChange={handleChange}
                 className="mt-1 w-full border px-3 py-2 rounded text-sm"
                 rows={3}

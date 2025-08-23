@@ -2,11 +2,11 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { Order } from '@/data/orders';
+import type { ServiceOrder } from '@/app/models/orders.model';
 import EditOrderModal from './EditOrderModal';
 
 type Props = {
-  order: Order;
+  order: ServiceOrder;
 };
 
 export default function OrderCard({ order }: Props) {
@@ -17,13 +17,13 @@ export default function OrderCard({ order }: Props) {
       <div className="grid grid-cols-6 items-center bg-white rounded-lg p-4 shadow-sm border border-gray-200">
         <div className="col-span-2">
           <Link href={`/orders/${order.id}`} className="text-indigo-600 font-medium hover:underline">
-            {order.topic}
+            {order.serviceName}
           </Link>
           <p className="text-xs text-gray-500">Order ID: {order.id}</p>
         </div>
 
-        <div className="text-gray-700">{order.dueDate}</div>
-        <div className="text-gray-700">{order.price}</div>
+        <div className="text-gray-700">{order.timeline || '-'}</div>
+        <div className="text-gray-700">{order.budget !== undefined ? `$${order.budget}` : '-'}</div>
         <div className="text-orange-600 text-sm flex items-center gap-1">
           {order.status} <span className="animate-spin">⭮</span>
         </div>
