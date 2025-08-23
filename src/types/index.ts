@@ -25,10 +25,12 @@ export * from './business';
 // Re-export commonly used types with aliases for convenience
 export type {
   User,
-  UserRole,
-  LoginCredentials,
   AuthResponse,
 } from './auth';
+
+export type {
+  UserRole,
+} from './user';
 
 export type {
   BlogPost,
