@@ -5,18 +5,18 @@ import ProjectsContainer from '@/components/projects/ProjectsContainer';
 import ProjectsLoading from './loading';
 
 interface ProjectsPageProps {
-  searchParams: {
+  searchParams: Promise<{
     page?: string;
     category?: string;
     search?: string;
     status?: string;
     featured?: string;
     technology?: string;
-  };
+  }>;
 }
 
 export async function generateMetadata(props: ProjectsPageProps): Promise<Metadata> {
-  const searchParams = props.searchParams;
+  const searchParams = await props.searchParams;
   const page = Number(searchParams.page) || 1;
   const title = page === 1 ? 'My Projects' : `My Projects - Page ${page}`;
 
@@ -29,11 +29,13 @@ export async function generateMetadata(props: ProjectsPageProps): Promise<Metada
   };
 }
 
-export default function ProjectsPage({ searchParams }: ProjectsPageProps) {
+export default async function ProjectsPage({ searchParams }: ProjectsPageProps) {
+  const resolvedSearchParams = await searchParams;
+  
   return (
     <div className="min-h-screen bg-gray-50">
       <Suspense fallback={<ProjectsLoading />}>
-        <ProjectsContainer searchParams={searchParams} />
+        <ProjectsContainer searchParams={resolvedSearchParams} />
       </Suspense>
     </div>
   );
