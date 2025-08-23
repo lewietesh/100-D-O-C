@@ -16,7 +16,7 @@ interface ProjectsPageProps {
 }
 
 export async function generateMetadata(props: ProjectsPageProps): Promise<Metadata> {
-  const searchParams = await props.searchParams;
+  const searchParams = props.searchParams;
   const page = Number(searchParams.page) || 1;
   const title = page === 1 ? 'My Projects' : `My Projects - Page ${page}`;
 
