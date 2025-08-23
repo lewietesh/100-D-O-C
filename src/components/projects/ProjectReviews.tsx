@@ -1,9 +1,9 @@
 'use client';
 
-import { ProjectReview } from '@/types/projects';
+import { ProjectComment } from '@/types/projects';
 
 interface ProjectReviewsProps {
-  reviews?: ProjectReview[];
+  reviews?: ProjectComment[];
 }
 
 const StarRating = ({ rating }: { rating?: number }) => {
@@ -45,33 +45,25 @@ const ProjectReviews = ({ reviews }: ProjectReviewsProps) => {
         {approvedReviews.map((review) => (
           <div
             key={review.id}
-            className={`border rounded-lg p-6 bg-gray-50 ${review.featured ? 'border-blue-200 bg-blue-50' : 'border-gray-200'
-              }`}
+            className="border rounded-lg p-6 bg-gray-50 border-gray-200"
           >
             <div className="flex justify-between items-start mb-4">
               <div>
                 <h3 className="font-semibold text-gray-900">
-                  {review.reviewer_name || review.display_name || 'Anonymous'}
+                  {review.name || 'Anonymous'}
                 </h3>
-                {review.company_name && (
-                  <p className="text-sm text-gray-600">{review.company_name}</p>
-                )}
-                <StarRating rating={review.rating} />
+                {/* No company or rating fields in ProjectComment */}
               </div>
               <div className="text-right">
                 <span className="text-sm text-gray-500">
                   {new Date(review.date_created).toLocaleDateString()}
                 </span>
-                {review.featured && (
-                  <span className="ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                    Featured
-                  </span>
-                )}
+                {/* No featured field in ProjectComment */}
               </div>
             </div>
 
             <blockquote className="text-gray-700 italic border-l-4 border-blue-400 pl-4">
-              "{review.content}"
+              "{review.message}"
             </blockquote>
           </div>
         ))}
