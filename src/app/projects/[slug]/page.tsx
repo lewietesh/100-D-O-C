@@ -43,7 +43,7 @@ export default async function ProjectDetail({ params }: { params: Promise<{ slug
       <ProjectImage src={project.image_url || ''} alt={project.title} />
       <ProjectMeta description={project.description} url={project.url} />
       {/* ProjectReviews removed: not present in ProjectWithDetails */}
-      <CommentsSection postId={project.id} initialComments={comments} />
+      <CommentsSection postSlug={slug} initialComments={comments} />
       <NewsletterSignup />
     </ProjectLayout>
   );
