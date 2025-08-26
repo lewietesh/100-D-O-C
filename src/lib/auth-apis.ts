@@ -12,7 +12,7 @@ import type {
           User
 } from '@/types/auth';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000';
 
 class AuthAPI {
           async resendVerification(email: string): Promise<{ message: string; development_note?: string }> {
