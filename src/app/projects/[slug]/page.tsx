@@ -8,7 +8,7 @@ import ProjectHeader from '@/components/projects/ProjectHeader';
 import ProjectImage from '@/components/projects/ProjectImage';
 import ProjectMeta from '@/components/projects/ProjectMeta';
 import ProjectReviews from '@/components/projects/ProjectReviews';
-import CommentsSection from '@/components/CommentSection';
+// import CommentsSection from '@/components/CommentSection';
 import NewsletterSignup from '@/components/NewsletterSignup';
 
 // Static generation enforced
@@ -43,7 +43,7 @@ export default async function ProjectDetail({ params }: { params: Promise<{ slug
       <ProjectImage src={project.image_url || ''} alt={project.title} />
       <ProjectMeta description={project.description} url={project.url} />
       {/* ProjectReviews removed: not present in ProjectWithDetails */}
-      <CommentsSection postSlug={slug} initialComments={comments} />
+      {/* <CommentsSection postSlug={slug} initialComments={comments} /> */}
       <NewsletterSignup />
     </ProjectLayout>
   );

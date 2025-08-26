@@ -36,7 +36,7 @@ export class AuthUtils {
           // Validate environment variables
           static validateConfig(): boolean {
                     const required = [
-                              'NEXT_PUBLIC_API_URL',
+                              'NEXT_PUBLIC_API_BASE_URL',
                               'NEXT_PUBLIC_GOOGLE_CLIENT_ID',
                     ];
 

@@ -272,7 +272,7 @@ export function AuthForm({ mode, onModeChange, onSuccess }: AuthFormProps) {
     }
 
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/v1/accounts/auth/verify-later/`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000'}/api/v1/accounts/auth/verify-later/`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

@@ -2,7 +2,7 @@
 // src/api/axiosInstance.ts - Enhanced Version with Better Error Handling
 import axios, { AxiosInstance, AxiosResponse, AxiosError, AxiosRequestConfig } from 'axios';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000';
 
 export interface ApiErrorResponse {
   detail?: string;
