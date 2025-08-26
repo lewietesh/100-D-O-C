@@ -1,5 +1,18 @@
 // src/lib/api/services.ts
-const API_BASE_URL = 'http://localhost:8000/api/v1/services';
+
+const getApiBaseUrl = () => {
+          // Try NEXT_PUBLIC_API_BASE_URL, fallback to window.location.origin
+          let base = process.env.NEXT_PUBLIC_API_BASE_URL || '';
+          if (!base && typeof window !== 'undefined') {
+                    base = window.location.origin;
+          }
+          // Ensure no trailing slash
+          base = base.replace(/\/$/, '');
+          return `${base}/api/v1`;
+};
+
+const API_BASE_URL = `${getApiBaseUrl()}/api/v1/services`;
+
 
 export interface ServiceResponse {
   count: number;
