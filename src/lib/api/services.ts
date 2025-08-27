@@ -11,7 +11,7 @@ const getApiBaseUrl = () => {
           return `${base}/api/v1`;
 };
 
-const API_BASE_URL = `${getApiBaseUrl()}/api/v1/services`;
+const API_BASE_URL = getApiBaseUrl();
 
 
 export interface ServiceResponse {
