@@ -1,18 +1,6 @@
 // src/lib/api/services.ts
 
-const getApiBaseUrl = () => {
-          // Try NEXT_PUBLIC_API_BASE_URL, fallback to window.location.origin
-          let base = process.env.NEXT_PUBLIC_API_BASE_URL || '';
-          if (!base && typeof window !== 'undefined') {
-                    base = window.location.origin;
-          }
-          // Ensure no trailing slash
-          base = base.replace(/\/$/, '');
-          return `${base}/api/v1`;
-};
-
-const API_BASE_URL = getApiBaseUrl();
-
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || `http://localhost:3000`;
 
 export interface ServiceResponse {
   count: number;
@@ -80,7 +68,7 @@ export class ServicesAPI {
     if (params?.category) searchParams.append('category', params.category);
     if (params?.featured !== undefined) searchParams.append('featured', params.featured.toString());
 
-    const url = `${API_BASE_URL}/services/?${searchParams.toString()}`;
+    const url = `${API_BASE_URL}/api/v1/services/?${searchParams.toString()}`;
     const response = await fetch(url);
     
     if (!response.ok) {
@@ -91,7 +79,7 @@ export class ServicesAPI {
   }
 
   static async getService(id: string): Promise<Service> {
-    const response = await fetch(`${API_BASE_URL}/services/${id}/`);
+    const response = await fetch(`${API_BASE_URL}/api/v1/services/${id}/`);
     
     if (!response.ok) {
       throw new Error(`Failed to fetch service: ${response.status}`);
@@ -101,7 +89,7 @@ export class ServicesAPI {
   }
 
   static async getPricingTiers(serviceId: string): Promise<PricingTier[]> {
-    const response = await fetch(`${API_BASE_URL}/pricing-tiers/?service=${serviceId}`);
+    const response = await fetch(`${API_BASE_URL}/api/v1/pricing-tiers/?service=${serviceId}`);
     
     if (!response.ok) {
       throw new Error(`Failed to fetch pricing tiers: ${response.status}`);
@@ -112,7 +100,7 @@ export class ServicesAPI {
   }
 
   static async getFAQs(serviceId: string): Promise<ServiceFAQ[]> {
-    const response = await fetch(`${API_BASE_URL}/faqs/?service=${serviceId}`);
+    const response = await fetch(`${API_BASE_URL}/api/v1/faqs/?service=${serviceId}`);
     
     if (!response.ok) {
       throw new Error(`Failed to fetch FAQs: ${response.status}`);
@@ -123,7 +111,7 @@ export class ServicesAPI {
   }
 
   static async getProcessSteps(serviceId: string): Promise<ProcessStep[]> {
-    const response = await fetch(`${API_BASE_URL}/process-steps/?service=${serviceId}`);
+    const response = await fetch(`${API_BASE_URL}/api/v1/process-steps/?service=${serviceId}`);
     
     if (!response.ok) {
       throw new Error(`Failed to fetch process steps: ${response.status}`);
