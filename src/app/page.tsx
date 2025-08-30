@@ -26,11 +26,13 @@ export default function HomePage() {
       // ]}
     />
       
-      <About />
       {/* This one */}
       <ServicesShowcase />
-<TechStackShowcase />
+            <About />
+
       <Projects />
+      <TechStackShowcase />
+
       <Testimonials />
       <Blog />
       <Contact />

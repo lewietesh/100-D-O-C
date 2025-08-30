@@ -59,15 +59,16 @@ export default function ProjectCard({ project, className }: ProjectCardProps) {
                               onMouseLeave={() => setHovered(false)}
                     >
                               {/* Project Image */}
-                              <div className="relative w-full h-60 overflow-hidden">
+                              <div className="relative w-full h-40 overflow-hidden">
                                         <Image
                                                   src={imageError ? '/images/project-placeholder.jpg' : (project.image_url || '/images/project-placeholder.jpg')}
                                                   alt={project.title}
                                                   fill
                                                   className="object-cover transition-transform duration-300 group-hover:scale-105"
-                                                  sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
+                                                  sizes="(min-width: 1024px) 25vw, (min-width: 640px) 33vw, 50vw"
                                                   onError={() => setImageError(true)}
                                         />
+
 
                                         {/* Status Badge */}
                                         <div className="absolute top-4 left-4">

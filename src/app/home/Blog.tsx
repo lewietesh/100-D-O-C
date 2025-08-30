@@ -1,3 +1,4 @@
+//ClientPort/src/app/home/Blog.tsx
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -25,7 +26,7 @@ interface ApiBlogPost {
   image_url: string;
   author_name: string;
   tags: Tag[];
-  date_published: string | null;
+  date_created: string | null;
   category: string;
   featured: boolean;
   comments_count: number;
@@ -131,7 +132,7 @@ export default function Blog() {
 
   if (posts.length === 0) {
     return (
-      <section className="w-full overflow-x-hidden bg-secondary dark:bg-gray-900 py-20 px-6">
+      <section className="w-full overflow-x-hidden bg-main dark:bg-secondary py-20 px-6">
         <div className="mx-auto max-w-7xl text-center">
           <div className="text-center mb-16">
             <motion.div
@@ -164,7 +165,7 @@ export default function Blog() {
   }
 
   return (
-    <section className="w-full overflow-x-hidden bg-secondary dark:bg-gray-900 py-20 px-6">
+    <section className="w-full overflow-x-hidden bg-main dark:bg-secondary py-20 px-6">
       <div className="mx-auto max-w-7xl">
         {/* Enhanced Header */}
         <div className="text-center mb-16">
@@ -172,7 +173,7 @@ export default function Blog() {
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="inline-flex items-center gap-2 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 px-4 py-2 rounded-full text-sm font-medium mb-6"
+            className="inline-flex items-center gap-2 bg-primary dark:bg-primary text-inverse dark:text-blue-300 px-4 py-2 rounded-full text-sm font-medium mb-6"
           >
             <Code className="w-4 h-4" />
             Tech Insights
@@ -193,7 +194,7 @@ export default function Blog() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ delay: 0.2 }}
-            className="text-lg md:text-xl text-gray-600 dark:text-gray-400 max-w-3xl mx-auto leading-relaxed"
+            className="text-lg md:text-xl text-primary max-w-3xl mx-auto leading-relaxed"
           >
             Exploring how technology and software development address real challenges facing our society today
           </motion.p>
@@ -273,7 +274,7 @@ export default function Blog() {
                   {/* Meta Information */}
                   <div className="flex items-center text-sm text-gray-500 dark:text-gray-400 mb-3">
                     <Calendar className="w-4 h-4 mr-1" />
-                    <span>{formatDate(post.date_published)}</span>
+                    <span>{formatDate(post.date_created)}</span>
                     <span className="mx-2">·</span>
                     <span>{post.author_name}</span>
                     {post.comments_count > 0 && (

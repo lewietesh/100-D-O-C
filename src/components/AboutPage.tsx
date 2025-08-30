@@ -1,7 +1,7 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { 
+import {
   MapPinIcon,
   EnvelopeIcon,
   PhoneIcon,
@@ -15,13 +15,13 @@ import {
   BriefcaseIcon,
   TrophyIcon
 } from '@heroicons/react/24/outline';
-import { 
-  FaGithub, 
-  FaLinkedin, 
-  FaTwitter, 
-  FaInstagram 
+import {
+  FaGithub,
+  FaLinkedin,
+  FaTwitter,
+  FaInstagram
 } from 'react-icons/fa';
-import  {useAboutPageData}  from '@/hooks/useAboutPageData';
+import { useAboutPageData } from '@/hooks/useAboutPageData';
 import RoadMap from '@/components/Roadmap';
 
 // Icon mappings for stats and reasons
@@ -67,7 +67,7 @@ export default function AboutPage() {
           <div className="text-red-600 dark:text-red-400 text-6xl mb-4">⚠️</div>
           <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">Failed to Load</h2>
           <p className="text-gray-600 dark:text-gray-400 mb-6">{error}</p>
-          <button 
+          <button
             onClick={() => window.location.reload()}
             className="px-6 py-3 bg-red-600 hover:bg-red-700 text-white font-medium rounded-xl transition-colors"
           >
@@ -78,7 +78,7 @@ export default function AboutPage() {
     );
   }
 
-  const { contactInfo, whyChooseUs, workExperience, aboutStats, roadMap } = data;
+  const { contactInfo, whyChooseUs, workExperience, aboutStats, aboutSection, roadMap } = data;
 
   return (
     <main className="bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
@@ -103,26 +103,27 @@ export default function AboutPage() {
                 <UserIcon className="w-4 h-4" />
                 About Me
               </div>
-              
+
               <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 dark:text-white mb-6">
-                Hi, I'm{' '}
-                <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                  {contactInfo?.brand_name || 'Lewis'}
-                </span>
+                {aboutSection?.title || `Hi, I'm ${contactInfo?.brand_name || 'Lewis'}`}
               </h1>
-              
+
               <div className="text-xl md:text-2xl text-gray-600 dark:text-gray-400 mb-8 leading-relaxed">
-                <p className="mb-4">
-                  A passionate <span className="font-semibold text-gray-900 dark:text-white">Full-Stack Developer</span> and 
-                  <span className="font-semibold text-gray-900 dark:text-white"> Technology Consultant</span> based in{' '}
-                  <span className="font-semibold text-blue-600 dark:text-blue-400">
-                    {contactInfo?.location || 'Nairobi, Kenya'}
-                  </span>.
-                </p>
-                <p>
-                  I specialize in building modern web applications and helping businesses 
-                  transform their ideas into digital reality through clean code and innovative solutions.
-                </p>
+                {aboutSection?.description ? (
+                  <div
+                    className="prose prose-lg prose-neutral dark:prose-invert max-w-none"
+                    dangerouslySetInnerHTML={{
+                      __html: aboutSection.description.replace(/\n/g, '<br />')
+                    }}
+                  />
+                ) : (
+                  // Your existing fallback content
+                  <>
+                    <p className="mb-4">
+                      A passionate <span className="font-semibold text-gray-900 dark:text-white">Full-Stack Developer</span>...
+                    </p>
+                  </>
+                )}
               </div>
 
               {/* Quick Contact & Social */}
@@ -134,7 +135,7 @@ export default function AboutPage() {
                   <EnvelopeIcon className="w-5 h-5" />
                   <span>Let's Work Together</span>
                 </a>
-                
+
                 <a
                   href={resumeUrl}
                   download
@@ -179,12 +180,26 @@ export default function AboutPage() {
             >
               <div className="relative">
                 {/* Profile Image */}
-                <div className="w-80 h-80 mx-auto rounded-2xl overflow-hidden shadow-2xl bg-gradient-to-br from-blue-100 to-purple-100 dark:from-blue-900/20 dark:to-purple-900/20 flex items-center justify-center">
-                  <UserIcon className="w-32 h-32 text-blue-600 dark:text-blue-400" />
+                <div className="w-120 h-80 mx-auto rounded-2xl overflow-hidden shadow-2xl bg-gradient-to-br from-blue-100 to-purple-100 dark:from-blue-900/20 dark:to-purple-900/20">
+                  {aboutSection?.media_url ? (
+                    <img
+                      src={aboutSection.media_url}
+                      alt={aboutSection.title || "About Me"}
+                      className="w-full h-full object-cover"
+                      onError={(e) => {
+                        // Fallback to user icon if image fails
+                        const target = e.target as HTMLImageElement;
+                        target.style.display = 'none';
+                        target.parentElement!.innerHTML = '<div class="w-full h-full flex items-center justify-center"><svg class="w-32 h-32 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg></div>';
+                      }}
+                    />
+                  ) : (
+                    <UserIcon className="w-32 h-32 text-blue-600 dark:text-blue-400" />
+                  )}
                 </div>
 
                 {/* Floating Contact Card */}
-                <div className="absolute -bottom-6 -right-6 bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm rounded-xl p-4 shadow-xl border border-gray-200/50 dark:border-gray-700/50">
+                {/* <div className="absolute -bottom-6 -right-6 bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm rounded-xl p-4 shadow-xl border border-gray-200/50 dark:border-gray-700/50">
                   <div className="space-y-2 text-sm">
                     {contactInfo?.email && (
                       <div className="flex items-center gap-2">
@@ -205,7 +220,7 @@ export default function AboutPage() {
                       </div>
                     )}
                   </div>
-                </div>
+                </div> */}
               </div>
             </motion.div>
           </div>
@@ -264,7 +279,7 @@ export default function AboutPage() {
                 <StarIcon className="w-4 h-4" />
                 Why Choose Me
               </motion.div>
-              
+
               <motion.h2
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
@@ -274,7 +289,7 @@ export default function AboutPage() {
               >
                 What Sets Me Apart
               </motion.h2>
-              
+
               <motion.p
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
@@ -326,7 +341,7 @@ export default function AboutPage() {
                 <BriefcaseIcon className="w-4 h-4" />
                 Professional Experience
               </motion.div>
-              
+
               <motion.h2
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
@@ -488,7 +503,7 @@ export default function AboutPage() {
               Ready to Build Something Amazing?
             </h2>
             <p className="text-lg text-gray-600 dark:text-gray-400 mb-8 max-w-2xl mx-auto">
-              Whether you have a clear vision or just an idea, I'm here to help turn your concepts 
+              Whether you have a clear vision or just an idea, I'm here to help turn your concepts
               into reality. Let's discuss your project and create something extraordinary together.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">

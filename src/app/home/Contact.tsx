@@ -51,8 +51,8 @@ export default function Contact() {
 
   const validateForm = () => {
     const { firstName, lastName, email, message } = formData;
-    if (!firstName || !lastName || !email || message.split(/\s+/).length < 6) {
-      return 'Please fill all required fields. Message must be at least 6 words.';
+    if (!firstName || !lastName || !email || message.split(/\s+/).length < 3) {
+      return 'Please fill all required fields. Message must be at least 3 words.';
     }
     return null;
   };
@@ -153,10 +153,10 @@ export default function Contact() {
                 </div>
                 <div>
                   <h3 className="font-semibold text-gray-900 dark:text-white">Email</h3>
-                  <p className="text-gray-600 dark:text-gray-400 text-sm">Drop me a line anytime</p>
+                  <p className="text-gray-600 dark:text-gray-400 text-sm">I get back to you within 24 hours</p>
                 </div>
               </div>
-              <p className="text-gray-800 dark:text-gray-200 font-medium">hello@yoursite.com</p>
+              <p className="text-gray-800 dark:text-gray-200 font-medium">lewismutembei001@gmail.com</p>
             </div>
 
             <div className="bg-white/70 dark:bg-gray-800/70 backdrop-blur-sm rounded-2xl p-6 shadow-lg border border-gray-200/50 dark:border-gray-700/50">
@@ -169,7 +169,7 @@ export default function Contact() {
                   <p className="text-gray-600 dark:text-gray-400 text-sm">Mon-Fri from 8am to 5pm</p>
                 </div>
               </div>
-              <p className="text-gray-800 dark:text-gray-200 font-medium">+1 (555) 000-0000</p>
+              <p className="text-gray-800 dark:text-gray-200 font-medium">+254 795 194 449</p>
             </div>
 
             <div className="bg-white/70 dark:bg-gray-800/70 backdrop-blur-sm rounded-2xl p-6 shadow-lg border border-gray-200/50 dark:border-gray-700/50">
@@ -179,10 +179,10 @@ export default function Contact() {
                 </div>
                 <div>
                   <h3 className="font-semibold text-gray-900 dark:text-white">Location</h3>
-                  <p className="text-gray-600 dark:text-gray-400 text-sm">Available worldwide</p>
+                  <p className="text-gray-600 dark:text-gray-400 text-sm">Nairobi, Kenya</p>
                 </div>
               </div>
-              <p className="text-gray-800 dark:text-gray-200 font-medium">Remote & On-site</p>
+              <p className="text-gray-800 dark:text-gray-200 font-medium">Available for the right opportunity Remote &  Onsite</p>
             </div>
           </motion.div>
 
@@ -289,7 +289,7 @@ export default function Contact() {
                     className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-transparent transition-all duration-200 resize-none"
                     placeholder="Tell me about your project or how I can help you..."
                   />
-                  <p className="text-xs text-gray-500 dark:text-gray-400">Minimum 6 words required</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">Minimum 3 words required</p>
                 </div>
 
                 {/* Privacy Agreement */}

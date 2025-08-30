@@ -164,11 +164,11 @@ export default function Projects() {
     return (
       <section id="projects" className="w-full overflow-x-hidden py-20 px-6 bg-alternate dark:bg-background-dark text-text-light dark:text-text-dark">
         <div className="max-w-7xl mx-auto text-center">
-          <div className="text-center mb-16">
+          <div className="text-center text-primary mb-16">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              className="inline-flex items-center gap-2 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 px-4 py-2 rounded-full text-sm font-medium mb-6"
+              className="inline-flex items-center gap-2 bg-success dark:bg-blue-900/30 text-inverse dark:text-blue-300 px-4 py-2 rounded-full text-sm font-medium mb-6"
             >
               <Code className="w-4 h-4" />
               Project Portfolio
@@ -208,7 +208,7 @@ export default function Projects() {
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              className="inline-flex items-center gap-2 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 px-4 py-2 rounded-full text-sm font-medium mb-6"
+              className="inline-flex items-center gap-2 bg-success dark:bg-blue-900/30 text-inverse dark:text-blue-300 px-4 py-2 rounded-full text-sm font-medium mb-6"
             >
               <Code className="w-4 h-4" />
               Project Portfolio
@@ -243,7 +243,7 @@ export default function Projects() {
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="inline-flex items-center gap-2 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 px-4 py-2 rounded-full text-sm font-medium mb-6"
+            className="inline-flex items-center gap-2 bg-success dark:bg-blue-900/30 text-inverse dark:text-blue-300 px-4 py-2 rounded-full text-sm font-medium mb-6"
           >
             <Code className="w-4 h-4" />
             Project Portfolio
@@ -264,10 +264,10 @@ export default function Projects() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ delay: 0.2 }}
-            className="text-lg md:text-xl text-text-secondary dark:text-gray-400 max-w-3xl mx-auto leading-relaxed"
+            className="text-lg md:text-xl text-primary dark:text-gray-400 max-w-3xl mx-auto leading-relaxed"
           >
-            Real-world solutions I've built for clients across different industries. 
-            Each project showcases my technical expertise and problem-solving approach.
+            Real-world solutions I've built for clients across diverse industries. 
+            Review each case study to understand my approach and problem-solving skills.
           </motion.p>
 
           {/* Stats */}
@@ -278,15 +278,15 @@ export default function Projects() {
             transition={{ delay: 0.3 }}
             className="flex flex-wrap justify-center gap-8 mt-8 text-sm"
           >
-            <div className="flex items-center gap-2 text-text-secondary dark:text-gray-400">
+            <div className="flex items-center gap-2 text-cta dark:text-gray-400">
               <Zap className="w-4 h-4 text-brand" />
               <span>{projects.length} Project{projects.length !== 1 ? 's' : ''}</span>
             </div>
-            <div className="flex items-center gap-2 text-text-secondary dark:text-gray-400">
+            <div className="flex items-center gap-2 text-cta dark:text-gray-400">
               <Users className="w-4 h-4 text-brand" />
               <span>{projects.filter(p => p.client).length} Client{projects.filter(p => p.client).length !== 1 ? 's' : ''}</span>
             </div>
-            <div className="flex items-center gap-2 text-text-secondary dark:text-gray-400">
+            <div className="flex items-center gap-2 text-cta dark:text-gray-400">
               <Calendar className="w-4 h-4 text-brand" />
               <span>{projects.filter(p => p.status === 'completed').length} Completed</span>
             </div>
@@ -308,7 +308,7 @@ export default function Projects() {
                 onClick={() => setActiveFilter(filter)}
                 className={`px-6 py-3 rounded-full border transition-all duration-200 text-sm font-medium ${
                   activeFilter === filter
-                    ? 'bg-cta text-white border-brand shadow-lg shadow-brand/20'
+                    ? 'bg-accent text-inverse border-brand shadow-lg shadow-brand/20'
                     : 'bg-surface-light dark:bg-surface-dark text-text-secondary hover:bg-brand/5 hover:border-brand/20 dark:hover:bg-surface-dark/80'
                 }`}
               >

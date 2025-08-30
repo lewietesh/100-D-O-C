@@ -65,7 +65,7 @@ export default function Testimonials() {
   const placeholderImg = `https://api.dicebear.com/7.x/avataaars/svg?seed=${currentTestimonial.project_title?.split(' ')[0].toLowerCase()}`;
 
   return (
-    <section className="py-20 bg-gradient-to-br from-slate-50 to-blue-50/50">
+    <section className="py-20 bg-main dark:bg-secondary">
       <div className="max-w-6xl mx-auto px-6">
         {/* Header */}
         <div className="text-center mb-16">
@@ -73,7 +73,7 @@ export default function Testimonials() {
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
-            className="inline-flex items-center gap-2 bg-blue-100 text-blue-700 px-4 py-2 rounded-full text-sm font-medium mb-4"
+            className="inline-flex items-center gap-2 bg-blue-100 dark:bg-background dark:text-primary text-blue-700 px-4 py-2 rounded-full text-sm font-medium mb-4"
           >
             <Star className="w-4 h-4 fill-current" />
             Client Testimonials
@@ -99,9 +99,9 @@ export default function Testimonials() {
         </div>
 
         {/* Testimonial Card */}
-        <div className="relative">
+        <div className="relative bg-main dark:bg-gradient-primary">
           <div 
-            className="bg-white rounded-2xl shadow-xl p-8 md:p-12 relative overflow-hidden"
+            className="gradient-primary rounded-2xl shadow-xl p-8 md:p-12 relative overflow-hidden"
             onMouseEnter={() => setIsAutoPlaying(false)}
             onMouseLeave={() => setIsAutoPlaying(true)}
           >
@@ -120,14 +120,14 @@ export default function Testimonials() {
               >
                 {/* Quote Icon */}
                 <div className="flex justify-center mb-6">
-                  <div className="bg-gradient-to-r from-blue-500 to-purple-600 p-3 rounded-full">
+                  <div className="bg-background p-3 rounded-full">
                     <Quote className="w-6 h-6 text-white" />
                   </div>
                 </div>
 
                 {/* Testimonial Content */}
                 <blockquote className="text-center mb-8">
-                  <p className="text-lg md:text-xl text-gray-700 leading-relaxed italic">
+                  <p className="text-lg md:text-xl text-inverse  leading-relaxed italic">
                     "{currentTestimonial.content}"
                   </p>
                 </blockquote>
@@ -144,7 +144,7 @@ export default function Testimonials() {
                       {currentTestimonial.project_title}
                     </h4>
                     <div className="flex items-center justify-center gap-2 mt-1">
-                      <span className="text-sm text-gray-600">
+                      <span className="text-sm text-inverse">
                         {currentTestimonial.service_name}
                       </span>
                       {currentTestimonial.featured && (
@@ -201,21 +201,21 @@ export default function Testimonials() {
 
         {/* Stats or Additional Info */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-16">
-          <div className="text-center p-6 bg-white/50 rounded-xl backdrop-blur-sm">
-            <div className="text-3xl font-bold text-gray-900 mb-2">
+          <div className="text-center p-6 gradient-primary rounded-xl backdrop-blur-sm">
+            <div className="text-3xl font-bold text-inverse mb-2">
               {testimonials.length}+
             </div>
-            <div className="text-gray-600">Happy Clients</div>
+            <div className=" text-inverse">Happy Clients</div>
+          </div>
+
+          <div className="text-center p-6 gradient-primary rounded-xl backdrop-blur-sm">
+            <div className="text-3xl font-bold text-inverse mb-2">100%</div>
+            <div className="text-inverse">Project Success</div>
           </div>
           
-          <div className="text-center p-6 bg-white/50 rounded-xl backdrop-blur-sm">
-            <div className="text-3xl font-bold text-gray-900 mb-2">100%</div>
-            <div className="text-gray-600">Project Success</div>
-          </div>
-          
-          <div className="text-center p-6 bg-white/50 rounded-xl backdrop-blur-sm">
-            <div className="text-3xl font-bold text-gray-900 mb-2">24/7</div>
-            <div className="text-gray-600">Support Available</div>
+          <div className="text-center p-6 gradient-primary rounded-xl backdrop-blur-sm">
+            <div className="text-3xl font-bold text-inverse mb-2">24/7</div>
+            <div className="text-inverse">Support Available</div>
           </div>
         </div>
       </div>

@@ -13,7 +13,7 @@ interface ProjectGridProps {
 export default function ProjectGrid({ projects, loading = false, className }: ProjectGridProps) {
   if (loading) {
     return (
-      <div className={cn("grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6", className)}>
+      <div className={cn("grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-3", className)}>
         {Array.from({ length: 6 }).map((_, i) => (
           <div key={i} className="animate-pulse">
             <div className="bg-white rounded-lg shadow-md overflow-hidden">
@@ -45,8 +45,9 @@ export default function ProjectGrid({ projects, loading = false, className }: Pr
     );
   }
 
+  
   return (
-    <div className={cn("grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6", className)}>
+    <div className={cn("grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6  ", className)}>
       {projects.map((project) => (
         <ProjectCard key={project.id} project={project} />
       ))}

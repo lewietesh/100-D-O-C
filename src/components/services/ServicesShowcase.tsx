@@ -1,4 +1,3 @@
-//src/components/services/ServicesShowcase.tsx
 'use client'
 
 import { useState, useEffect } from 'react'
@@ -50,7 +49,6 @@ const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://127.0.0.1:8
 
 // Helper function to get Lucide icon component
 const getLucideIcon = (category: string) => {
-  // Convert category to potential icon names
   const iconMapping: Record<string, string> = {
     'web development': 'Globe',
     'tech': 'Code',
@@ -74,24 +72,22 @@ const getLucideIcon = (category: string) => {
   const key = category.toLowerCase().replace(/\s+/g, ' ')
   const iconName = iconMapping[key] || 'Code'
   
-  // Return the icon component or fallback
   return (LucideIcons as any)[iconName] || LucideIcons.Code
 }
 
 // Helper function to generate gradient based on category
 const generateGradient = (category: string): string => {
   const gradients = [
-    'from-blue-500 to-cyan-600',
-    'from-purple-500 to-pink-600',
-    'from-green-500 to-emerald-600',
-    'from-orange-500 to-red-600',
-    'from-indigo-500 to-blue-600',
-    'from-pink-500 to-rose-700',
-    'from-yellow-500 to-orange-600',
-    'from-teal-500 to-green-600'
+    'from-primary-500 to-primary-600',
+    'from-accent-500 to-accent-600',
+    'from-success-500 to-success-600',
+    'from-primary-600 to-accent-500',
+    'from-accent-600 to-primary-500',
+    'from-success-600 to-primary-500',
+    'from-primary-500 to-success-600',
+    'from-accent-500 to-success-600'
   ]
   
-  // Use category name to consistently assign same gradient
   const hash = category.split('').reduce((a, b) => {
     a = ((a << 5) - a) + b.charCodeAt(0)
     return a & a
@@ -109,10 +105,10 @@ export default function ServicesShowcase() {
   // Responsive items per view
   const getItemsPerView = () => {
     if (typeof window !== 'undefined') {
-      if (window.innerWidth < 640) return 1  // sm: 1 item
-      if (window.innerWidth < 768) return 2  // md: 2 items  
-      if (window.innerWidth < 1024) return 3 // lg: 3 items
-      return 4 // xl: 4 items
+      if (window.innerWidth < 640) return 1
+      if (window.innerWidth < 768) return 2
+      if (window.innerWidth < 1024) return 3
+      return 4
     }
     return 1
   }
@@ -160,7 +156,6 @@ export default function ServicesShowcase() {
 
         // Convert to ServiceCategory format
         const categories: ServiceCategory[] = Object.entries(servicesByCategory).map(([categoryName, services]) => {
-          // Sort services by featured first, then by price
           const sortedServices = services.sort((a, b) => {
             if (a.featured && !b.featured) return -1
             if (!a.featured && b.featured) return 1
@@ -172,7 +167,6 @@ export default function ServicesShowcase() {
           const pricingModels = [...new Set(services.map(s => s.pricing_model))]
           const hasTimeline = services.some(s => s.timeline && s.timeline.trim() !== '')
           
-          // Generate description based on services
           const description = `${services.length} professional ${categoryName.toLowerCase()} service${services.length > 1 ? 's' : ''} available`
           
           return {
@@ -184,13 +178,12 @@ export default function ServicesShowcase() {
             featured: featuredCount > 0,
             startingPrice: minPrice,
             services: sortedServices,
-            topService: sortedServices[0], // Best service in category
+            topService: sortedServices[0],
             pricingModels,
             hasTimeline
           }
         })
 
-        // Sort categories - featured first, then by service count
         const sortedCategories = categories.sort((a, b) => {
           if (a.featured && !b.featured) return -1
           if (!a.featured && b.featured) return 1
@@ -238,10 +231,10 @@ export default function ServicesShowcase() {
   // Loading state
   if (isLoading) {
     return (
-      <section className="min-h-screen flex items-center justify-center bg-light-secondary dark:bg-dark-secondary">
+      <section className="min-h-screen flex items-center justify-center bg-neutral-100 dark:bg-neutral-900">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-16 w-16 border-4 border-primary-200 border-t-primary-500 mx-auto mb-4"></div>
-          <p className="text-text-secondary">Loading services...</p>
+          <div className="animate-spin rounded-full h-16 w-16 border-4 border-neutral-300 border-t-primary mx-auto mb-4"></div>
+          <p className="text-neutral-600 dark:text-neutral-400">Loading services...</p>
         </div>
       </section>
     )
@@ -250,14 +243,14 @@ export default function ServicesShowcase() {
   // Error state
   if (error) {
     return (
-      <section className="min-h-screen flex items-center justify-center bg-light-secondary dark:bg-dark-secondary">
+      <section className="min-h-screen flex items-center justify-center bg-neutral-100 dark:bg-neutral-900">
         <div className="text-center max-w-md mx-auto px-4">
           <ExclamationTriangleIcon className="w-16 h-16 text-error mx-auto mb-4" />
-          <h3 className="text-xl font-semibold text-text-inverse mb-2">Oops! Something went wrong</h3>
-          <p className="text-text-secondary mb-6">{error}</p>
+          <h3 className="text-xl font-semibold text-neutral-900 dark:text-white mb-2">Oops! Something went wrong</h3>
+          <p className="text-neutral-600 dark:text-neutral-400 mb-6">{error}</p>
           <button 
             onClick={() => window.location.reload()}
-            className="px-6 py-3 bg-primary-500 hover:bg-primary-600 text-white rounded-lg transition-colors"
+            className="px-6 py-3 bg-primary hover:bg-primary-600 text-white rounded-lg transition-colors"
           >
             Try Again
           </button>
@@ -269,25 +262,25 @@ export default function ServicesShowcase() {
   // Empty state
   if (serviceCategories.length === 0) {
     return (
-      <section className="min-h-screen flex items-center justify-center bg-light-secondary dark:bg-dark-secondary">
+      <section className="min-h-screen flex items-center justify-center bg-neutral-100 dark:bg-neutral-900">
         <div className="text-center max-w-md mx-auto px-4">
-          <div className="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
-            <LucideIcons.Package className="w-12 h-12 text-gray-400" />
+          <div className="w-24 h-24 bg-neutral-200 dark:bg-neutral-800 rounded-full flex items-center justify-center mx-auto mb-6">
+            <LucideIcons.Package className="w-12 h-12 text-neutral-400" />
           </div>
-          <h3 className="text-2xl font-semibold text-text-inverse mb-4">No Services Available</h3>
-          <p className="text-text-secondary mb-8">
+          <h3 className="text-2xl font-semibold text-neutral-900 dark:text-white mb-4">No Services Available</h3>
+          <p className="text-neutral-600 dark:text-neutral-400 mb-8">
             We're currently updating our service offerings. Please check back soon or contact us directly for custom solutions.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <a
               href="/contact"
-              className="px-6 py-3 bg-primary-500 hover:bg-primary-600 text-white rounded-lg transition-colors font-medium"
+              className="px-6 py-3 bg-primary hover:bg-primary-600 text-white rounded-lg transition-colors font-medium"
             >
               Contact Us
             </a>
             <a
               href="/projects"
-              className="px-6 py-3 border-2 border-primary-500 text-primary-500 hover:bg-primary-50 rounded-lg transition-colors font-medium"
+              className="px-6 py-3 border-2 border-primary text-primary hover:bg-primary/10 rounded-lg transition-colors font-medium"
             >
               View Past Work
             </a>
@@ -298,20 +291,20 @@ export default function ServicesShowcase() {
   }
 
   return (
-    <section className="min-h-screen flex flex-col justify-center py-16 px-4 bg-light-secondary dark:bg-dark-secondary">
+    <section className="min-h-screen flex flex-col justify-center py-16 px-4 bg-main dark:bg-neutral-900">
       <div className="max-w-7xl mx-auto w-full">
         {/* Header */}
         <div className="text-center mb-12">
           <div className="flex items-center justify-center mb-4">
-            <div className="w-12 h-12 bg-gradient-to-r from-primary-500 to-cta rounded-full flex items-center justify-center">
+            <div className="w-12 h-12 bg-gradient-to-r from-primary to-accent rounded-full flex items-center justify-center">
               <LucideIcons.Briefcase className="w-6 h-6 text-white" />
             </div>
           </div>
-          <h2 className="text-4xl md:text-5xl font-bold text-text-inverse dark:text-text-primary mb-4">
-            How I Can Help Your Business
+          <h2 className="text-4xl md:text-5xl font-bold text-primary dark:text-white mb-4">
+            Professional Services That Drive Results
           </h2>
-          <p className="text-xl text-text-secondary max-w-3xl mx-auto leading-relaxed">
-            Professional services designed to solve your business challenges and accelerate growth
+          <p className="text-xl text-primary dark:text-neutral-300 max-w-3xl mx-auto leading-relaxed">
+            Comprehensive solutions designed to solve your business challenges and accelerate sustainable growth
           </p>
         </div>
 
@@ -324,8 +317,8 @@ export default function ServicesShowcase() {
                 disabled={!canGoPrev}
                 className={`p-3 rounded-full border transition-all duration-200 ${
                   canGoPrev
-                    ? 'border-border-dark bg-white dark:bg-dark-tertiary text-text-inverse dark:text-text-primary hover:bg-gray-50 dark:hover:bg-dark-accent shadow-md'
-                    : 'border-gray-300 bg-gray-100 text-gray-400 cursor-not-allowed'
+                    ? 'border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-800 text-neutral-900 dark:text-white hover:bg-neutral-50 dark:hover:bg-neutral-700 shadow-medium'
+                    : 'border-neutral-300 bg-neutral-100 text-neutral-400 cursor-not-allowed'
                 }`}
               >
                 <ChevronLeftIcon className="w-5 h-5" />
@@ -335,15 +328,15 @@ export default function ServicesShowcase() {
                 disabled={!canGoNext}
                 className={`p-3 rounded-full border transition-all duration-200 ${
                   canGoNext
-                    ? 'border-border-dark bg-white dark:bg-dark-tertiary text-text-inverse dark:text-text-primary hover:bg-gray-50 dark:hover:bg-dark-accent shadow-md'
-                    : 'border-gray-300 bg-gray-100 text-gray-400 cursor-not-allowed'
+                    ? 'border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-800 text-neutral-900 dark:text-white hover:bg-neutral-50 dark:hover:bg-neutral-700 shadow-medium'
+                    : 'border-neutral-300 bg-neutral-100 text-neutral-400 cursor-not-allowed'
                 }`}
               >
                 <ChevronRightIcon className="w-5 h-5" />
               </button>
             </div>
             
-            <div className="text-sm text-text-secondary">
+            <div className="text-sm text-neutral-600 dark:text-neutral-400">
               {currentIndex + 1}-{Math.min(currentIndex + itemsPerView, serviceCategories.length)} of {serviceCategories.length}
             </div>
           </div>
@@ -369,7 +362,7 @@ export default function ServicesShowcase() {
                     style={{ width: `${100 / itemsPerView}%` }}
                   >
                     <div className="group cursor-pointer h-full">
-                      <div className="relative bg-white dark:bg-dark-tertiary rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2 overflow-hidden h-full min-h-[400px] flex flex-col">
+                      <div className="relative bg-primary dark:bg-main rounded-2xl shadow-large hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2 overflow-hidden h-full min-h-[400px] flex flex-col border border-neutral-200 dark:border-neutral-700">
                         
                         {/* Header with gradient */}
                         <div className={`relative h-32 bg-gradient-to-br ${gradient} p-6 flex items-center justify-between`}>
@@ -384,7 +377,7 @@ export default function ServicesShowcase() {
                           </div>
 
                           {category.featured && (
-                            <div className="bg-cta text-white text-xs font-medium px-3 py-1 rounded-full flex items-center">
+                            <div className="bg-accent text-white text-xs font-medium px-3 py-1 rounded-full flex items-center">
                               <StarIcon className="w-3 h-3 mr-1" />
                               Popular
                             </div>
@@ -393,41 +386,34 @@ export default function ServicesShowcase() {
 
                         {/* Content */}
                         <div className="p-6 flex-1 flex flex-col">
-                          <p className="text-text-secondary text-sm mb-4 flex-1">
+                          <p className="text-neutral-600 dark:text-neutral-300 text-sm mb-4 flex-1">
                             {category.description}
                           </p>
 
                           {/* Top Service Preview */}
                           {category.topService && (
-                            <div className="bg-gray-50 dark:bg-dark-accent rounded-lg p-4 mb-4">
-                              <h4 className="font-medium text-text-inverse text-sm mb-2">
+                            <div className="bg-main dark:bg-neutral-700 rounded-lg p-4 mb-4 border border-neutral-200 dark:border-neutral-600">
+                              <h4 className="font-medium text-primary dark:text-white text-sm mb-2">
                                 Featured: {category.topService.name}
                               </h4>
-                              <p className="text-xs text-text-secondary mb-3 line-clamp-2">
+                              <p className="text-xs text-primary dark:text-neutral-300 mb-3 line-clamp-2">
                                 {truncateDescription(category.topService.description, 80)}
                               </p>
-                              <div className="flex items-center justify-between">
-                                <span className="text-sm font-semibold text-primary-500">
-                                  From {formatPrice(category.topService.starting_at, category.topService.currency)}
-                                </span>
-                                <span className="text-xs px-2 py-1 bg-primary-100 text-primary-700 rounded-full">
-                                  {category.topService.pricing_model}
-                                </span>
-                              </div>
+                        
                             </div>
                           )}
                           
                           {/* Pricing Info */}
                           <div className="flex items-center justify-between">
                             <div>
-                              <div className="text-sm font-semibold text-text-inverse dark:text-text-primary">
+                              <div className="text-sm font-semibold text-neutral-900 dark:text-white">
                                 Starting from {formatPrice(category.startingPrice.toString(), category.services[0]?.currency || 'KSH')}
                               </div>
-                              <div className="text-xs text-text-secondary">
+                              <div className="text-xs text-neutral-600 dark:text-neutral-400">
                                 {category.pricingModels.join(', ')} pricing
                               </div>
                             </div>
-                            <ArrowRightIcon className="w-5 h-5 text-primary-500 group-hover:translate-x-1 transition-transform" />
+                            <ArrowRightIcon className="w-5 h-5 text-primary group-hover:translate-x-1 transition-transform" />
                           </div>
                         </div>
                       </div>
@@ -443,13 +429,13 @@ export default function ServicesShowcase() {
         <div className="text-center">
           <a 
             href="/services"
-            className=" inline-flex items-center px-8 py-4 bg-primary-500 hover:bg-primary-600 text-primary rounded-xl font-semibold transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105"
+            className="inline-flex items-center px-8 py-4 bg-primary hover:bg-primary-600 text-white rounded-xl font-semibold transition-all duration-200 shadow-large hover:shadow-xl transform hover:scale-105"
           >
             Explore All Services
             <ArrowRightIcon className="ml-2 w-5 h-5" />
           </a>
-          <p className="text-sm text-text-secondary mt-4">
-            Or <a href="/contact" className="text-primary-500 hover:text-primary-600 font-medium">contact me</a> for a custom solution
+          <p className="text-sm text-neutral-600 dark:text-neutral-400 mt-4">
+            Or <a href="/contact" className="text-primary hover:text-primary-600 font-medium">contact me</a> for a custom solution
           </p>
         </div>
       </div>

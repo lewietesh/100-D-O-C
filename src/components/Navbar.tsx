@@ -1,17 +1,18 @@
 'use client';
 
 import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/react';
-import { Bars3Icon, BellIcon, XMarkIcon } from '@heroicons/react/24/outline';
+import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline';
 import Link from 'next/link';
-import ThemeToggle from './ThemeToggle'; // Import this at the top
+import { usePathname } from 'next/navigation';
+import ThemeToggle from './ThemeToggle';
 import { useAuth } from '@/hooks/useAuth';
 
 const navigation = [
-  { name: 'Home', href: '/', current: true },
-  { name: 'Services', href: '/services', current: false },
-  { name: 'About', href: '/about', current: false },
-  { name: 'Projects', href: '/projects', current: false },
-  { name: 'Blog', href: '/blog', current: false },
+  { name: 'Home', href: '/' },
+  { name: 'Services', href: '/services' },
+  { name: 'About', href: '/about' },
+  { name: 'Projects', href: '/projects' },
+  { name: 'Blog', href: '/blog' },
 ];
 
 function classNames(...classes: (string | boolean | undefined | null)[]): string {
@@ -20,43 +21,54 @@ function classNames(...classes: (string | boolean | undefined | null)[]): string
 
 export default function Navigation() {
   const { isAuthenticated, logout, user } = useAuth();
+  const pathname = usePathname();
+
+  // Helper function to check if nav item is current
+  const isCurrentPage = (href: string) => {
+    if (href === '/') {
+      return pathname === '/';
+    }
+    return pathname.startsWith(href);
+  };
 
   return (
-    <Disclosure as="nav" className="bg-primary-50 dark:bg-dark-primary shadow-sm w-full">
+    <Disclosure as="nav" className="bg-neutral-50/95 dark:bg-neutral-900/95 backdrop-blur-md shadow-soft border-b border-neutral-200 dark:border-neutral-800 sticky top-0 z-50">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="relative flex h-16 items-center justify-between">
           {/* Mobile menu button */}
           <div className="absolute inset-y-0 left-0 flex items-center sm:hidden">
-            <DisclosureButton className="group relative inline-flex items-center justify-center rounded-md p-2 text-gray-500 dark:text-gray-300 hover:bg-surface-light dark:hover:bg-surface-dark hover:text-gray-900 dark:hover:text-white focus:ring-2 focus:ring-brand focus:outline-none focus:ring-inset">
+            <DisclosureButton className="group relative inline-flex items-center justify-center rounded-lg p-2 text-neutral-600 dark:text-neutral-300 hover:bg-neutral-200 dark:hover:bg-neutral-800 hover:text-neutral-900 dark:hover:text-white focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 transition-all duration-200">
               <span className="sr-only">Open main menu</span>
-              <Bars3Icon className="block size-6 group-data-open:hidden" aria-hidden="true" />
-              <XMarkIcon className="hidden size-6 group-data-open:block" aria-hidden="true" />
+              <Bars3Icon className="block size-5 group-data-open:hidden" aria-hidden="true" />
+              <XMarkIcon className="hidden size-5 group-data-open:block" aria-hidden="true" />
             </DisclosureButton>
           </div>
 
           {/* Logo */}
           <div className="flex flex-1 items-center justify-center sm:justify-start">
             <div className="flex shrink-0 items-center">
-              <img
-                alt="Logo"
-                src="https://cdn.pixabay.com/photo/2017/03/19/20/19/ball-2157465_1280.png"
-                className="h-8 w-auto"
-              />
+              <Link href="/" className="flex items-center space-x-3 group">
+                <div className="w-8 h-8 bg-gradient-to-br from-primary to-primary-600 rounded-lg flex items-center justify-center shadow-medium group-hover:shadow-large transition-all duration-200">
+                  <span className="text-white font-bold text-sm">LC</span>
+                </div>
+                <span className="hidden sm:block text-xl font-bold text-neutral-900 dark:text-white">
+                  Lewis<span className="text-primary">Codes</span>
+                </span>
+              </Link>
             </div>
           </div>
 
           {/* Navigation links */}
-          <div className="hidden sm:flex sm:space-x-6 ml-6">
+          <div className="hidden sm:flex sm:items-center sm:space-x-1">
             {navigation.map((item) => (
               <Link
                 key={item.name}
                 href={item.href}
-                aria-current={item.current ? 'page' : undefined}
                 className={classNames(
-                  item.current
-                    ? 'bg-primary-500 text-cta-400 font-semibold'
-                    : 'font-semibold text-primary-700 dark:text-light-primary hover:bg-primary-100 dark:hover:bg-dark-secondary hover:text-primary-600 dark:hover:text-light-primary',
-                  'rounded-md px-3 py-2 text-sm transition'
+                  isCurrentPage(item.href)
+                    ? 'bg-primary text-white shadow-medium'
+                    : 'text-neutral-700 dark:text-neutral-300 hover:bg-neutral-200 dark:hover:bg-neutral-800 hover:text-neutral-900 dark:hover:text-white',
+                  'rounded-lg px-4 py-2 text-sm font-medium transition-all duration-200'
                 )}
               >
                 {item.name}
@@ -64,34 +76,31 @@ export default function Navigation() {
             ))}
           </div>
 
-          {/* Right Side: Theme Toggle and CTA */}
-          <div className="absolute inset-y-0 right-0 flex items-center gap-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0">
+          {/* Right Side: Theme Toggle and CTAs */}
+          <div className="absolute inset-y-0 right-0 flex items-center space-x-3 sm:static sm:inset-auto sm:ml-6 sm:pr-0">
             {/* Theme Toggle */}
-            <div className="flex-shrink-0">
-              <ThemeToggle />
-            </div>
+            <ThemeToggle />
+            
             {/* CTA: Request a Service */}
             <Link
               href="/request-service"
-              className="hidden sm:block px-4 py-2 rounded-md bg-cta dark:bg-cta text-white dark:text-primary hover:bg-cta-600 dark:hover:bg-cta-300 shadow-lg font-bold text-sm focus:outline-none focus:ring-2 focus:ring-cta-400 dark:focus:ring-cta-200 transition duration-200"
-              aria-label="Request a Service"
+              className="hidden sm:inline-flex items-center px-4 py-2 text-sm font-semibold rounded-lg bg-accent text-white hover:bg-accent-600 shadow-medium hover:shadow-large transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2"
             >
-              Request a Service
+              Get Started
             </Link>
+            
             {/* Auth Button */}
             {isAuthenticated ? (
               <button
                 onClick={logout}
-                className="hidden sm:block px-4 py-2 rounded-md bg-dark-primary dark:bg-warning-400 text-white dark:text-gray-900 hover:bg-warning-600 dark:hover:bg-warning-300 shadow-lg font-bold text-sm focus:outline-none focus:ring-2 focus:ring-warning-400 dark:focus:ring-warning-200 transition duration-200"
-                aria-label="Logout"
+                className="hidden sm:inline-flex items-center px-4 py-2 text-sm font-medium rounded-lg border border-neutral-300 dark:border-neutral-700 text-neutral-700 dark:text-neutral-300 hover:bg-neutral-200 dark:hover:bg-neutral-800 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
               >
                 Logout
               </button>
             ) : (
               <Link
                 href="/auth"
-                className="hidden sm:block px-4 py-2 rounded-md bg-primary dark:bg-brand-secondary text-white dark:text-white hover:bg-primary-600 dark:hover:bg-primary-300 shadow-lg font-bold text-sm focus:outline-none focus:ring-2 focus:ring-primary-400 dark:focus:ring-primary-200 transition duration-200"
-                aria-label="Sign In"
+                className="hidden sm:inline-flex items-center px-4 py-2 text-sm font-medium rounded-lg border border-neutral-300 dark:border-neutral-700 text-neutral-700 dark:text-neutral-300 hover:bg-neutral-200 dark:hover:bg-neutral-800 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
               >
                 Sign In
               </Link>
@@ -101,51 +110,49 @@ export default function Navigation() {
       </div>
 
       {/* Mobile Menu Panel */}
-      <DisclosurePanel className="sm:hidden">
-        <div className="space-y-1 px-2 pt-2 pb-3">
+      <DisclosurePanel className="sm:hidden border-t border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900">
+        <div className="space-y-1 px-4 py-4">
           {navigation.map((item) => (
             <DisclosureButton
               key={item.name}
-              as="a"
+              as={Link}
               href={item.href}
-              aria-current={item.current ? 'page' : undefined}
               className={classNames(
-                item.current
-                  ? 'bg-primary-100 text-primary-700 dark:bg-dark-secondary dark:text-light-primary'
-                  : 'text-primary-700 dark:text-light-primary hover:bg-primary-50 dark:hover:bg-dark-tertiary hover:text-primary-600 dark:hover:text-light-primary',
-                'block rounded-md px-3 py-2 text-base font-medium transition'
+                isCurrentPage(item.href)
+                  ? 'bg-primary text-white'
+                  : 'text-neutral-700 dark:text-neutral-300 hover:bg-neutral-200 dark:hover:bg-neutral-800',
+                'block rounded-lg px-3 py-2 text-base font-medium transition-all duration-200'
               )}
             >
               {item.name}
             </DisclosureButton>
           ))}
 
-          <Link
-            href="/request-service"
-            className="block w-full text-left mt-2 rounded-md bg-cta-500 dark:bg-cta-400 text-white dark:text-gray-900 px-3 py-2 text-base font-bold hover:bg-cta-600 dark:hover:bg-cta-300 shadow-lg focus:outline-none focus:ring-2 focus:ring-cta-400 dark:focus:ring-cta-200 transition duration-200"
-            aria-label="Request a Service"
-          >
-            Request a Service
-          </Link>
-          {isAuthenticated ? (
-            <DisclosureButton
-              as="button"
-              onClick={logout}
-              className="block w-full text-left mt-2 rounded-md bg-warning-500 dark:bg-warning-400 text-white dark:text-gray-900 px-3 py-2 text-base font-bold hover:bg-warning-600 dark:hover:bg-warning-300 shadow-lg focus:outline-none focus:ring-2 focus:ring-warning-400 dark:focus:ring-warning-200 transition duration-200"
-              aria-label="Logout"
+          {/* Mobile CTAs */}
+          <div className="pt-4 space-y-3 border-t border-neutral-200 dark:border-neutral-800">
+            <Link
+              href="/request-service"
+              className="block w-full text-center px-4 py-2 text-base font-semibold rounded-lg bg-accent text-white shadow-medium transition-all duration-200"
             >
-              Logout
-            </DisclosureButton>
-          ) : (
-            <DisclosureButton
-              as="a"
-              href="/auth/"
-              className="block w-full text-left mt-2 rounded-md bg-primary-500 dark:bg-primary-400 text-white dark:text-gray-900 px-3 py-2 text-base font-bold hover:bg-primary-600 dark:hover:bg-primary-300 shadow-lg focus:outline-none focus:ring-2 focus:ring-primary-400 dark:focus:ring-primary-200 transition duration-200"
-              aria-label="Sign In"
-            >
-              Sign In
-            </DisclosureButton>
-          )}
+              Get Started
+            </Link>
+            
+            {isAuthenticated ? (
+              <button
+                onClick={logout}
+                className="block w-full text-center px-4 py-2 text-base font-medium rounded-lg border border-neutral-300 dark:border-neutral-700 text-neutral-700 dark:text-neutral-300 transition-all duration-200"
+              >
+                Logout
+              </button>
+            ) : (
+              <Link
+                href="/auth"
+                className="block w-full text-center px-4 py-2 text-base font-medium rounded-lg border border-neutral-300 dark:border-neutral-700 text-neutral-700 dark:text-neutral-300 transition-all duration-200"
+              >
+                Sign In
+              </Link>
+            )}
+          </div>
         </div>
       </DisclosurePanel>
     </Disclosure>

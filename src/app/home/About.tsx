@@ -45,7 +45,7 @@ export default function About() {
       } catch (err) {
         console.error('Error fetching about data:', err)
         setError('Failed to load about information')
-        
+
         // Set fallback data
         setAboutData({
           title: "About Me",
@@ -73,16 +73,16 @@ export default function About() {
 
   if (isLoading) {
     return (
-      <section className="w-full bg-light-secondary dark:bg-dark-secondary py-16 px-6 lg:px-20">
+      <section className="w-full bg-neutral-100 dark:bg-neutral-900 py-16 px-6 lg:px-20">
         <div className="max-w-7xl mx-auto">
           <div className="animate-pulse">
             <div className="grid lg:grid-cols-2 gap-12 items-center">
-              <div className="bg-gray-300 rounded-lg h-80"></div>
+              <div className="bg-neutral-300 dark:bg-neutral-700 rounded-lg h-80"></div>
               <div className="space-y-4">
-                <div className="h-8 bg-gray-300 rounded w-1/3"></div>
-                <div className="h-4 bg-gray-300 rounded w-full"></div>
-                <div className="h-4 bg-gray-300 rounded w-5/6"></div>
-                <div className="h-4 bg-gray-300 rounded w-4/5"></div>
+                <div className="h-8 bg-neutral-300 dark:bg-neutral-700 rounded w-1/3"></div>
+                <div className="h-4 bg-neutral-300 dark:bg-neutral-700 rounded w-full"></div>
+                <div className="h-4 bg-neutral-300 dark:bg-neutral-700 rounded w-5/6"></div>
+                <div className="h-4 bg-neutral-300 dark:bg-neutral-700 rounded w-4/5"></div>
               </div>
             </div>
           </div>
@@ -93,32 +93,42 @@ export default function About() {
 
   if (!aboutData) {
     return (
-      <section className="w-full bg-light-secondary dark:bg-dark-secondary py-16 px-6 lg:px-20">
+      <section className="w-full bg-neutral-100 dark:bg-neutral-900 py-16 px-6 lg:px-20">
         <div className="max-w-7xl mx-auto text-center">
           <LucideIcons.AlertCircle className="w-16 h-16 text-error mx-auto mb-4" />
-          <h3 className="text-xl font-semibold text-text-inverse mb-2">Unable to load about information</h3>
-          <p className="text-text-secondary">{error}</p>
+          <h3 className="text-xl font-semibold text-neutral-900 dark:text-white mb-2">Unable to load about information</h3>
+          <p className="text-neutral-600 dark:text-neutral-400">{error}</p>
         </div>
       </section>
     )
   }
 
   return (
-    <section 
-      id="about" 
-      className="w-full overflow-x-hidden bg-light-secondary dark:bg-dark-secondary transition-colors duration-300 py-20 px-6 lg:px-20"
+    <section
+      id="about"
+      className="w-full overflow-x-hidden bg-main dark:bg-neutral-900 transition-colors duration-300 py-20 px-6 lg:px-20"
     >
       <div className="max-w-7xl mx-auto">
-        
+
+        {/* Section Header */}
+        <div className="text-center mb-16 animate-fade-in-up">
+          <div className="inline-flex items-center justify-center mb-6">
+            <span className="w-8 h-px bg-accent mr-3"></span>
+            <h2 className="text-4xl md:text-5xl font-bold text-primary dark:text-white mb-4">
+              Get to know me </h2>
+            <span className="w-8 h-px  bg-accent ml-3"></span>
+          </div>
+        </div>
+
         {/* Main About Content */}
         <div className="flex flex-col lg:flex-row items-center gap-16">
-          
+
           {/* Left: Media Content */}
-          <div className="w-full lg:w-1/2">
+          <div className="w-full lg:w-1/2 animate-fade-in-up">
             <div className="relative group">
               {isVideoContent(aboutData.media_url) ? (
                 <div className="relative">
-                  <div className="aspect-[4/3] rounded-2xl overflow-hidden shadow-xl">
+                  <div className="aspect-[4/3] rounded-2xl overflow-hidden shadow-large">
                     {isVideoPlaying ? (
                       <iframe
                         src={aboutData.media_url}
@@ -136,7 +146,7 @@ export default function About() {
                         <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
                           <button
                             onClick={() => setIsVideoPlaying(true)}
-                            className="w-20 h-20 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-white/30 transition-all duration-200 transform hover:scale-110"
+                            className="w-20 h-20 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-white/30 transition-all duration-200 transform hover:scale-110 focus:outline-none focus:ring-2 focus:ring-white/50"
                           >
                             <PlayCircleIcon className="w-12 h-12 text-white" />
                           </button>
@@ -150,7 +160,7 @@ export default function About() {
                   <img
                     src={aboutData.media_url}
                     alt={aboutData.title}
-                    className="rounded-2xl shadow-xl object-cover w-full aspect-[4/3] transform group-hover:scale-105 transition-transform duration-500"
+                    className="rounded-2xl shadow-large object-cover w-full aspect-[4/3] transform group-hover:scale-105 transition-transform duration-500"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                 </div>
@@ -159,30 +169,34 @@ export default function About() {
           </div>
 
           {/* Right: Text Content */}
-          <div className="w-full lg:w-1/2 space-y-6">
+          <div className="w-full lg:w-1/2 space-y-8 animate-fade-in-up" style={{ animationDelay: '0.3s' }}>
             <div>
-              <h2 className="text-4xl md:text-5xl font-bold text-text-inverse dark:text-text-primary mb-6 leading-tight">
+              <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-primary  mb-6 leading-tight">
                 {aboutData.title}
               </h2>
 
-              <p className="text-text-secondary text-lg leading-relaxed mb-8">
-                {getExcerpt(aboutData.description)}
-              </p>
+              <div className="prose prose-lg prose-neutral dark:prose-invert max-w-none">
+                <p className="text-primary text-lg leading-relaxed">
+                  {getExcerpt(aboutData.description)}
+                </p>
+              </div>
             </div>
 
+
+
             {/* Call to Actions */}
-            <div className="flex flex-col sm:flex-row gap-4">
+            <div className="flex flex-col sm:flex-row gap-4 pt-4">
               <a
                 href="/about"
-                className="inline-flex items-center justify-center px-8 py-4 bg-primary-500 hover:bg-primary-600 text-primary text-lg font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105"
+                className="group inline-flex items-center justify-center px-8 py-4 bg-accent hover:bg-primary-600 text-white text-lg font-semibold rounded-xl shadow-medium hover:shadow-large transition-all duration-200 transform hover:-translate-y-0.5"
               >
                 Learn More About Me
-                <ArrowRightIcon className="ml-2 w-5 h-5" />
+                <ArrowRightIcon className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
               </a>
-              
+
               <a
                 href="/contact"
-                className="inline-flex items-center justify-center px-8 py-4 border-2 border-cta text-cta hover:bg-cta hover:text-white text-lg font-semibold rounded-xl transition-all duration-200"
+                className="inline-flex items-center justify-center px-8 py-4 border-2 border-neutral-300 dark:border-primary text-primary dark:text-neutral-300 hover:bg-neutral-200 dark:hover:bg-neutral-800 text-lg font-semibold rounded-xl transition-all duration-200"
               >
                 Get in Touch
               </a>
@@ -192,8 +206,8 @@ export default function About() {
 
         {/* Error Display */}
         {error && (
-          <div className="mt-8 text-center">
-            <div className="inline-flex items-center px-4 py-2 bg-error/10 text-error rounded-lg text-sm">
+          <div className="mt-8 text-center animate-fade-in">
+            <div className="inline-flex items-center px-4 py-2 bg-error/10 text-error rounded-lg text-sm border border-error/20">
               <LucideIcons.AlertTriangle className="w-4 h-4 mr-2" />
               {error}
             </div>

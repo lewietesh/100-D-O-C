@@ -89,7 +89,7 @@ export class ServicesAPI {
   }
 
   static async getPricingTiers(serviceId: string): Promise<PricingTier[]> {
-    const response = await fetch(`${API_BASE_URL}/api/v1/pricing-tiers/?service=${serviceId}`);
+    const response = await fetch(`${API_BASE_URL}/api/v1/services/pricing-tiers/?service=${serviceId}`);
     
     if (!response.ok) {
       throw new Error(`Failed to fetch pricing tiers: ${response.status}`);
@@ -100,7 +100,7 @@ export class ServicesAPI {
   }
 
   static async getFAQs(serviceId: string): Promise<ServiceFAQ[]> {
-    const response = await fetch(`${API_BASE_URL}/api/v1/faqs/?service=${serviceId}`);
+    const response = await fetch(`${API_BASE_URL}/api/v1/services/faqs/?service=${serviceId}`);
     
     if (!response.ok) {
       throw new Error(`Failed to fetch FAQs: ${response.status}`);
@@ -111,7 +111,7 @@ export class ServicesAPI {
   }
 
   static async getProcessSteps(serviceId: string): Promise<ProcessStep[]> {
-    const response = await fetch(`${API_BASE_URL}/api/v1/process-steps/?service=${serviceId}`);
+    const response = await fetch(`${API_BASE_URL}/api/v1/services/process-steps/?service=${serviceId}`);
     
     if (!response.ok) {
       throw new Error(`Failed to fetch process steps: ${response.status}`);
