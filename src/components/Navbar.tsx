@@ -74,13 +74,27 @@ export default function Navigation() {
                 {item.name}
               </Link>
             ))}
+            {isAuthenticated && (
+              <Link
+                key="Dashboard"
+                href="/dashboard"
+                className={classNames(
+                  isCurrentPage('/dashboard')
+                    ? 'bg-primary text-white shadow-medium'
+                    : 'text-neutral-700 dark:text-neutral-300 hover:bg-neutral-200 dark:hover:bg-neutral-800 hover:text-neutral-900 dark:hover:text-white',
+                  'rounded-lg px-4 py-2 text-sm font-medium transition-all duration-200'
+                )}
+              >
+                Dashboard
+              </Link>
+            )}
           </div>
 
           {/* Right Side: Theme Toggle and CTAs */}
           <div className="absolute inset-y-0 right-0 flex items-center space-x-3 sm:static sm:inset-auto sm:ml-6 sm:pr-0">
             {/* Theme Toggle */}
             <ThemeToggle />
-            
+
             {/* CTA: Request a Service */}
             <Link
               href="/request-service"
@@ -88,7 +102,7 @@ export default function Navigation() {
             >
               Get Started
             </Link>
-            
+
             {/* Auth Button */}
             {isAuthenticated ? (
               <button
@@ -127,6 +141,21 @@ export default function Navigation() {
               {item.name}
             </DisclosureButton>
           ))}
+          {isAuthenticated && (
+            <DisclosureButton
+              key="Dashboard"
+              as={Link}
+              href="/dashboard"
+              className={classNames(
+                isCurrentPage('/dashboard')
+                  ? 'bg-primary text-white'
+                  : 'text-neutral-700 dark:text-neutral-300 hover:bg-neutral-200 dark:hover:bg-neutral-800',
+                'block rounded-lg px-3 py-2 text-base font-medium transition-all duration-200'
+              )}
+            >
+              Dashboard
+            </DisclosureButton>
+          )}
 
           {/* Mobile CTAs */}
           <div className="pt-4 space-y-3 border-t border-neutral-200 dark:border-neutral-800">
@@ -136,7 +165,7 @@ export default function Navigation() {
             >
               Get Started
             </Link>
-            
+
             {isAuthenticated ? (
               <button
                 onClick={logout}
