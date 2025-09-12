@@ -10,21 +10,25 @@ export type ContractStatus = 'draft' | 'sent' | 'signed' | 'active' | 'completed
 // Orders and transactions
 export interface Order {
   id: string;
-  client: string; // User ID
-  orderNumber: string;
-  type: 'service' | 'product' | 'custom';
+  client_name?: string;
+  client_email?: string;
+  service_name?: string;
+  product_name?: string;
+  pricing_tier_name?: string;
   status: OrderStatus;
-  totalAmount: number;
+  payment_status: PaymentStatus;
+  total_amount: number;
   currency: string;
-  description: string;
+  payment_method?: string;
+  transaction_id?: string;
   notes?: string;
-  paymentStatus: PaymentStatus;
-  paymentMethod?: PaymentMethod;
-  dateCreated: string;
-  dateUpdated: string;
-  dateCompleted?: string;
-  estimatedDelivery?: string;
-  actualDelivery?: string;
+  due_date?: string;
+  payment_count?: number;
+  total_paid?: number;
+  attachment_count?: number;
+  work_result_count?: number;
+  date_created: string;
+  date_updated?: string;
 }
 
 export interface OrderWithDetails extends Order {

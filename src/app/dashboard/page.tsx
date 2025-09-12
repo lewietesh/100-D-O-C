@@ -98,7 +98,6 @@ export default function DashboardPage() {
                               label: 'Orders',
                               icon: ShoppingBag,
                               component: OrdersList,
-                              badge: 2, // Example badge for pending orders
                     },
                     {
                               id: 'payments',

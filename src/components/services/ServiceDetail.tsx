@@ -548,7 +548,7 @@ const ServiceDetail = ({ service }: ServiceDetailProps) => {
 
                 <div className="px-8 py-6 bg-white/70 dark:bg-gray-800/70 border-t border-gray-200 dark:border-gray-700">
                   <a
-                    href={`/contact?service=${service.slug}&tier=${selectedTier.id}`}
+                    href={`/request-service?service=${service.slug}&tier=${selectedTier.id}`}
                     className="block w-full py-4 px-6 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white text-center font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 group"
                   >
                     <span className="flex items-center justify-center gap-2">

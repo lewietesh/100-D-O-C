@@ -1,12 +1,12 @@
 // src/components/dashboard/OrderCard.tsx - Complete Implementation
 import React, { useState } from 'react';
-import { 
-  ChevronDown, 
-  ChevronUp, 
-  Calendar, 
-  DollarSign, 
-  Package2, 
-  Truck, 
+import {
+  ChevronDown,
+  ChevronUp,
+  Calendar,
+  DollarSign,
+  Package2,
+  Truck,
   Eye,
   Download,
   MessageSquare,
@@ -30,12 +30,16 @@ export const OrderCard: React.FC<OrderCardProps> = ({ order, onViewDetails }) =>
     switch (status) {
       case 'completed':
         return 'bg-green-100 text-green-800 border-green-200';
-      case 'processing':
+      case 'in_progress':
+        return 'bg-purple-100 text-purple-800 border-purple-200';
+      case 'confirmed':
         return 'bg-blue-100 text-blue-800 border-blue-200';
       case 'pending':
         return 'bg-yellow-100 text-yellow-800 border-yellow-200';
       case 'cancelled':
         return 'bg-red-100 text-red-800 border-red-200';
+      case 'refunded':
+        return 'bg-orange-100 text-orange-800 border-orange-200';
       default:
         return 'bg-gray-100 text-gray-800 border-gray-200';
     }
@@ -45,12 +49,16 @@ export const OrderCard: React.FC<OrderCardProps> = ({ order, onViewDetails }) =>
     switch (status) {
       case 'completed':
         return <CheckCircle className="w-4 h-4" />;
-      case 'processing':
+      case 'in_progress':
         return <Truck className="w-4 h-4" />;
+      case 'confirmed':
+        return <Package2 className="w-4 h-4" />;
       case 'pending':
         return <Clock className="w-4 h-4" />;
       case 'cancelled':
         return <XCircle className="w-4 h-4" />;
+      case 'refunded':
+        return <AlertCircle className="w-4 h-4" />;
       default:
         return <Package2 className="w-4 h-4" />;
     }
@@ -60,11 +68,14 @@ export const OrderCard: React.FC<OrderCardProps> = ({ order, onViewDetails }) =>
     switch (status) {
       case 'pending':
         return 25;
-      case 'processing':
+      case 'confirmed':
+        return 50;
+      case 'in_progress':
         return 75;
       case 'completed':
         return 100;
       case 'cancelled':
+      case 'refunded':
         return 0;
       default:
         return 0;
@@ -81,11 +92,28 @@ export const OrderCard: React.FC<OrderCardProps> = ({ order, onViewDetails }) =>
     });
   };
 
-  const formatCurrency = (amount: number, currency: string) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: currency || 'USD',
-    }).format(amount);
+  const formatCurrency = (amount: number | string, currency: string) => {
+    const numAmount = typeof amount === 'string' ? parseFloat(amount) : amount;
+
+    if (currency === 'KSH') {
+      return `KSh ${numAmount.toLocaleString('en-KE', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      })}`;
+    }
+
+    try {
+      return new Intl.NumberFormat('en-US', {
+        style: 'currency',
+        currency: currency || 'USD',
+      }).format(numAmount);
+    } catch (error) {
+      // Fallback for unsupported currency codes
+      return `${currency} ${numAmount.toLocaleString('en-US', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      })}`;
+    }
   };
 
   return (
@@ -97,8 +125,10 @@ export const OrderCard: React.FC<OrderCardProps> = ({ order, onViewDetails }) =>
             <div className="flex items-center">
               {getStatusIcon(order.status)}
               <div className="ml-3">
-                <h3 className="text-lg font-semibold text-gray-900">{order.business}</h3>
-                <p className="text-sm text-gray-600">Order #{order.id}</p>
+                <h3 className="text-lg font-semibold text-gray-900">
+                  {order.service_name || order.product_name || 'Custom Order'}
+                </h3>
+                <p className="text-sm text-gray-600">Order #{order.id.slice(0, 8)}</p>
               </div>
             </div>
           </div>
@@ -106,7 +136,7 @@ export const OrderCard: React.FC<OrderCardProps> = ({ order, onViewDetails }) =>
           <div className="flex items-center space-x-4">
             <div className="text-right">
               <p className="text-xl font-bold text-gray-900">
-                {formatCurrency(order.amount, order.currency)}
+                {formatCurrency(order.total_amount, order.currency)}
               </p>
               <div className="flex items-center">
                 {getStatusIcon(order.status)}
@@ -126,7 +156,7 @@ export const OrderCard: React.FC<OrderCardProps> = ({ order, onViewDetails }) =>
                   <Eye className="w-4 h-4" />
                 </button>
               )}
-              
+
               <button
                 onClick={() => setExpanded(!expanded)}
                 className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full transition-colors"
@@ -149,13 +179,12 @@ export const OrderCard: React.FC<OrderCardProps> = ({ order, onViewDetails }) =>
             <span className="text-sm text-gray-600">{getProgressPercentage(order.status)}%</span>
           </div>
           <div className="w-full bg-gray-200 rounded-full h-2">
-            <div 
-              className={`h-2 rounded-full transition-all duration-300 ${
-                order.status === 'completed' ? 'bg-green-500' :
-                order.status === 'processing' ? 'bg-blue-500' :
-                order.status === 'pending' ? 'bg-yellow-500' :
-                'bg-red-500'
-              }`}
+            <div
+              className={`h-2 rounded-full transition-all duration-300 ${order.status === 'completed' ? 'bg-green-500' :
+                order.status === 'in_progress' ? 'bg-blue-500' :
+                  order.status === 'pending' ? 'bg-yellow-500' :
+                    'bg-red-500'
+                }`}
               style={{ width: `${getProgressPercentage(order.status)}%` }}
             />
           </div>
@@ -165,48 +194,56 @@ export const OrderCard: React.FC<OrderCardProps> = ({ order, onViewDetails }) =>
         <div className="flex flex-wrap items-center gap-4 text-sm text-gray-600 mb-4">
           <div className="flex items-center">
             <Calendar className="w-4 h-4 mr-1" />
-            <span>Ordered {formatDate(order.created_at)}</span>
+            <span>Ordered {formatDate(order.date_created)}</span>
           </div>
-          
-          {order.delivery_date && (
+
+          {order.due_date && (
             <div className="flex items-center">
               <Truck className="w-4 h-4 mr-1" />
-              <span>Delivery {formatDate(order.delivery_date)}</span>
+              <span>Due {formatDate(order.due_date)}</span>
             </div>
           )}
 
           <div className="flex items-center">
             <Package2 className="w-4 h-4 mr-1" />
-            <span>{order.items.length} item{order.items.length !== 1 ? 's' : ''}</span>
+            <span>{order.attachment_count || 0} attachment{(order.attachment_count || 0) !== 1 ? 's' : ''}</span>
           </div>
         </div>
 
         {/* Expanded Content */}
         {expanded && (
           <div className="border-t border-gray-200 pt-6 space-y-6">
-            {/* Order Items */}
+            {/* Order Summary */}
             <div>
               <h4 className="font-medium text-gray-900 mb-4 flex items-center">
                 <Package2 className="w-4 h-4 mr-2" />
-                Order Items
+                Order Details
               </h4>
-              <div className="space-y-3">
-                {order.items.map((item, index) => (
-                  <div key={index} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
-                    <div className="flex-1">
-                      <h5 className="font-medium text-gray-900">{item.name}</h5>
-                      <p className="text-sm text-gray-600">Quantity: {item.quantity}</p>
-                    </div>
-                    <div className="text-right">
-                      <p className="font-semibold text-gray-900">
-                        {formatCurrency(item.price, order.currency)}
-                      </p>
-                      <p className="text-sm text-gray-600">
-                        {formatCurrency(item.price * item.quantity, order.currency)} total
-                      </p>
-                    </div>
+              <div className="bg-gray-50 rounded-lg p-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <p className="text-sm text-gray-600">Service/Product</p>
+                    <p className="font-medium">{order.service_name || order.product_name || 'Custom Order'}</p>
                   </div>
-                ))}
+                  <div>
+                    <p className="text-sm text-gray-600">Total Amount</p>
+                    <p className="font-medium">{formatCurrency(order.total_amount, order.currency)}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-600">Payment Status</p>
+                    <p className="font-medium capitalize">{order.payment_status.replace('_', ' ')}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-600">Attachments</p>
+                    <p className="font-medium">{order.attachment_count || 0} files</p>
+                  </div>
+                </div>
+                {order.notes && (
+                  <div className="mt-4">
+                    <p className="text-sm text-gray-600">Notes</p>
+                    <p className="text-gray-900">{order.notes}</p>
+                  </div>
+                )}
               </div>
             </div>
 
@@ -221,29 +258,26 @@ export const OrderCard: React.FC<OrderCardProps> = ({ order, onViewDetails }) =>
                   <CheckCircle className="w-5 h-5 text-green-600 mr-3" />
                   <div>
                     <p className="font-medium text-green-800">Order Placed</p>
-                    <p className="text-sm text-green-600">{formatDate(order.created_at)}</p>
+                    <p className="text-sm text-green-600">{formatDate(order.date_created)}</p>
                   </div>
                 </div>
 
                 {order.status !== 'pending' && (
-                  <div className={`flex items-center p-3 rounded-lg ${
-                    order.status === 'cancelled' ? 'bg-red-50' : 'bg-blue-50'
-                  }`}>
+                  <div className={`flex items-center p-3 rounded-lg ${order.status === 'cancelled' ? 'bg-red-50' : 'bg-blue-50'
+                    }`}>
                     {order.status === 'cancelled' ? (
                       <XCircle className="w-5 h-5 text-red-600 mr-3" />
                     ) : (
                       <Truck className="w-5 h-5 text-blue-600 mr-3" />
                     )}
                     <div>
-                      <p className={`font-medium ${
-                        order.status === 'cancelled' ? 'text-red-800' : 'text-blue-800'
-                      }`}>
+                      <p className={`font-medium ${order.status === 'cancelled' ? 'text-red-800' : 'text-blue-800'
+                        }`}>
                         {order.status === 'cancelled' ? 'Order Cancelled' : 'Order Processing'}
                       </p>
-                      <p className={`text-sm ${
-                        order.status === 'cancelled' ? 'text-red-600' : 'text-blue-600'
-                      }`}>
-                        {formatDate(order.updated_at || order.created_at)}
+                      <p className={`text-sm ${order.status === 'cancelled' ? 'text-red-600' : 'text-blue-600'
+                        }`}>
+                        {formatDate(order.date_updated || order.date_created)}
                       </p>
                     </div>
                   </div>
@@ -255,7 +289,7 @@ export const OrderCard: React.FC<OrderCardProps> = ({ order, onViewDetails }) =>
                     <div>
                       <p className="font-medium text-green-800">Order Completed</p>
                       <p className="text-sm text-green-600">
-                        {order.delivery_date ? formatDate(order.delivery_date) : 'Recently'}
+                        {order.due_date ? formatDate(order.due_date) : 'Recently'}
                       </p>
                     </div>
                   </div>
@@ -263,26 +297,32 @@ export const OrderCard: React.FC<OrderCardProps> = ({ order, onViewDetails }) =>
               </div>
             </div>
 
-            {/* Order Summary */}
+            {/* Payment Summary */}
             <div className="bg-gray-50 rounded-lg p-4">
               <div className="flex justify-between items-center mb-3">
-                <span className="text-gray-600">Subtotal</span>
+                <span className="text-gray-600">Total Amount</span>
                 <span className="text-gray-900">
-                  {formatCurrency(order.items.reduce((sum, item) => sum + (item.price * item.quantity), 0), order.currency)}
+                  {formatCurrency(order.total_amount, order.currency)}
                 </span>
               </div>
-              
-              <div className="flex justify-between items-center mb-3">
-                <span className="text-gray-600">Tax & Fees</span>
-                <span className="text-gray-900">
-                  {formatCurrency(order.amount - order.items.reduce((sum, item) => sum + (item.price * item.quantity), 0), order.currency)}
-                </span>
-              </div>
-              
+
+              {order.total_paid !== undefined && (
+                <div className="flex justify-between items-center mb-3">
+                  <span className="text-gray-600">Total Paid</span>
+                  <span className="text-gray-900">
+                    {formatCurrency(order.total_paid, order.currency)}
+                  </span>
+                </div>
+              )}
+
               <div className="flex justify-between items-center pt-3 border-t border-gray-200">
-                <span className="font-semibold text-gray-900">Total</span>
+                <span className="font-semibold text-gray-900">Balance</span>
                 <span className="text-xl font-bold text-gray-900">
-                  {formatCurrency(order.amount, order.currency)}
+                  {formatCurrency(
+                    (typeof order.total_amount === 'string' ? parseFloat(order.total_amount) : order.total_amount) -
+                    (typeof order.total_paid === 'string' ? parseFloat(order.total_paid || '0') : (order.total_paid || 0)),
+                    order.currency
+                  )}
                 </span>
               </div>
             </div>
@@ -293,13 +333,13 @@ export const OrderCard: React.FC<OrderCardProps> = ({ order, onViewDetails }) =>
                 <Download className="w-4 h-4 mr-2" />
                 Download Receipt
               </button>
-              
+
               <button className="flex items-center px-4 py-2 text-gray-600 border border-gray-300 rounded-md hover:bg-gray-50 transition-colors">
                 <MessageSquare className="w-4 h-4 mr-2" />
                 Contact Support
               </button>
 
-              {order.status === 'processing' && (
+              {order.status === 'in_progress' && (
                 <button className="flex items-center px-4 py-2 text-gray-600 border border-gray-300 rounded-md hover:bg-gray-50 transition-colors">
                   <MapPin className="w-4 h-4 mr-2" />
                   Track Order

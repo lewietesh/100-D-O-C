@@ -1,5 +1,41 @@
-// src/types/order.ts - Complete Order Type Definitions
+// src/types/order.ts - Updated to match backend Order model
 export interface Order {
+  id: string;
+  client_name?: string;
+  client_email?: string;
+  service_name?: string;
+  product_name?: string;
+  pricing_tier_name?: string;
+  total_amount: number | string; // API returns as string (decimal)
+  currency: string;
+  status: 'pending' | 'confirmed' | 'in_progress' | 'completed' | 'cancelled' | 'refunded';
+  payment_status: 'pending' | 'paid' | 'failed' | 'refunded';
+  payment_method?: string;
+  transaction_id?: string;
+  notes?: string;
+  due_date?: string;
+  payment_count?: number;
+  total_paid?: number | string; // API returns as number for this field
+  attachment_count?: number;
+  work_result_count?: number;
+  date_created: string;
+  date_updated?: string;
+}
+
+export interface Payment {
+  id: string;
+  order: string;
+  amount: number;
+  currency: string;
+  method: string;
+  transaction_id: string;
+  status: 'pending' | 'paid' | 'failed' | 'refunded';
+  notes?: string;
+  date_created: string;
+}
+
+// Legacy interface for backward compatibility - will be deprecated
+export interface LegacyOrder {
   id: string;
   business: string;
   status: 'pending' | 'processing' | 'completed' | 'cancelled';
