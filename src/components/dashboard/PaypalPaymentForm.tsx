@@ -1,15 +1,6 @@
 // src/components/dashboard/PaypalPaymentForm.tsx
 import React, { useState, useEffect, useRef } from 'react';
-import {
-  DollarSign,
-  ExternalLink,
-  Shield,
-  CheckCircle,
-  AlertTriangle,
-  Globe,
-  CreditCard,
-  Loader2
-} from 'lucide-react';
+import { DollarSign, Shield, CheckCircle, AlertTriangle, Loader2 } from 'lucide-react';
 import { usePayments } from '@/hooks/usePayments';
 import usePayPalScript from '@/hooks/usePayPalScript';
 import { useOrders } from '@/hooks/useOrders';
@@ -28,7 +19,6 @@ enum PaymentState {
 export const PaypalPaymentForm: React.FC = () => {
   // Form state
   const [amount, setAmount] = useState<number>(0);
-  const [description, setDescription] = useState<string>('');
   const [orderId, setOrderId] = useState<string>('');
   const [paypalOrderId, setPaypalOrderId] = useState<string>('');
   const [paymentState, setPaymentState] = useState<PaymentState>(PaymentState.IDLE);
@@ -44,9 +34,8 @@ export const PaypalPaymentForm: React.FC = () => {
     createPayPalOrder,
     capturePayPalPayment,
     accountBalance,
-    getAccountBalance,
-    updateAccountBalance,
-    error: paymentError
+    error: paymentError,
+    getAccountBalance
   } = usePayments();
 
   // Load PayPal SDK
@@ -70,26 +59,11 @@ export const PaypalPaymentForm: React.FC = () => {
 
       if (orderAmount > 0) {
         setAmount(orderAmount);
-        setDescription(`Payment for Order ${selectedOrder.id}`);
       }
     }
   }, [selectedOrder]);
 
-  // Load account balance on component mount
-  useEffect(() => {
-    const loadAccountBalance = async () => {
-      try {
-        const balance = await getAccountBalance();
-        if (balance) {
-          setBalanceUpdated(balance);
-        }
-      } catch (err) {
-        console.error("Failed to load account balance:", err);
-      }
-    };
-
-    loadAccountBalance();
-  }, [getAccountBalance]);
+  // We no longer fetch balance explicitly here to keep the flow simple
 
   // Handle PayPal SDK errors
   useEffect(() => {
@@ -141,16 +115,10 @@ export const PaypalPaymentForm: React.FC = () => {
               const depositId = `deposit-${timestamp}`;
               setOrderId(depositId);
 
-              // Set default description if not provided
-              if (!description) {
-                setDescription('Account balance deposit');
-              }
-
               // Create a PayPal order via our backend API
               const orderResult = await createPayPalOrder(
-                orderId,
-                amount,
-                description || 'Account balance deposit'
+                depositId,
+                amount
               );
 
               if (!orderResult) {
@@ -222,7 +190,7 @@ export const PaypalPaymentForm: React.FC = () => {
         }).render(paypalButtonRef.current);
       }
     }
-  }, [isLoaded, orderId, amount, description, createPayPalOrder, capturePayPalPayment, paymentState]);
+  }, [isLoaded, orderId, amount, createPayPalOrder, capturePayPalPayment, paymentState]);
 
   // Reset error state
   const resetError = () => {
@@ -236,7 +204,7 @@ export const PaypalPaymentForm: React.FC = () => {
     setPaymentState(PaymentState.IDLE);
     // Reset form
     setAmount(0);
-    setDescription('');
+    // no description field
   };
 
   // Show loading state when SDK is loading
@@ -343,29 +311,12 @@ export const PaypalPaymentForm: React.FC = () => {
         <h3 className="text-lg font-semibold text-gray-900">PayPal Payment</h3>
       </div>
 
-      {/* Account Balance Display */}
+      {/* Account Balance Display (optional) */}
       {balanceUpdated && (
         <div className="bg-blue-50 border border-blue-100 rounded-lg p-4 mb-6">
           <div className="flex justify-between items-center mb-2">
             <h4 className="font-medium text-blue-800 text-sm">Your Account Balance</h4>
-            <button
-              onClick={async () => {
-                try {
-                  const balance = await getAccountBalance();
-                  if (balance) {
-                    setBalanceUpdated(balance);
-                  }
-                } catch (err) {
-                  console.error("Failed to refresh balance:", err);
-                }
-              }}
-              className="text-xs text-blue-600 hover:text-blue-800 flex items-center"
-            >
-              <span className="mr-1">Refresh</span>
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-              </svg>
-            </button>
+            {/* Balance auto-refresh handled elsewhere */}
           </div>
           <div className="flex justify-between">
             <span className="text-gray-600 text-sm">Available:</span>
@@ -414,20 +365,7 @@ export const PaypalPaymentForm: React.FC = () => {
           </div>
         </div>
 
-        {/* Description input */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Description
-          </label>
-          <input
-            type="text"
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            placeholder="What is this payment for?"
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            disabled={paymentState !== PaymentState.IDLE}
-          />
-        </div>
+        {/* Description removed per requirements */}
 
         {/* Hidden field - we always update the account balance */}
         <input type="hidden" value="true" />

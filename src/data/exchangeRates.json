@@ -1,0 +1,218 @@
+{
+          "lastUpdated": "2025-09-23T00:00:00Z",
+          "baseCurrency": "USD",
+          "rates": {
+                    "USD": 1.0,
+                    "EUR": 0.85,
+                    "GBP": 0.73,
+                    "JPY": 110.0,
+                    "CAD": 1.25,
+                    "AUD": 1.35,
+                    "CHF": 0.88,
+                    "CNY": 6.45,
+                    "INR": 74.50,
+                    "KES": 110.0,
+                    "NGN": 411.0,
+                    "ZAR": 15.20,
+                    "BRL": 5.25,
+                    "MXN": 20.15,
+                    "RUB": 75.80,
+                    "KRW": 1180.0,
+                    "SGD": 1.35,
+                    "HKD": 7.80,
+                    "NOK": 8.85,
+                    "SEK": 8.65,
+                    "DKK": 6.35,
+                    "PLN": 3.95,
+                    "CZK": 22.50,
+                    "HUF": 295.0,
+                    "TRY": 8.45,
+                    "ILS": 3.25,
+                    "AED": 3.67,
+                    "SAR": 3.75,
+                    "EGP": 15.70,
+                    "MAD": 9.15,
+                    "GHS": 6.10,
+                    "ETB": 45.20,
+                    "UGX": 3650.0,
+                    "TZS": 2320.0,
+                    "RWF": 1025.0
+          },
+          "currencies": {
+                    "USD": {
+                              "name": "US Dollar",
+                              "symbol": "$",
+                              "flag": "🇺🇸"
+                    },
+                    "EUR": {
+                              "name": "Euro",
+                              "symbol": "€",
+                              "flag": "🇪🇺"
+                    },
+                    "GBP": {
+                              "name": "British Pound",
+                              "symbol": "£",
+                              "flag": "🇬🇧"
+                    },
+                    "JPY": {
+                              "name": "Japanese Yen",
+                              "symbol": "¥",
+                              "flag": "🇯🇵"
+                    },
+                    "CAD": {
+                              "name": "Canadian Dollar",
+                              "symbol": "C$",
+                              "flag": "🇨🇦"
+                    },
+                    "AUD": {
+                              "name": "Australian Dollar",
+                              "symbol": "A$",
+                              "flag": "🇦🇺"
+                    },
+                    "CHF": {
+                              "name": "Swiss Franc",
+                              "symbol": "CHF",
+                              "flag": "🇨🇭"
+                    },
+                    "CNY": {
+                              "name": "Chinese Yuan",
+                              "symbol": "¥",
+                              "flag": "🇨🇳"
+                    },
+                    "INR": {
+                              "name": "Indian Rupee",
+                              "symbol": "₹",
+                              "flag": "🇮🇳"
+                    },
+                    "KES": {
+                              "name": "Kenyan Shilling",
+                              "symbol": "KSh",
+                              "flag": "🇰🇪"
+                    },
+                    "NGN": {
+                              "name": "Nigerian Naira",
+                              "symbol": "₦",
+                              "flag": "🇳🇬"
+                    },
+                    "ZAR": {
+                              "name": "South African Rand",
+                              "symbol": "R",
+                              "flag": "🇿🇦"
+                    },
+                    "BRL": {
+                              "name": "Brazilian Real",
+                              "symbol": "R$",
+                              "flag": "🇧🇷"
+                    },
+                    "MXN": {
+                              "name": "Mexican Peso",
+                              "symbol": "MX$",
+                              "flag": "🇲🇽"
+                    },
+                    "RUB": {
+                              "name": "Russian Ruble",
+                              "symbol": "₽",
+                              "flag": "🇷🇺"
+                    },
+                    "KRW": {
+                              "name": "South Korean Won",
+                              "symbol": "₩",
+                              "flag": "🇰🇷"
+                    },
+                    "SGD": {
+                              "name": "Singapore Dollar",
+                              "symbol": "S$",
+                              "flag": "🇸🇬"
+                    },
+                    "HKD": {
+                              "name": "Hong Kong Dollar",
+                              "symbol": "HK$",
+                              "flag": "🇭🇰"
+                    },
+                    "NOK": {
+                              "name": "Norwegian Krone",
+                              "symbol": "kr",
+                              "flag": "🇳🇴"
+                    },
+                    "SEK": {
+                              "name": "Swedish Krona",
+                              "symbol": "kr",
+                              "flag": "🇸🇪"
+                    },
+                    "DKK": {
+                              "name": "Danish Krone",
+                              "symbol": "kr",
+                              "flag": "🇩🇰"
+                    },
+                    "PLN": {
+                              "name": "Polish Zloty",
+                              "symbol": "zł",
+                              "flag": "🇵🇱"
+                    },
+                    "CZK": {
+                              "name": "Czech Koruna",
+                              "symbol": "Kč",
+                              "flag": "🇨🇿"
+                    },
+                    "HUF": {
+                              "name": "Hungarian Forint",
+                              "symbol": "Ft",
+                              "flag": "🇭🇺"
+                    },
+                    "TRY": {
+                              "name": "Turkish Lira",
+                              "symbol": "₺",
+                              "flag": "🇹🇷"
+                    },
+                    "ILS": {
+                              "name": "Israeli Shekel",
+                              "symbol": "₪",
+                              "flag": "🇮🇱"
+                    },
+                    "AED": {
+                              "name": "UAE Dirham",
+                              "symbol": "د.إ",
+                              "flag": "🇦🇪"
+                    },
+                    "SAR": {
+                              "name": "Saudi Riyal",
+                              "symbol": "﷼",
+                              "flag": "🇸🇦"
+                    },
+                    "EGP": {
+                              "name": "Egyptian Pound",
+                              "symbol": "£",
+                              "flag": "🇪🇬"
+                    },
+                    "MAD": {
+                              "name": "Moroccan Dirham",
+                              "symbol": "د.م.",
+                              "flag": "🇲🇦"
+                    },
+                    "GHS": {
+                              "name": "Ghanaian Cedi",
+                              "symbol": "₵",
+                              "flag": "🇬🇭"
+                    },
+                    "ETB": {
+                              "name": "Ethiopian Birr",
+                              "symbol": "Br",
+                              "flag": "🇪🇹"
+                    },
+                    "UGX": {
+                              "name": "Ugandan Shilling",
+                              "symbol": "USh",
+                              "flag": "🇺🇬"
+                    },
+                    "TZS": {
+                              "name": "Tanzanian Shilling",
+                              "symbol": "TSh",
+                              "flag": "🇹🇿"
+                    },
+                    "RWF": {
+                              "name": "Rwandan Franc",
+                              "symbol": "FRw",
+                              "flag": "🇷🇼"
+                    }
+          }
+}

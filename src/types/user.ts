@@ -8,6 +8,9 @@ export interface UserProfile {
   is_verified: boolean;
   profile_img?: string | null;
   phone?: string | null;
+  currency?: string | null;
+  language_preference?: string | null;
+  account_balance?: number | string;
   date_joined: string;
   last_login?: string | null;
   is_active: boolean;
@@ -25,6 +28,8 @@ export interface UpdateProfileData {
   first_name?: string | null;
   last_name?: string | null;
   phone?: string | null;
+  currency?: string | null;
+  language_preference?: string | null;
 }
 
 export interface ChangePasswordData {

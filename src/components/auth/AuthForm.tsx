@@ -38,6 +38,7 @@ type AuthFormValues = LoginFormValues | RegisterFormValues | ResetFormValues;
 
 interface AuthFormProps {
   mode: AuthMode;
+
   onModeChange: (mode: AuthMode) => void;
   onSuccess?: () => void;
 }
@@ -47,6 +48,7 @@ interface AuthFormProps {
 // ========================================
 
 export function AuthForm({ mode, onModeChange, onSuccess }: AuthFormProps) {
+ 
   // ========================================
   // ALL HOOKS MUST BE CALLED HERE, INSIDE THE COMPONENT
   // ========================================
@@ -145,6 +147,8 @@ export function AuthForm({ mode, onModeChange, onSuccess }: AuthFormProps) {
           }
           break;
         }
+
+
         case 'register': {
           setIsRegistering(true);
           const { email, password, confirmPassword } = values as RegisterFormValues;
@@ -163,6 +167,7 @@ export function AuthForm({ mode, onModeChange, onSuccess }: AuthFormProps) {
           }
           break;
         }
+        
         case 'reset-password': {
           const { email } = values as ResetFormValues;
           await resetPassword(email);

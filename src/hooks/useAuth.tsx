@@ -320,7 +320,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       // Log token before logout
       const token = localStorage.getItem('auth_token');
-      logger.info('Logout: access token in localStorage:', token);
+      // logger.info('Logout: access token in localStorage:', token);
       if (!token) {
         logger.error('Logout: No access token found in localStorage.');
       }

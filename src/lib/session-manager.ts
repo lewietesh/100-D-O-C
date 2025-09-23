@@ -154,7 +154,7 @@ class SessionManager {
     }
   }
 
-  // Store session data
+  // Store session data (persists full user including currency/language)
   setSession(token: string, user: User, expiresIn?: number): void {
     if (typeof window === 'undefined') {
       logger.warn('Cannot set session: window is undefined');

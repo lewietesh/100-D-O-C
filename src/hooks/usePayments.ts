@@ -11,7 +11,6 @@ interface UsePaymentsReturn {
   accountBalance: AccountBalance | null;
   createPaymentIntent: (amount: number, currency?: string, description?: string) => Promise<PaymentIntent | null>;
   confirmPayment: (paymentIntentId: string, method: string) => Promise<boolean>;
-  recordCashPayment: (amount: number, description?: string, reference?: string) => Promise<boolean>;
   createPayPalOrder: (orderId: string, amount: number, description?: string) => Promise<PayPalOrderResponse | null>;
   capturePayPalPayment: (paypalOrderId: string, updateBalance?: boolean) => Promise<{ success: boolean; balance?: AccountBalance }>;
   getAccountBalance: () => Promise<AccountBalance | null>;
@@ -40,9 +39,13 @@ export const usePayments = (): UsePaymentsReturn => {
       setLoading(true);
       setError(null);
       const data = await paymentsApi.getPaymentHistory();
+      // Normalize response: API may return either an array or a paginated object { results: [] }
+      const list: Payment[] = Array.isArray(data)
+        ? (data as Payment[])
+        : (Array.isArray((data as any)?.results) ? ((data as any).results as Payment[]) : []);
 
       // Sort payments by creation date (newest first)
-      const sortedPayments = data.sort((a, b) =>
+      const sortedPayments = list.sort((a: Payment, b: Payment) =>
         new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
       );
 
@@ -155,60 +158,7 @@ export const usePayments = (): UsePaymentsReturn => {
     }
   }, []);
 
-  const recordCashPayment = useCallback(async (
-    amount: number,
-    description?: string,
-    reference?: string
-  ): Promise<boolean> => {
-    try {
-      setLoading(true);
-      setError(null);
 
-      // Validate input
-      if (amount <= 0) {
-        throw new Error('Amount must be greater than 0');
-      }
-
-      if (amount > 999999.99) {
-        throw new Error('Amount cannot exceed $999,999.99');
-      }
-
-      if (!description || description.trim().length === 0) {
-        throw new Error('Description is required for cash payments');
-      }
-
-      const payment = await paymentsApi.recordCashPayment({
-        amount,
-        description: description.trim(),
-        reference: reference?.trim() || undefined,
-      });
-
-      // Add new payment to the beginning of the list
-      setPayments(prev => [payment, ...prev]);
-      return true;
-    } catch (err: any) {
-      let errorMessage = 'Failed to record cash payment';
-
-      if (err.response?.status === 400) {
-        if (err.response.data?.amount) {
-          errorMessage = `Amount error: ${err.response.data.amount[0]}`;
-        } else if (err.response.data?.description) {
-          errorMessage = `Description error: ${err.response.data.description[0]}`;
-        } else if (err.response.data?.detail) {
-          errorMessage = err.response.data.detail;
-        }
-      } else if (err.response?.data?.detail) {
-        errorMessage = err.response.data.detail;
-      } else if (err.message) {
-        errorMessage = err.message;
-      }
-
-      setError(errorMessage);
-      return false;
-    } finally {
-      setLoading(false);
-    }
-  }, []);
 
   const refetch = useCallback(async () => {
     await fetchPayments();
@@ -388,7 +338,6 @@ export const usePayments = (): UsePaymentsReturn => {
     createPayPalOrder,
     capturePayPalPayment,
     confirmPayment,
-    recordCashPayment,
     getAccountBalance,
     updateAccountBalance,
     refetch,

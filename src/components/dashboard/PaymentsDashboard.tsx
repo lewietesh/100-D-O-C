@@ -12,9 +12,12 @@ import {
   ArrowUp
 } from 'lucide-react';
 import { usePayments } from '@/hooks/usePayments';
+import { useUserProfile } from '@/hooks/useUserprofile';
 import { PaypalPaymentForm } from './PaypalPaymentForm';
 import { MpesaPaymentForm } from './MpesaPaymentForm';
 import { PaymentHistory } from './PaymentHistory';
+import { AccountBalanceCard } from './AccountBalanceCard';
+import { AccountBalance } from '@/types/payment';
 
 type PaymentTab = 'history' | 'paypal' | 'mpesa';
 
@@ -37,7 +40,8 @@ export const PaymentsDashboard: React.FC = () => {
   const [stats, setStats] = useState<PaymentStats | null>(null);
   const [refreshing, setRefreshing] = useState(false);
 
-  const { payments, loading, error, refetch } = usePayments();
+  const { payments, loading, error, refetch, accountBalance } = usePayments();
+  const { profile: user, refetch: refetchUser } = useUserProfile();
 
   // Calculate stats from payments
   useEffect(() => {
@@ -112,34 +116,40 @@ export const PaymentsDashboard: React.FC = () => {
     { id: 'mpesa' as PaymentTab, label: 'M-Pesa', icon: DollarSign },
   ];
 
-  const StatCard: React.FC<{
-    title: string;
-    value: string | number;
-    change?: number;
-    changeType?: 'increase' | 'decrease';
-    icon: React.ComponentType<{ className?: string }>;
-    color: string;
-  }> = ({ title, value, change, changeType, icon: Icon, color }) => (
-    <div className="bg-white dunded-lg shadow p-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <p className="text-sm font-medium text-gray-600">{title}</p>
-          <p className="text-2xl font-bold text-gray-900">{value}</p>
-          {change !== undefined && (
-            <p className={`text-sm flex items-center mt-1 ${changeType === 'increase' ? 'text-green-600' : 'text-red-600'
-              }`}>
-              <ArrowUp className={`w-4 h-4 mr-1 ${changeType === 'decrease' ? 'rotate-180' : ''
-                }`} />
-              {change > 0 ? '+' : ''}{change.toFixed(1)}% from last month
-            </p>
-          )}
-        </div>
-        <div className={`p-3 rounded-full ${color}`}>
-          <Icon className="w-6 h-6 text-white" />
-        </div>
-      </div>
-    </div>
-  );
+  // Handle account balance refresh
+  const handleBalanceRefresh = async () => {
+    setRefreshing(true);
+    try {
+      await refetchUser();
+      setNotification({
+        type: 'success',
+        message: 'Account balance updated successfully!'
+      });
+    } catch (error) {
+      setNotification({
+        type: 'error',
+        message: 'Failed to refresh account balance'
+      });
+    } finally {
+      setRefreshing(false);
+    }
+  };
+
+  // Convert user account balance to AccountBalance object
+  const getUserAccountBalance = (): AccountBalance | null => {
+    if (!user?.account_balance) return null;
+
+    const balance = typeof user.account_balance === 'string'
+      ? parseFloat(user.account_balance)
+      : user.account_balance;
+
+    return {
+      available: balance,
+      pending: 0,
+      currency: 'USD', // Default currency - could be made configurable
+      last_updated: new Date().toISOString()
+    };
+  };
 
   // AnalyticsTab component has been removed
 
@@ -160,33 +170,33 @@ export const PaymentsDashboard: React.FC = () => {
     <div className="space-y-6">
       {/* Notification */}
       {notification && (
-        <div className={`rounded-lg p-4 ${notification.type === 'success'
-          ? 'bg-green-50 border border-green-200'
+        <div className={`rounded-lg p-4 shadow-sm ${notification.type === 'success'
+          ? 'bg-success-50 border border-success-200'
           : notification.type === 'error'
-            ? 'bg-red-50 border border-red-200'
-            : 'bg-blue-50 border border-blue-200'
+            ? 'bg-error-50 border border-error-200'
+            : 'bg-primary-50 border border-primary-200'
           }`}>
           <div className="flex items-center justify-between">
             <div className="flex items-center">
               {notification.type === 'success' ? (
-                <CheckCircle className="w-5 h-5 text-green-600 mr-3" />
+                <CheckCircle className="w-5 h-5 text-success-600 mr-3" />
               ) : notification.type === 'error' ? (
-                <AlertCircle className="w-5 h-5 text-red-600 mr-3" />
+                <AlertCircle className="w-5 h-5 text-error-600 mr-3" />
               ) : (
-                <AlertCircle className="w-5 h-5 text-blue-600 mr-3" />
+                <AlertCircle className="w-5 h-5 text-primary-600 mr-3" />
               )}
-              <p className={`font-medium ${notification.type === 'success' ? 'text-green-800'
-                : notification.type === 'error' ? 'text-red-800'
-                  : 'text-blue-800'
+              <p className={`font-medium ${notification.type === 'success' ? 'text-success-800'
+                : notification.type === 'error' ? 'text-error-800'
+                  : 'text-primary-800'
                 }`}>
                 {notification.message}
               </p>
             </div>
             <button
               onClick={() => setNotification(null)}
-              className={`${notification.type === 'success' ? 'text-green-600'
-                : notification.type === 'error' ? 'text-red-600'
-                  : 'text-blue-600'
+              className={`transition-opacity ${notification.type === 'success' ? 'text-success-600 hover:text-success-700'
+                : notification.type === 'error' ? 'text-error-600 hover:text-error-700'
+                  : 'text-primary-600 hover:text-primary-700'
                 } hover:opacity-75`}
             >
               <Plus className="w-4 h-4 rotate-45" />
@@ -198,44 +208,54 @@ export const PaymentsDashboard: React.FC = () => {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold text-gray-900">Payments</h2>
-          <p className="text-gray-600 mt-1">Manage your payments and view transaction history</p>
+          <h2 className="text-2xl font-bold text-neutral-900">Payments</h2>
+          <p className="text-neutral-600 mt-1">Manage your payments and view transaction history</p>
         </div>
 
         <div className="flex items-center space-x-3">
           {activeTab === 'history' && stats && (
-            <div className="hidden md:flex items-center text-sm text-gray-600">
-              <DollarSign className="w-4 h-4 mr-1" />
-              {payments.length} transactions • ${stats.total_amount.toFixed(2)} total
+            <div className="hidden md:flex items-center text-sm text-neutral-600 bg-neutral-50 px-3 py-2 rounded-lg border border-neutral-200">
+              <DollarSign className="w-4 h-4 mr-1 text-neutral-500" />
+              <span className="font-medium">{payments.length}</span> transactions •
+              <span className="font-semibold text-neutral-700 ml-1">${stats.total_amount.toFixed(2)}</span> total
             </div>
           )}
 
           <button
             onClick={handleRefresh}
             disabled={refreshing}
-            className="flex items-center px-3 py-2 text-gray-600 bg-white border border-gray-300 rounded-md hover:bg-gray-50 transition-colors disabled:opacity-50"
+            className="flex items-center px-4 py-2 text-neutral-700 bg-white border border-neutral-300 rounded-lg hover:bg-neutral-50 hover:border-neutral-400 transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
           >
             <RefreshCw className={`w-4 h-4 mr-2 ${refreshing ? 'animate-spin' : ''}`} />
-            Refresh
+            <span className="font-medium">Refresh</span>
           </button>
         </div>
       </div>
 
+      {/* Account Balance Card */}
+      <div className="max-w-sm relative z-10">
+        <AccountBalanceCard
+          accountBalance={getUserAccountBalance()}
+          loading={refreshing}
+          onRefresh={handleBalanceRefresh}
+        />
+      </div>
+
       {/* Error State */}
       {error && (
-        <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+        <div className="bg-error-50 border border-error-200 rounded-lg p-4">
           <div className="flex items-center">
-            <AlertCircle className="w-5 h-5 text-red-600 mr-3" />
+            <AlertCircle className="w-5 h-5 text-error-600 mr-3" />
             <div>
-              <h3 className="text-sm font-medium text-red-800">Error Loading Payments</h3>
-              <p className="text-sm text-red-600 mt-1">{error}</p>
+              <h3 className="text-sm font-medium text-error-800">Error Loading Payments</h3>
+              <p className="text-sm text-error-700 mt-1">{error}</p>
             </div>
           </div>
         </div>
       )}
 
       {/* Tab Navigation */}
-      <div className="border-b border-gray-200">
+      <div className="border-b border-neutral-200">
         <nav className="-mb-px flex space-x-8 overflow-x-auto">
           {tabs.map((tab) => {
             const Icon = tab.icon;
@@ -243,9 +263,9 @@ export const PaymentsDashboard: React.FC = () => {
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`flex items-center py-3 px-1 border-b-2 font-medium text-sm whitespace-nowrap ${activeTab === tab.id
-                  ? 'border-blue-500 text-blue-600'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                className={`flex items-center py-3 px-1 border-b-2 font-medium text-sm whitespace-nowrap transition-colors ${activeTab === tab.id
+                  ? 'border-primary-500 text-primary-600'
+                  : 'border-transparent text-neutral-500 hover:text-neutral-700 hover:border-neutral-300'
                   }`}
               >
                 <Icon className="w-4 h-4 mr-2" />

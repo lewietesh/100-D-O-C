@@ -60,7 +60,7 @@ export default function ContactPage() {
     setStatus('submitting');
     try {
       // TODO: Replace with actual API call
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      await new Promise(resolve => setTimeout(resolve, 200));
       setStatus('success');
       setForm({ name: '', email: '', phone: '', subject: '', message: '' });
     } catch (error) {

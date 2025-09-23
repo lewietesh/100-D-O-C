@@ -43,7 +43,7 @@ export const paypalApi = {
            * @returns Current account balance information
            */
           getAccountBalance: async () => {
-                    const res = await apiClient.get<any>('/api/v1/business/account-balance/my_balance/');
+                    const res = await apiClient.get<any>('/api/v1/accounts/users/my_balance/');
                     return res.data as AccountBalance;
           },
 
@@ -54,7 +54,7 @@ export const paypalApi = {
            * @returns Updated account balance
            */
           updateAccountBalance: async (amount: number, paymentId: string) => {
-                    const res = await apiClient.post<any>('/api/v1/business/account-balance/add_funds/', {
+                    const res = await apiClient.post<any>('/api/v1/accounts/users/add_funds/', {
                               amount,
                               payment_id: paymentId
                     });

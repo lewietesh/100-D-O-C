@@ -35,28 +35,7 @@ export interface Payment {
 }
 
 // Legacy interface for backward compatibility - will be deprecated
-export interface LegacyOrder {
-  id: string;
-  business: string;
-  status: 'pending' | 'processing' | 'completed' | 'cancelled';
-  amount: number;
-  currency: string;
-  items: OrderItem[];
-  created_at: string;
-  updated_at: string;
-  delivery_date?: string | null;
-  shipping_address?: ShippingAddress | null;
-  billing_address?: BillingAddress | null;
-  payment_method?: string;
-  tracking_number?: string | null;
-  notes?: string | null;
-  customer_id?: string;
-  order_number?: string;
-  tax_amount?: number;
-  shipping_cost?: number;
-  discount_amount?: number;
-  refund_amount?: number;
-}
+// LegacyOrder removed as per request; using Order only moving forward.
 
 export interface OrderItem {
   id: string;

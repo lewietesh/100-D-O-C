@@ -12,6 +12,8 @@ export type ProfileFormData = {
           first_name?: string | null;
           last_name?: string | null;
           phone?: string | null;
+          currency?: string | null;
+          language_preference?: string | null;
 };
 
 const profileSchema: yup.ObjectSchema<ProfileFormData> = yup.object({
@@ -32,6 +34,8 @@ const profileSchema: yup.ObjectSchema<ProfileFormData> = yup.object({
                               /^(\+?[1-9]\d{1,14})?$/,
                               'Please enter a valid phone number (international format accepted)'
                     ),
+          currency: yup.string().nullable().max(10),
+          language_preference: yup.string().nullable().oneOf(['English', 'Swahili', 'French', 'German', 'Chinese'], 'Invalid language selection'),
 });
 
 interface ProfileEditFormProps {
@@ -62,6 +66,8 @@ export const ProfileEditForm: React.FC<ProfileEditFormProps> = ({
                               first_name: profile.first_name ?? '',
                               last_name: profile.last_name ?? '',
                               phone: profile.phone ?? '',
+                              currency: profile.currency ?? 'USD',
+                              language_preference: profile.language_preference ?? 'English',
                     },
           });
 
@@ -86,6 +92,12 @@ export const ProfileEditForm: React.FC<ProfileEditFormProps> = ({
                               }
                               if (data.phone !== (profile.phone || '')) {
                                         changedData.phone = data.phone || null;
+                              }
+                              if (data.currency !== (profile.currency || 'USD')) {
+                                        changedData.currency = data.currency || null;
+                              }
+                              if (data.language_preference !== (profile.language_preference || 'English')) {
+                                        changedData.language_preference = data.language_preference || null;
                               }
 
                               if (Object.keys(changedData).length === 0) {
@@ -203,6 +215,50 @@ export const ProfileEditForm: React.FC<ProfileEditFormProps> = ({
                                                                       Email address cannot be changed. Contact support if you need to update your email.
                                                             </p>
                                                   </div>
+                                        </div>
+
+                                        <div className="md:col-span-1">
+                                                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                                                            Preferred Language
+                                                  </label>
+                                                  <select
+                                                            {...register('language_preference')}
+                                                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                                  >
+                                                            <option value="English">English</option>
+                                                            <option value="Swahili">Swahili</option>
+                                                            <option value="French">French</option>
+                                                            <option value="German">German</option>
+                                                            <option value="Chinese">Chinese</option>
+                                                  </select>
+                                                  {errors.language_preference && (
+                                                            <p className="mt-1 text-sm text-red-600 flex items-center">
+                                                                      <AlertTriangle className="w-3 h-3 mr-1" />
+                                                                      {errors.language_preference.message as string}
+                                                            </p>
+                                                  )}
+                                        </div>
+
+                                        <div className="md:col-span-1">
+                                                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                                                            Preferred Currency
+                                                  </label>
+                                                  <select
+                                                            {...register('currency')}
+                                                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                                  >
+                                                            <option value="USD">USD (US Dollar)</option>
+                                                            <option value="KSH">KSH (Kenyan Shilling)</option>
+                                                            <option value="EUR">EUR (Euro)</option>
+                                                            <option value="GBP">GBP (British Pound)</option>
+                                                            <option value="CNY">CNY (Chinese Yuan)</option>
+                                                  </select>
+                                                  {errors.currency && (
+                                                            <p className="mt-1 text-sm text-red-600 flex items-center">
+                                                                      <AlertTriangle className="w-3 h-3 mr-1" />
+                                                                      {errors.currency.message as string}
+                                                            </p>
+                                                  )}
                                         </div>
 
                                         <div className="flex justify-end space-x-3 pt-6 border-t border-gray-200">

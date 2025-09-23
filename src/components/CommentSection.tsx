@@ -58,7 +58,7 @@ const CommentsSection = ({ postSlug, initialComments = [] }: Props) => {
       setWebsite('');
       setMessage('');
       setSubmitted(true);
-      setTimeout(() => setSubmitted(false), 4000);
+      setTimeout(() => setSubmitted(false), 200);
     }
   };
 
