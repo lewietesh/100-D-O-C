@@ -28,10 +28,17 @@ export const usePayPalScript = (options: UsePayPalScriptOptions = {}): UsePayPal
           });
 
           useEffect(() => {
+                    // Ensure we only run on the client
+                    if (typeof window === 'undefined' || typeof document === 'undefined') {
+                              return;
+                    }
+
+                    let isActive = true; // avoid setting state after unmount
+
                     const clientId = options.clientId || process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID;
 
                     if (!clientId) {
-                              setScriptState({
+                              isActive && setScriptState({
                                         isLoaded: false,
                                         isResolved: false,
                                         isRejected: true,
@@ -40,16 +47,67 @@ export const usePayPalScript = (options: UsePayPalScriptOptions = {}): UsePayPal
                               return;
                     }
 
-                    // Check if script is already loaded
-                    const existingScript = document.querySelector(`script[data-sdk-integration-source="paypal-js-sdk"]`);
-                    if (existingScript) {
+                    // Attempt to find an existing SDK script (by id first, then by data attribute)
+                    const scriptId = 'paypal-sdk';
+                    let existingScript = document.getElementById(scriptId) as HTMLScriptElement | null;
+                    if (!existingScript) {
+                              existingScript = document.querySelector(
+                                        'script[data-sdk-integration-source="paypal-js-sdk"]'
+                              ) as HTMLScriptElement | null;
+                    }
+
+                    // Helper: finalize load success
+                    const resolveLoaded = () => {
+                              if (!isActive) return;
                               setScriptState({
                                         isLoaded: true,
                                         isResolved: true,
                                         isRejected: false,
-                                        error: null
+                                        error: null,
                               });
-                              return;
+                    };
+
+                    // Helper: poll for window.paypal for a short while after script tag exists
+                    const waitForPaypal = (onSuccess: () => void, onTimeout: () => void, timeoutMs = 5000, intervalMs = 50) => {
+                              const start = Date.now();
+                              const timer = window.setInterval(() => {
+                                        if ((window as any).paypal) {
+                                                  window.clearInterval(timer);
+                                                  onSuccess();
+                                        } else if (Date.now() - start >= timeoutMs) {
+                                                  window.clearInterval(timer);
+                                                  onTimeout();
+                                        }
+                              }, intervalMs);
+                              return () => window.clearInterval(timer);
+                    };
+
+                    if (existingScript) {
+                              // If script element exists, ensure paypal is actually available
+                              if ((window as any).paypal) {
+                                        resolveLoaded();
+                                        return;
+                              }
+
+                              // Attach a load listener to the existing script, and also poll as fallback
+                              const handleExistingLoad = () => resolveLoaded();
+                              existingScript.addEventListener('load', handleExistingLoad);
+
+                              const cancelPoll = waitForPaypal(resolveLoaded, () => {
+                                        if (!isActive) return;
+                                        setScriptState({
+                                                  isLoaded: false,
+                                                  isResolved: false,
+                                                  isRejected: true,
+                                                  error: new Error('PayPal SDK script found but window.paypal did not initialize in time'),
+                                        });
+                              });
+
+                              return () => {
+                                        isActive = false;
+                                        existingScript && existingScript.removeEventListener('load', handleExistingLoad);
+                                        cancelPoll && cancelPoll();
+                              };
                     }
 
                     // Build script URL with query parameters
@@ -80,21 +138,31 @@ export const usePayPalScript = (options: UsePayPalScriptOptions = {}): UsePayPal
 
                     // Create script element
                     const script = document.createElement('script');
+                    script.id = scriptId;
                     script.src = `https://www.paypal.com/sdk/js?${queryParams.toString()}`;
                     script.async = true;
                     script.dataset.sdkIntegrationSource = 'paypal-js-sdk';
 
                     // Handle script loading
                     const handleLoad = () => {
-                              setScriptState({
-                                        isLoaded: true,
-                                        isResolved: true,
-                                        isRejected: false,
-                                        error: null
-                              });
+                              // Some browsers may fire load before the SDK fully sets window.paypal
+                              if ((window as any).paypal) {
+                                        resolveLoaded();
+                              } else {
+                                        waitForPaypal(resolveLoaded, () => {
+                                                  if (!isActive) return;
+                                                  setScriptState({
+                                                            isLoaded: false,
+                                                            isResolved: false,
+                                                            isRejected: true,
+                                                            error: new Error('PayPal SDK loaded but window.paypal not found'),
+                                                  });
+                                        });
+                              }
                     };
 
                     const handleError = (error: ErrorEvent) => {
+                              if (!isActive) return;
                               setScriptState({
                                         isLoaded: false,
                                         isResolved: false,
@@ -111,6 +179,7 @@ export const usePayPalScript = (options: UsePayPalScriptOptions = {}): UsePayPal
 
                     // Cleanup
                     return () => {
+                              isActive = false;
                               script.removeEventListener('load', handleLoad);
                               script.removeEventListener('error', handleError);
 

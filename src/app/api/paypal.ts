@@ -20,7 +20,7 @@ export const paypalApi = {
            * @returns PayPal order response with approval URL
            */
           createOrder: (data: CreatePayPalOrderRequest) =>
-                    apiClient.post<PayPalOrderResponse>('/api/v1/business/paypal/create-order/', data),
+                    apiClient.post<PayPalOrderResponse>('/api/v1/business/paypal/create_order/', data),
 
           /**
            * Capture a previously approved PayPal order
@@ -28,7 +28,7 @@ export const paypalApi = {
            * @returns Capture result with success status and optional balance update
            */
           capturePayment: (data: CapturePayPalOrderRequest) =>
-                    apiClient.post<{ success: boolean; message?: string; balance?: AccountBalance }>('/api/v1/business/paypal/capture-payment/', data),
+                    apiClient.post<{ success: boolean; message?: string; balance?: AccountBalance }>('/api/v1/business/paypal/capture_payment/', data),
 
           /**
            * Get details of a specific PayPal payment

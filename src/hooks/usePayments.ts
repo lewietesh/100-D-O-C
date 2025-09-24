@@ -34,15 +34,39 @@ export const usePayments = (): UsePaymentsReturn => {
 
   const clearError = useCallback(() => setError(null), []);
 
+  // Normalize amounts/ids to prevent runtime errors from string values
+  const normalizeAmount = (amount: unknown): number => {
+    if (typeof amount === 'number') return amount;
+    if (typeof amount === 'string') {
+      const n = parseFloat(amount);
+      return isNaN(n) ? 0 : n;
+    }
+    return 0;
+  };
+
+  const normalizePayment = (p: any): Payment => ({
+    id: String(p.id),
+    method: p.method,
+    amount: normalizeAmount(p.amount),
+    currency: p.currency,
+    status: p.status,
+    reference: p.reference ?? undefined,
+    order_id: p.order_id ?? undefined,
+    created_at: p.created_at,
+    description: p.description ?? undefined,
+    paypal_details: p.paypal_details ?? undefined,
+  });
+
   const fetchPayments = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
       const data = await paymentsApi.getPaymentHistory();
       // Normalize response: API may return either an array or a paginated object { results: [] }
-      const list: Payment[] = Array.isArray(data)
-        ? (data as Payment[])
-        : (Array.isArray((data as any)?.results) ? ((data as any).results as Payment[]) : []);
+      const rawList: any[] = Array.isArray(data)
+        ? (data as any[])
+        : (Array.isArray((data as any)?.results) ? ((data as any).results as any[]) : []);
+      const list: Payment[] = rawList.map(normalizePayment);
 
       // Sort payments by creation date (newest first)
       const sortedPayments = list.sort((a: Payment, b: Payment) =>
@@ -134,7 +158,7 @@ export const usePayments = (): UsePaymentsReturn => {
       });
 
       // Add new payment to the beginning of the list
-      setPayments(prev => [payment, ...prev]);
+      setPayments(prev => [normalizePayment(payment as any), ...prev]);
       return true;
     } catch (err: any) {
       let errorMessage = 'Failed to confirm payment';
@@ -166,7 +190,7 @@ export const usePayments = (): UsePaymentsReturn => {
 
   // Utility functions for managing payments in state
   const addPayment = useCallback((payment: Payment) => {
-    setPayments(prev => [payment, ...prev]);
+    setPayments(prev => [normalizePayment(payment as any), ...prev]);
   }, []);
 
   const updatePayment = useCallback((paymentId: string, updates: Partial<Payment>) => {
@@ -192,7 +216,10 @@ export const usePayments = (): UsePaymentsReturn => {
   const getTotalAmount = useCallback((): number => {
     return payments
       .filter(payment => payment.status === 'completed')
-      .reduce((total, payment) => total + payment.amount, 0);
+      .reduce((total, payment) => {
+        const amt = typeof payment.amount === 'number' ? payment.amount : parseFloat((payment as any).amount) || 0;
+        return total + amt;
+      }, 0);
   }, [payments]);
 
   const getSuccessRate = useCallback((): number => {

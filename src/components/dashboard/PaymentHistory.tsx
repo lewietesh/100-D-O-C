@@ -1,11 +1,11 @@
 // src/components/dashboard/PaymentHistory.tsx - Complete Implementation
 import React, { useState, useMemo } from 'react';
-import { 
-  CreditCard, 
-  Calendar, 
-  CheckCircle, 
-  Clock, 
-  XCircle, 
+import {
+  CreditCard,
+  Calendar,
+  CheckCircle,
+  Clock,
+  XCircle,
   DollarSign,
   Download,
   Search,
@@ -35,6 +35,20 @@ export const PaymentHistory: React.FC<PaymentHistoryProps> = ({ payments, loadin
   const [sortDirection, setSortDirection] = useState<SortDirection>('desc');
   const [showFilters, setShowFilters] = useState(false);
   const [selectedPayment, setSelectedPayment] = useState<Payment | null>(null);
+
+  const toNumber = (value: unknown): number => {
+    if (typeof value === 'number') return value;
+    if (typeof value === 'string') {
+      const n = parseFloat(value);
+      return isNaN(n) ? 0 : n;
+    }
+    return 0;
+  };
+
+  const formatCurrency = (value: unknown): string => {
+    const n = toNumber(value);
+    return `$${n.toFixed(2)}`;
+  };
 
   // Filter and sort payments
   const filteredAndSortedPayments = useMemo(() => {
@@ -67,6 +81,9 @@ export const PaymentHistory: React.FC<PaymentHistoryProps> = ({ payments, loadin
       if (sortField === 'created_at') {
         aValue = new Date(aValue).getTime();
         bValue = new Date(bValue).getTime();
+      } else if (sortField === 'amount') {
+        aValue = toNumber(aValue);
+        bValue = toNumber(bValue);
       }
 
       if (sortDirection === 'asc') {
@@ -87,7 +104,7 @@ export const PaymentHistory: React.FC<PaymentHistoryProps> = ({ payments, loadin
     const failed = payments.filter(p => p.status === 'failed').length;
     const totalAmount = payments
       .filter(p => p.status === 'completed')
-      .reduce((sum, p) => sum + p.amount, 0);
+      .reduce((sum, p) => sum + toNumber((p as any).amount), 0);
 
     return { total, completed, pending, failed, totalAmount };
   }, [payments]);
@@ -246,7 +263,7 @@ export const PaymentHistory: React.FC<PaymentHistoryProps> = ({ payments, loadin
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-gray-600">Total Value</p>
-              <p className="text-2xl font-bold text-gray-900">${stats.totalAmount.toFixed(2)}</p>
+              <p className="text-2xl font-bold text-gray-900">{formatCurrency(stats.totalAmount)}</p>
             </div>
             <DollarSign className="w-8 h-8 text-green-600" />
           </div>
@@ -337,14 +354,13 @@ export const PaymentHistory: React.FC<PaymentHistoryProps> = ({ payments, loadin
         <p>
           Showing {filteredAndSortedPayments.length} of {payments.length} payments
         </p>
-        
+
         <div className="flex items-center space-x-2">
           <span>Sort by:</span>
           <button
             onClick={() => handleSort('created_at')}
-            className={`flex items-center px-2 py-1 rounded ${
-              sortField === 'created_at' ? 'bg-blue-100 text-blue-700' : 'text-gray-600 hover:bg-gray-100'
-            }`}
+            className={`flex items-center px-2 py-1 rounded ${sortField === 'created_at' ? 'bg-blue-100 text-blue-700' : 'text-gray-600 hover:bg-gray-100'
+              }`}
           >
             Date
             {sortField === 'created_at' && (
@@ -353,9 +369,8 @@ export const PaymentHistory: React.FC<PaymentHistoryProps> = ({ payments, loadin
           </button>
           <button
             onClick={() => handleSort('amount')}
-            className={`flex items-center px-2 py-1 rounded ${
-              sortField === 'amount' ? 'bg-blue-100 text-blue-700' : 'text-gray-600 hover:bg-gray-100'
-            }`}
+            className={`flex items-center px-2 py-1 rounded ${sortField === 'amount' ? 'bg-blue-100 text-blue-700' : 'text-gray-600 hover:bg-gray-100'
+              }`}
           >
             Amount
             {sortField === 'amount' && (
@@ -364,9 +379,8 @@ export const PaymentHistory: React.FC<PaymentHistoryProps> = ({ payments, loadin
           </button>
           <button
             onClick={() => handleSort('status')}
-            className={`flex items-center px-2 py-1 rounded ${
-              sortField === 'status' ? 'bg-blue-100 text-blue-700' : 'text-gray-600 hover:bg-gray-100'
-            }`}
+            className={`flex items-center px-2 py-1 rounded ${sortField === 'status' ? 'bg-blue-100 text-blue-700' : 'text-gray-600 hover:bg-gray-100'
+              }`}
           >
             Status
             {sortField === 'status' && (
@@ -415,7 +429,7 @@ export const PaymentHistory: React.FC<PaymentHistoryProps> = ({ payments, loadin
                   <div className="flex items-center space-x-4">
                     <div className="text-right">
                       <p className="text-xl font-bold text-gray-900">
-                        ${payment.amount.toFixed(2)}
+                        {formatCurrency((payment as any).amount)}
                       </p>
                       {payment.reference && (
                         <p className="text-xs text-gray-500">Ref: {payment.reference}</p>
@@ -437,7 +451,7 @@ export const PaymentHistory: React.FC<PaymentHistoryProps> = ({ payments, loadin
                       >
                         <Eye className="w-4 h-4" />
                       </button>
-                      
+
                       <button
                         className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full transition-colors"
                         title="Download receipt"
@@ -462,14 +476,14 @@ export const PaymentHistory: React.FC<PaymentHistoryProps> = ({ payments, loadin
                         <p className="text-gray-600 font-medium">Payment ID</p>
                         <p className="text-gray-900">{payment.id}</p>
                       </div>
-                      
+
                       <div>
                         <p className="text-gray-600 font-medium">Date & Time</p>
                         <p className="text-gray-900">
                           {new Date(payment.created_at).toLocaleString()}
                         </p>
                       </div>
-                      
+
                       <div>
                         <p className="text-gray-600 font-medium">Payment Method</p>
                         <div className="flex items-center">
@@ -479,7 +493,7 @@ export const PaymentHistory: React.FC<PaymentHistoryProps> = ({ payments, loadin
                           </span>
                         </div>
                       </div>
-                      
+
                       <div>
                         <p className="text-gray-600 font-medium">Status</p>
                         <div className="flex items-center">
@@ -503,13 +517,13 @@ export const PaymentHistory: React.FC<PaymentHistoryProps> = ({ payments, loadin
                       >
                         Hide Details
                       </button>
-                      
+
                       <div className="flex items-center space-x-3">
                         <button className="flex items-center text-blue-600 hover:text-blue-700 text-sm font-medium">
                           <Download className="w-4 h-4 mr-1" />
                           Download Receipt
                         </button>
-                        
+
                         {payment.reference && (
                           <button className="flex items-center text-blue-600 hover:text-blue-700 text-sm font-medium">
                             <ExternalLink className="w-4 h-4 mr-1" />

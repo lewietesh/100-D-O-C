@@ -233,7 +233,8 @@ export const PaymentsDashboard: React.FC = () => {
       </div>
 
       {/* Account Balance Card */}
-      <div className="max-w-sm relative z-10">
+{/* Account Balance Card - FIXED WRAPPER */}
+      <div className="w-full max-w-md">
         <AccountBalanceCard
           accountBalance={getUserAccountBalance()}
           loading={refreshing}

@@ -19,6 +19,8 @@ enum PaymentState {
 export const PaypalPaymentForm: React.FC = () => {
   // Form state
   const [amount, setAmount] = useState<number>(0);
+  // Keep latest amount in a ref so we don't need to re-render PayPal Buttons on change
+  const amountRef = useRef<number>(0);
   const [orderId, setOrderId] = useState<string>('');
   const [paypalOrderId, setPaypalOrderId] = useState<string>('');
   const [paymentState, setPaymentState] = useState<PaymentState>(PaymentState.IDLE);
@@ -38,15 +40,19 @@ export const PaypalPaymentForm: React.FC = () => {
     getAccountBalance
   } = usePayments();
 
-  // Load PayPal SDK
+  // Load PayPal SDK with proper configuration for both PayPal and card payments
   const { isLoaded, isRejected, error: sdkError } = usePayPalScript({
     currency: 'USD',
     intent: 'capture',
-    components: ['buttons', 'marks']
+    components: ['buttons', 'marks', 'card-fields'],
+    enableFunding: ['card'],
+    debug: process.env.NODE_ENV === 'development'
   });
 
   // Reference for PayPal button container
   const paypalButtonRef = useRef<HTMLDivElement>(null);
+  // Keep a reference to the Buttons instance to avoid multiple inits
+  const buttonsInstanceRef = useRef<any>(null);
 
   // Set order ID and amount if selected order exists
   useEffect(() => {
@@ -59,6 +65,7 @@ export const PaypalPaymentForm: React.FC = () => {
 
       if (orderAmount > 0) {
         setAmount(orderAmount);
+        amountRef.current = orderAmount;
       }
     }
   }, [selectedOrder]);
@@ -83,22 +90,32 @@ export const PaypalPaymentForm: React.FC = () => {
 
   // Render PayPal buttons when SDK is loaded
   useEffect(() => {
-    // Only initialize buttons when SDK is loaded and we're in the IDLE state
-    if (isLoaded && paypalButtonRef.current && paymentState === PaymentState.IDLE) {
-      // Clear the container first
-      paypalButtonRef.current.innerHTML = '';
+    console.log('PayPal useEffect triggered:', { isLoaded, paymentState, amount, hasContainer: !!paypalButtonRef.current });
 
-      // Access the global PayPal object
-      if (window.paypal) {
-        // Create PayPal buttons
-        window.paypal.Buttons({
-          // Style the buttons
+    // Only initialize buttons when SDK is loaded, we're in the IDLE state, and we have a valid amount.
+    // Do not re-initialize if an instance already exists.
+    if (isLoaded && paypalButtonRef.current && paymentState === PaymentState.IDLE && amount > 0 && !buttonsInstanceRef.current) {
+      console.log('Initializing PayPal buttons with amount:', amount);
+
+      // Clear the container first
+      try { if (paypalButtonRef.current) paypalButtonRef.current.innerHTML = ''; } catch { }
+
+      // Access the global PayPal object (some browsers set it slightly after load event)
+      const initButtons = () => {
+        if (!window.paypal) return false;
+        console.log('PayPal SDK loaded successfully, creating buttons...');
+        // Create PayPal buttons with proper funding configuration
+        const instance = window.paypal.Buttons({
+          // Style the buttons to show all funding sources
           style: {
             layout: 'vertical',
             color: 'blue',
             shape: 'rect',
-            label: 'pay'
+            label: 'pay',
+            tagline: false
           },
+
+          // Note: We rely on SDK config (enable-funding=card) to surface card option
 
           // Set up the transaction
           createOrder: async () => {
@@ -106,7 +123,8 @@ export const PaypalPaymentForm: React.FC = () => {
               setPaymentState(PaymentState.CREATING_ORDER);
 
               // Validate amount
-              if (!amount || amount <= 0) {
+              const currentAmount = amountRef.current || amount;
+              if (!currentAmount || currentAmount <= 0) {
                 throw new Error('Please enter a valid amount');
               }
 
@@ -118,7 +136,7 @@ export const PaypalPaymentForm: React.FC = () => {
               // Create a PayPal order via our backend API
               const orderResult = await createPayPalOrder(
                 depositId,
-                amount
+                currentAmount
               );
 
               if (!orderResult) {
@@ -183,14 +201,68 @@ export const PaypalPaymentForm: React.FC = () => {
 
           // Handle errors
           onError: (err: any) => {
-            setErrorMessage(err.message || 'An error occurred during payment');
+            console.error('PayPal Button Error:', err);
+            const errorMessage = typeof err === 'string' ? err :
+              err?.message || err?.details?.[0]?.description ||
+              'An error occurred during payment';
+            setErrorMessage(errorMessage);
             setPaymentState(PaymentState.ERROR);
           }
 
-        }).render(paypalButtonRef.current);
+        });
+
+        buttonsInstanceRef.current = instance;
+
+        instance.render(paypalButtonRef.current).catch((error: any) => {
+          console.error('PayPal button render error:', error);
+          const msg = String(error?.message || error);
+          // If the container was re-rendered temporarily, avoid flipping to ERROR UI which removes the container
+          if (msg.toLowerCase().includes('container element removed')) {
+            // Soft recover: keep IDLE state and allow retry
+            buttonsInstanceRef.current = null;
+          } else {
+            setErrorMessage('Failed to render PayPal buttons: ' + msg);
+            setPaymentState(PaymentState.ERROR);
+            buttonsInstanceRef.current = null;
+          }
+        });
+        return true;
+      };
+
+      if (!initButtons()) {
+        // Retry for a short window if window.paypal is not yet available
+        console.warn('PayPal SDK not available on window object yet, will retry briefly');
+        const start = Date.now();
+        const retry = window.setInterval(() => {
+          if (initButtons()) {
+            window.clearInterval(retry);
+          } else if (Date.now() - start > 4000) { // 4s timeout
+            window.clearInterval(retry);
+            setErrorMessage('PayPal SDK failed to initialize');
+            setPaymentState(PaymentState.ERROR);
+          }
+        }, 100);
+
+        return () => window.clearInterval(retry);
       }
+    } else {
+      console.log('PayPal buttons not rendered due to conditions:', {
+        isLoaded,
+        hasContainer: !!paypalButtonRef.current,
+        paymentState,
+        amount,
+        validAmount: amount > 0
+      });
     }
-  }, [isLoaded, orderId, amount, createPayPalOrder, capturePayPalPayment, paymentState]);
+  }, [isLoaded, amount, paymentState]);
+
+  // Cleanup PayPal Buttons on unmount
+  useEffect(() => {
+    return () => {
+      try { buttonsInstanceRef.current?.close?.(); } catch { }
+      buttonsInstanceRef.current = null;
+    };
+  }, []);
 
   // Reset error state
   const resetError = () => {
@@ -359,7 +431,12 @@ export const PaypalPaymentForm: React.FC = () => {
               className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               placeholder="0.00"
               value={amount || ''}
-              onChange={(e) => setAmount(parseFloat(e.target.value))}
+              onChange={(e) => {
+                const v = parseFloat(e.target.value);
+                const safe = isNaN(v) ? 0 : v;
+                setAmount(safe);
+                amountRef.current = safe;
+              }}
               disabled={paymentState !== PaymentState.IDLE}
             />
           </div>
@@ -380,7 +457,7 @@ export const PaypalPaymentForm: React.FC = () => {
             : ''
             }`}
         >
-          {/* PayPal buttons will be rendered here by the SDK */}
+          {/* Show loading states */}
           {(paymentState === PaymentState.CREATING_ORDER ||
             paymentState === PaymentState.AWAITING_APPROVAL ||
             paymentState === PaymentState.CAPTURING_PAYMENT) && (
@@ -393,6 +470,25 @@ export const PaypalPaymentForm: React.FC = () => {
                 </p>
               </div>
             )}
+
+          {/* Show message when amount is not entered */}
+          {paymentState === PaymentState.IDLE && (!amount || amount <= 0) && !isRejected && (
+            <div className="flex flex-col items-center justify-center text-gray-500">
+              <DollarSign className="w-12 h-12 mb-3" />
+              <p className="text-sm">Enter an amount above to see PayPal payment options</p>
+            </div>
+          )}
+
+          {/* Show PayPal SDK loading error */}
+          {isRejected && (
+            <div className="flex flex-col items-center justify-center text-red-500">
+              <AlertTriangle className="w-12 h-12 mb-3" />
+              <p className="text-sm text-center">PayPal payment unavailable</p>
+              {sdkError && <p className="text-xs text-center mt-1">{sdkError.message}</p>}
+            </div>
+          )}
+
+          {/* PayPal buttons will be rendered here by the SDK when amount > 0 */}
         </div>
       </div>
 
