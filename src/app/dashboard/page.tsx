@@ -81,23 +81,24 @@ const TabLoadingFallback: React.FC<{ tabName: string }> = ({ tabName }) => (
 );
 
 export default function DashboardPage() {
-          const [activeTab, setActiveTab] = useState<TabId>('profile');
+          const [activeTab, setActiveTab] = useState<TabId>('orders');
           const [sidebarOpen, setSidebarOpen] = useState(false);
           const [tabKey, setTabKey] = useState(0); // For forcing re-render on error retry
           const { user, logout, isLoading, isAuthenticated } = useAuth();
 
           const tabs: TabConfig[] = [
-                    {
-                              id: 'profile',
-                              label: 'Profile',
-                              icon: User,
-                              component: ProfileView,
-                    },
+
                     {
                               id: 'orders',
                               label: 'Orders',
                               icon: ShoppingBag,
                               component: OrdersList,
+                    },
+                                        {
+                              id: 'profile',
+                              label: 'Profile',
+                              icon: User,
+                              component: ProfileView,
                     },
                     {
                               id: 'payments',
